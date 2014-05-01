@@ -1,0 +1,9 @@
+1. Base class for piping interfaces
+2. Piping class for unix (copy from tuie)
+3. Base class for individuals
+4. "Constant length array of doubles" - individuals
+5. Base class for evolvers
+6. Hill climber
+7. Main script
+8. Test client
+
