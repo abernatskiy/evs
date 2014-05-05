@@ -25,6 +25,12 @@ class Individual:
 			representation += str(value)
 		return representation
 
+	def __repr__(self):
+		return self.__str__()
+
+	def __lt__(self, other):
+		return self.isDominatedBy(other)
+
 	def renewID(self):
 		global currentID
 		self.id = currentID
@@ -47,3 +53,8 @@ class Individual:
 			elif self.values[position] > 1.0:
 				self.values[position] = 1.0
 			self.values[position] = np.around(self.values[position], self.params['noOfDigits'])
+
+	def isDominatedBy(self, other):
+		if not hasattr(self, 'score') or not hasattr(other, 'score'):
+			raise ValueError('One of the compared individuals is unscored')
+		return self.score < other.score

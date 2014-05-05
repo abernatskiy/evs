@@ -15,7 +15,7 @@ while True:
 	rawEvals = np.sum(indivs[:,1:], 1)
 	maxsc = max(rawEvals)
 	minsc = min(rawEvals)
-	normalize = np.vectorize(lambda x: (x - minsc)/(maxsc - minsc))
+	normalize = np.vectorize(lambda x: 1.0 if minsc == maxsc else (x - minsc)/(maxsc - minsc))
 	evals = normalize(rawEvals)
 	fevals = open(fnevals, 'w')
 	for i in xrange(len(ids)):
