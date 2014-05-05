@@ -6,8 +6,8 @@ import numpy as np
 # scale it to fit into [0,1] and write the result into the input pipe 
 # of the evolution
 
-fnindivs = '/tmp/individuals.pipe'
-fnevals = '/tmp/evaluations.pipe'
+fnindivs = 'individuals.pipe'
+fnevals = 'evaluations.pipe'
 
 while True:
 	indivs = np.loadtxt(fnindivs)
