@@ -14,6 +14,8 @@ class Evolver:
 
 	def updatePopulation(self):
 		newPopulation = deepcopy(self.population)
+		for newIndiv in newPopulation:
+			newIndiv.mutate()
 		self.communicator.evaluate(newPopulation)
 		self.population += newPopulation
 		self.population.sort()
@@ -22,3 +24,8 @@ class Evolver:
 	def printBestIndiv(self):
 		bestIndiv = self.population[-1]
 		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
+
+	def printPopulation(self):
+		for indiv in self.population:
+			print str(indiv) + ' score: ' + str(indiv.score)
+		print ''
