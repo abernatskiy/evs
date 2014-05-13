@@ -1,2 +1,3 @@
+- comments & documentation for making new classes
 - base classes (based on existing floatVector and hillClimber code reusability)
 - Evolver's interface
