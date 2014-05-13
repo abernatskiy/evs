@@ -1,0 +1,48 @@
+EVS - EVolutionary Server:
+An application for separating evaluation from evolution
+
+====================================================================================================
+
+I. Motivation
+
+Evolutionary computation is a method for solving complex optimization problems numerically. In this 
+method (or rather, family of methods), a computer
+1) generates a set of solution candidates (henceforth individuals)
+2) evaluates the value of function to be optimized for every individual in this set
+3) selects the best individuals and performs some operations (e.g. crossover and mutation) on them 
+   to produce new individuals.
+This loop is repeated this process until a satisfactory solution is found. [1]
+
+Individuals can be represented by many different data structures, but all of them can be compressed 
+into a binary or (equivalently) ascii string due to their digital nature. During the individuals 
+evaluation the algorithm must compute a function of this string, in general case also a string. 
+This computation typically is very time-consuming compared to all other actions the algorithm 
+performs. It also tends to use a lot of messy code, which makes writing the evolutionary codes 
+themselves unjustifiably hard.
+
+To combat this problem I separate codes performing the evolution itself and the evaluation of 
+individuals in two different applications -- the client and the server. Initially, the server 
+supplies strings representing individuals. The client reads them, computes evaluations and feeds 
+them back to the server. The server utilizes the evaluations to select best individuals, "breeds" 
+them and feeds the new (individual representing) strings to the client. The process repeats until 
+a satisfactory solution is found.
+
+For example, consider an evolution of simulated mobile robots in some environment, with an 
+objective of maximizing the distance traveled over some time interval. Consider a robot with 
+fixed morphology, for which we only optimize connections between sensors and motors. An 
+individual here can be represented as a matrix, typically including up to several hundred 
+floating-point numbers. One example of representing such an individual as a string can be 
+obtained by printing all these numbers in their scientific form, using a particular order of rows 
+and columns and the separating spaces. An evaluation of an individual in this problem may 
+be a single number -- the distance traveled from the origin. This number also can be printed into 
+a string.
+
+The server's job is to
+ - generate new individuals (random or otherwise)
+
+====================================================================================================
+
+References:
+
+[1] Wiki's portal http://en.wikipedia.org/wiki/Evolutionary_computation
+[2] 
