@@ -2,7 +2,7 @@ I. Motivation
 
 Evolutionary computation is a method for solving complex optimization problems numerically. In this 
 method (or rather, family of methods), a computer
-1) generates a set of solution candidates (henceforth individuals)
+1) generates a set of solution candidates (henceforth individuals, see note 1)
 2) evaluates the value of function to be optimized for every individual in this set
 3) selects the best individuals and performs some operations (e.g. crossover and mutation) on them 
    to produce new individuals.
@@ -37,17 +37,43 @@ The server's job is to
  - keep a population of individuals
  - convert individuals into strings
  - send the strings to the client
- - get the evaluation strings back
- - comprehend the evaluation strings
+ - get the evaluation strings back and comprehend them
  - select best individuals based on this comprehension
  - make new individuals from the best ones by means of mutation and crossover
  - repeat
 
 The client's job is to
  - get the individual-describing strings from the server
- - 
+ - evaluate the individuals
+ - convert evaluations to strings
+ - send strings to the server
 
-====================================================================================================
+Turns out, this setup has a bunch of advantages over the usual monolithic architecture. 
+Aside for the separation of code I mentioned before, we also get:
 
-References:
+1. Full independence of the evolutionary algorithm from the evaluation part. This allows us to 
+   use the same evolutionary algorithm with different kind of evaluations, including those 
+   which are not made by some code. Those can include physical measurements from some real 
+   world experiments or subjective human evaluations.
+
+2. (consequence from 1) In case when evaluations are made by some code, this code may use a 
+   different language than the server's code. This is good, because conditions under which 
+   those two codes are written call for different types of languages. Evolutionary algorithms 
+   themselves can be very complex, require a lot of tweaking and do not use a lot of 
+   computational time. The complexity is 
+
+ 
+   while evaluators typically involve simulation, which use mostl
+
+
+Notes:
+
+1. The word "individual" is used here instead on "genotype" only because it is easier to think of 
+genotypes in terms of typical phenotypes they produce. I.e., if one genotype encodes three-legged 
+robots, and the other one encodes two-legged ones, it is easier to think about them in terms of 
+the number of legs, not the actual genes and sequences. Similarly, "individuals" in my code 
+contain some data which is, strictly speaking, not a part of the genotype. Examples may include 
+a unique id number, a score remembered from the evaluation of this individual in the past and the 
+
+
 
