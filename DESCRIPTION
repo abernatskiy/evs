@@ -58,12 +58,20 @@ Aside for the separation of code I mentioned before, we also get:
 
 2. (consequence from 1) In case when evaluations are made by some code, this code may use a 
    different language than the server's code. This is good, because conditions under which 
-   those two codes are written call for different types of languages. Evolutionary algorithms 
-   themselves can be very complex, require a lot of tweaking and do not use a lot of 
-   computational time. The complexity is 
+   those two codes are written call for different types of languages.
+     Evolutionary algorithms themselves do not use a lot of computational time while being 
+   relatively complex. They involve hand-written high-level manipulations with data 
+   structures, which often can be (and in practive will always be) tweaked to achieve the 
+   best performance on a particular task. High-level languages like Python and Lisp 
+   are much more convenient in these kind of environments than their lower-level 
+   alternatives such as C and C-like C++.
+     Clients' evaluations are typically time-intensive. The time is used to either to 
+   simulate individuals or to perform embodied runs. In the former case they often contain 
+   complex codes, but the complexity is usually contained within whichever "physics library" 
+   the simulator uses. In particluar, simulations usually involve building your own code 
+   within an environment set up by the library, and those environments are such that I find 
+   it reasonable to minimize the amount of code I write using them. 
 
- 
-   while evaluators typically involve simulation, which use mostl
 
 
 Notes:
