@@ -1,4 +1,4 @@
-class BaseCommunicator:
+class BaseCommunicator(object):
 	def evaluate(self, indivList):
 		self.write(indivList)
 		evaluations = self.read()
