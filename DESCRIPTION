@@ -68,11 +68,25 @@ Aside for the separation of code I mentioned before, we also get:
      Clients' evaluations are typically time-intensive. The time is used to either to 
    simulate individuals or to perform embodied runs. In the former case they often contain 
    complex codes, but the complexity is usually contained within whichever "physics library" 
-   the simulator uses. In particluar, simulations usually involve building your own code 
-   within an environment set up by the library, and those environments are such that I find 
-   it reasonable to minimize the amount of code I write using them. 
+   the simulator uses. "Physical libraries" usually are heavy frameworks written in some 
+   dialect of C/C++. There are multiple reasons why one would want to stick to C/C++ while 
+   working with these libraries: performance considerations, minimization of the amount of 
+   code which uses library but is not written by library developers (important for 
+   distinguishing your bugs from their bugs) and non-volatility of the library-related 
+   code (the code is written once and debugged as you use it - no rewrites).
+     If the client performs embodied runs for the evaluation, then it is likely to be a 
+   software-hardware system, not a single program. The part of that complex which 
+   communicates with the server -- client per se -- is likely to be conceptually simple, 
+   yet even more volatile then the server. Python is a good language for these kind of 
+   tasks, but because of the difference in volatility it is still good to have a 
+   separation between the server and the client.
 
-
+3. It is easy to make the system perform individual evaluations in parallel in this kind 
+   of setup. To do that, it is sufficient to divide a batch of strings server produces at 
+   the end of each generation into smaller batches and distribute those across the clients, 
+   then gather evaluation strings, concatenate them in a right way and send that to a 
+   server. This kind of functionality is easy to implement by abstracting the communicator 
+   inside the server.
 
 Notes:
 
