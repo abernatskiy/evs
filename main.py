@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 
-from individuals.floatVector import Individual
+from individuals.trinaryVector import Individual
 from communicators.unixPipe import Communicator
 from evolvers.hillClimber import Evolver
 
