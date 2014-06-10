@@ -23,6 +23,9 @@ class BaseIndividual(object):
 	def __lt__(self, other):
 		return self.isDominatedBy(other)
 
+	def __eq__(self, other):
+		return self.id == other.id
+
 	def renewID(self):
 		global currentID
 		self.id = currentID

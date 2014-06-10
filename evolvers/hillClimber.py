@@ -19,7 +19,14 @@ class Evolver:
 		self.communicator.evaluate(newPopulation)
 		self.population += newPopulation
 		self.population.sort()
-		self.population = self.population[self.params['populationSize']:]
+		# uniquifying the new population
+		newPopulation = []
+		for indiv in self.population:
+			if indiv not in newPopulation:
+				newPopulation.append(indiv)
+		self.population = newPopulation
+		# taking the tail
+		self.population = self.population[-self.params['populationSize']:]
 
 	def printBestIndiv(self):
 		bestIndiv = self.population[-1]

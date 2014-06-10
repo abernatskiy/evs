@@ -1,4 +1,7 @@
 class BaseCommunicator(object):
+	def __init__(self):
+		self.cache = {}
+
 	def evaluate(self, indivList):
 		self.write(indivList)
 		evaluations = self.read()

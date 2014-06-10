@@ -3,6 +3,7 @@ from baseCommunicator import BaseCommunicator
 
 class Communicator(BaseCommunicator):
 	def __init__(self, fninput='/tmp/evaluations.pipe', fnoutput='/tmp/individuals.pipe'):
+		super(BaseCommunicator, self).__init__()
 		self.fninput = fninput
 		self.fnoutput = fnoutput
 		try:

@@ -29,15 +29,28 @@ class Individual(BaseIndividual):
 			self.score = float(valueStrings[1])
 
 	def mutate(self):
-		if np.random.random() <= self.params['mutationProbability']:                             # in the unlikely event of mutation
-			self.renewID()                                                                         # the mutated individual loses parent's ID 
-			position = np.random.randint(len(self.values))                                         # at the random position of its genotype
-			self.values[position] += np.random.randn()*self.params['mutationAmplitude']            # normally distributed increment is introduced
-			if self.values[position] < 0.0:                                                        # the result is cropped to be greater than 0 ...
-				self.values[position] = 0.0
-			elif self.values[position] > 1.0:                                                      # ... and less than 1 ...
-				self.values[position] = 1.0
-			self.values[position] = np.around(self.values[position], self.params['precision'])     # ... and contain no more decimal digits then allowed.
+		newValues = []
+		mutated = False
+		for val in self.values:
+			if np.random.random() <= self.params['mutationProbability']:
+				mutated = True
+				newValues.append(val + np.random.randn()*self.params['mutationAmplitude'])
+			else:
+				newValues.append(val)
+		if mutated:
+			self.renewID()
+			self.values = np.array(newValues)
+
+#	def mutate(self):
+#		if np.random.random() <= self.params['mutationProbability']:                             # in the unlikely event of mutation
+#			self.renewID()                                                                         # the mutated individual loses parent's ID 
+#			position = np.random.randint(len(self.values))                                         # at the random position of its genotype
+#			self.values[position] += np.random.randn()*self.params['mutationAmplitude']            # normally distributed increment is introduced
+#			if self.values[position] < 0.0:                                                        # the result is cropped to be greater than 0 ...
+#				self.values[position] = 0.0
+#			elif self.values[position] > 1.0:                                                      # ... and less than 1 ...
+#				self.values[position] = 1.0
+#			self.values[position] = np.around(self.values[position], self.params['precision'])     # ... and contain no more decimal digits then allowed.
 
 	def isDominatedBy(self, other):
 		if self.checkIfScored() and other.checkIfScored():
