@@ -28,7 +28,7 @@ class Evolver:
 		# taking the tail
 		self.population = self.population[-self.params['populationSize']:]
 
-	def printBestIndiv(self):
+	def printBestIndividual(self):
 		bestIndiv = self.population[-1]
 		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
 

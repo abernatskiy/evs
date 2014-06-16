@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 
-from individuals.floatVector import Individual
+from individuals.trinaryVector import Individual
 from communicators.unixPipe import Communicator
 from evolvers.hillClimber import Evolver
 
@@ -10,6 +10,9 @@ evolParams = {'populationSize': 3} # pack all Evolver constructor's arguments in
 comm = Communicator('evaluations.pipe', 'individuals.pipe')
 evolver = Evolver(comm, Individual, indivParams, evolParams)
 
+import time
+
 while True:
 	evolver.updatePopulation()
-	evolver.printBestIndiv()
+	evolver.printBestIndividual()
+#	time.sleep(0.1)

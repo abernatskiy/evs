@@ -16,7 +16,8 @@ while True:
 	maxsc = max(rawEvals)
 	minsc = min(rawEvals)
 	normalize = np.vectorize(lambda x: 1.0 if minsc == maxsc else (x - minsc)/(maxsc - minsc))
-	evals = normalize(rawEvals)
+#	evals = normalize(rawEvals)
+	evals = rawEvals
 	fevals = open(fnevals, 'w')
 	for i in xrange(len(ids)):
 		fevals.write(str(ids[i]) + ' ' + str(evals[i]) + '\n')

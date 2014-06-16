@@ -3,11 +3,12 @@ from baseIndividual import BaseIndividual
 
 class Individual(BaseIndividual):
 	'''Class for evolutionary individuals described by a vector of 
-	numbers taken from {-1,0,1} of constant length, with 
-	a single-valued score represented by a FPN. Constructor takes a 
-	dictionary with the following parameter fields
-	  length     - length of the vector
-	  mutationProbability - probability that mutation occurs upon mutate() call
+     numbers taken from {-1,0,1} of constant length, with 
+     a single-valued score represented by a FPN. Constructor takes a 
+     dictionary with the following parameter fields
+       length     - length of the vector
+       mutationProbability - probability that mutation occurs upon 
+                             mutate() call (for each value)
 	'''
 	def __init__(self, params):
 		super(Individual, self).__init__(params)
@@ -26,10 +27,18 @@ class Individual(BaseIndividual):
 			self.score = float(valueStrings[1])
 
 	def mutate(self):
-		if np.random.random() <= self.params['mutationProbability']:                             # in the unlikely event of mutation
-			self.renewID()                                                                         # the mutated individual loses parent's ID 
-			position = np.random.randint(len(self.values))                                         # at the random position of its genotype
-			self.values[position] = np.random.random_integers(-1, 1)                               # value of the trinary number is changed randomly
+		newValues = []
+		mutated = False
+		for val in self.values:
+			if np.random.random() <= self.params['mutationProbability']:
+				newValues.append(np.random.random_integers(-1, 1))
+				if val != newValues[-1]:
+					mutated = True
+			else:
+				newValues.append(val)
+		if mutated:
+			self.renewID()
+			self.values = np.array(newValues)
 
 	def isDominatedBy(self, other):
 		if self.checkIfScored() and other.checkIfScored():
