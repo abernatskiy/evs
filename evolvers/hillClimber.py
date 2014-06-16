@@ -1,12 +1,17 @@
 from copy import deepcopy
+from baseEvolver import BaseEvolver
 
-class Evolver:
-	'''Evolver with constant population size which does 
-	not use anything besides mutations to achieve variation'''
+class Evolver(BaseEvolver):
+	'''Parallel Hill Climber - evolutionary algorithm which, 
+     at every step, adds a mutated copy of its population to 
+     the original population and shrinks the new population to 
+     the former size by preserving fittest individuals. Required 
+     methods and parameters:
+       communicator.evaluate(population)
+       evolParams['indivClass']
+       evolParams['populationSize']'''
 	def __init__(self, communicator, indivParams, evolParams):
-		self.communicator = communicator
-		self.params = evolParams
-		self.population = []
+		super(Evolver, self).__init__(communicator, indivParams, evolParams)
 		for i in xrange(self.params['populationSize']):
 			indiv = self.params['indivClass'](indivParams)
 			self.population.append(indiv)
@@ -27,12 +32,3 @@ class Evolver:
 		self.population = newPopulation
 		# taking the tail
 		self.population = self.population[-self.params['populationSize']:]
-
-	def printBestIndividual(self):
-		bestIndiv = self.population[-1]
-		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
-
-	def printPopulation(self):
-		for indiv in self.population:
-			print str(indiv) + ' score: ' + str(indiv.score)
-		print ''
