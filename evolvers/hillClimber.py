@@ -3,12 +3,12 @@ from copy import deepcopy
 class Evolver:
 	'''Evolver with constant population size which does 
 	not use anything besides mutations to achieve variation'''
-	def __init__(self, communicator, indivClass, indivParams, evolParams):
+	def __init__(self, communicator, indivParams, evolParams):
 		self.communicator = communicator
 		self.params = evolParams
 		self.population = []
-		for i in xrange(evolParams['populationSize']):
-			indiv = indivClass(indivParams)
+		for i in xrange(self.params['populationSize']):
+			indiv = self.params['indivClass'](indivParams)
 			self.population.append(indiv)
 		self.communicator.evaluate(self.population)
 
