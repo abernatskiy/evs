@@ -41,6 +41,9 @@ class Individual(BaseIndividual):
 		if mutated:
 			self.renewID()
 			self.values = np.array(newValues)
+			return True
+		else:
+			return False
 
 	def isDominatedBy(self, other):
 		if self.checkIfScored() and other.checkIfScored():
