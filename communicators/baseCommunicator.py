@@ -17,7 +17,11 @@ class BaseCommunicator(object):
 
 		self.write(indivList)
 		evaluations = self.read()
+		while '' in evaluations:
+			evaluations.remove('')
 		if len(indivList) != len(evaluations):
+			print str(indivList)  + ' '  + str(evaluations)
+			print str(len(indivList))  + ' != '  + str(len(evaluations))
 			raise IOError('No of evaluations is different from no of individuals')
 		for i in xrange(len(indivList)):
 			indivList[i].setEvaluation(evaluations[i])
