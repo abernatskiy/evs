@@ -1,8 +1,14 @@
 class BaseCommunicator(object):
+	'''Base class for communicators. Provides 
+     a method for generic population evaluation.'''
 	def __init__(self):
 		self.cache = {}
 
 	def evaluate(self, indivList):
+		if indivList == []:
+			return indivList
+
+		# caching version (draft)
 #		evalNeeded = []
 #		for indiv in indivList:
 #			if not hasattr(indiv, 'score'):
@@ -15,6 +21,7 @@ class BaseCommunicator(object):
 #			evalNeeded[i].setEvaluation(evaluations[i])
 #		return evalNeeded
 
+		# non-caching version
 		self.write(indivList)
 		evaluations = self.read()
 		while '' in evaluations:

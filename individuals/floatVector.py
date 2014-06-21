@@ -36,6 +36,10 @@ class Individual(BaseIndividual):
 			if np.random.random() <= self.params['mutationProbability']:
 				mutated = True
 				newValues.append(val + np.random.randn()*self.params['mutationAmplitude'])
+				if newValues[-1] < 0.0:
+					newValues[-1] = 0.0
+				if newValues[-1] > 1.0:
+					newValues[-1] = 1.0
 			else:
 				newValues.append(val)
 		if mutated:

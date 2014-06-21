@@ -1,3 +1,5 @@
-- comments & documentation for making new classes
-- base classes (based on existing floatVector and hillClimber code reusability)
-- Evolver's interface
+- caching
+- Espinosa-Soto-Wagner evolver
+- documentation for making new classes
+- check hillClimber for implementation correctness
+- remove isDominatedBy from the code altogether (in favor of sort/sorted/lambdas)

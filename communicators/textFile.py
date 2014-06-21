@@ -3,6 +3,8 @@ import time
 from baseCommunicator import BaseCommunicator
 
 class Communicator(BaseCommunicator):
+	'''Communicator which uses text files for 
+     data exchange between a server and a client.'''
 	def __init__(self, fninput='evaluations.txt', fnoutput='individuals.txt'):
 		super(BaseCommunicator, self).__init__()
 		self.fninput = fninput

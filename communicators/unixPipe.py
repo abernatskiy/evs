@@ -2,6 +2,8 @@ import os
 from baseCommunicator import BaseCommunicator
 
 class Communicator(BaseCommunicator):
+	'''Communicator which uses unix pipes for 
+     data exchange between a server and a client'''
 	def __init__(self, fninput='/tmp/evaluations.pipe', fnoutput='/tmp/individuals.pipe'):
 		super(BaseCommunicator, self).__init__()
 		self.fninput = fninput

@@ -8,6 +8,10 @@ class BaseEvolver(object):
 		self.params = evolParams
 		self.population = []
 		self.logHeaderWritten = False
+		self.generation = 0
+
+	def updatePopulation(self):
+		self.generation += 1
 
 	def printBestIndividual(self):
 		bestIndiv = self.population[-1]
