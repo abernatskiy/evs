@@ -44,7 +44,7 @@ class Individual(BaseIndividual):
 				newValues.append(val)
 		if mutated:
 			self.renewID()
-			self.values = np.array(newValues)
+			self.values = np.around(np.array(newValues), self.params['precision'])
 			return True
 		else:
 			return False
