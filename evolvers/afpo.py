@@ -50,11 +50,11 @@ class Evolver(BaseEvolver):
 			if not indiv.__dominated__:
 				paretoFront.append(indiv)
 
-		# debug
-		paretoFront.sort(key = lambda x: x.score)
-		self.population = paretoFront
-		print 'Pareto front:'
-		self.printPopulation()
+		# debug messages
+#		paretoFront.sort(key = lambda x: x.score)
+#		self.population = paretoFront
+#		print 'Pareto front:'
+#		self.printPopulation()
 
 		# increasing age for all nondominated individuals
 		for indiv in paretoFront:
