@@ -1,6 +1,8 @@
+- Espinosa-Soto hack for modularity
 - caching
 - Espinosa-Soto-Wagner evolver
 - documentation for making new classes
 - check hillClimber for implementation correctness
 - remove isDominatedBy from the code altogether (in favor of sort/sorted/lambdas)
 - DEAP/inspyred support
+- support for lineage tracking
