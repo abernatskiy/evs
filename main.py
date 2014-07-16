@@ -10,7 +10,7 @@ from communicators.unixPipe import Communicator
 from evolvers.afpo import Evolver
 #from evolvers.averagingAfpo import Evolver
 
-indivParams = {'length': 8, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
+indivParams = {'length': 60, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
 evolParams = {'indivClass': Individual, 'populationSize': 30}
 
 comm = Communicator('evaluations.pipe', 'individuals.pipe')
