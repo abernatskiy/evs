@@ -5,18 +5,13 @@ An application for separating evaluation from evolution
 
 See DESCRIPTION for comments on the program's architecture.
 
-To run the program on Linux or Mac, open two terminals, 
-change working directory to where this file is (e.g., by 
-"cd ~/evs-master") on both and run the server by typing 
+main.py is both the configuration file and the executable. 
+To configure the server, see comments in main.py. To run 
+the server on Linux or Mac, open a terminal, change working 
+directory to where this file is (e.g., by doing 
+"cd ~/evs-master") and type
 
 $ python main.py
-
-in the first terminal and the client by
-
-$ python tests/testFloatVectorWUnixPipe.py
-
-in the second. In the first terminal you'll see the best 
-individual of each generation evolution made so far. 
 
 Notes:
  - on some Linux distros you might want to use the 

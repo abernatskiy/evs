@@ -1,12 +1,18 @@
 Class for evolutionary individuals described by a constant-length 
-vector of numbers taken from {-1,0,1}.
+vector of floating point numbers with fixed decimal precision.
 
 Required parameters:
 length                Length of the vector.
+precision             The number of decimal digits to keep 
+                      for each field.
 mutationProbability   For every field of the vector, 
                       probability that mutation occurs upon 
                       mutate() call. Keep it low, 0.02 is a 
                       good value.
+mutationAmplitude     When a field is mutated, a random normally-
+                      distributed value is added to its current 
+                      value. This parameter defines the width of the 
+                      normal distribution. 0.1 is a good value.
 
 Individual's string representation format:
 <ID> <field0> <field1> ... <fieldLength>
