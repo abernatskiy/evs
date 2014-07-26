@@ -13,6 +13,30 @@ class BaseEvolver(object):
 	def updatePopulation(self):
 		self.generation += 1
 
+	def pickleSelf(self):
+		if not hasattr(self, '__pickleSelfCalled__'):
+			self.__pickleSelfCalled__ = True
+			import os
+			import glob
+			import time
+			if not os.path.exists('./backups'):
+				os.makedirs('./backups')
+			oldpickles = glob.glob('./backups/*.p')
+			if oldpickles != []:
+				print 'Old backups found! Press Ctrl+C in 10 seconds to abort their erasing...\n'
+			time.sleep(10)
+			for file in oldpickles:
+				os.remove(file)
+		if not hasattr(self, '__pickleLoaded__') or not self.__pickleLoaded__:
+			global pickle
+			import pickle
+			self.__pickleLoaded__ = True
+		file = open('./backups/' + str(self.generation).zfill(10) + '.p', 'w')
+		self.__pickleLoaded__ = False
+		pickle.dump(self, file)
+		self.__pickleLoaded = True
+		file.close()
+
 	def printBestIndividual(self):
 		bestIndiv = self.population[-1]
 		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)

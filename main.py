@@ -63,6 +63,9 @@ comm = Communicator('evaluations.pipe', 'individuals.pipe') # for communicators.
 evolver = Evolver(comm, indivParams, evolParams) # DO NOT EDIT 
 
 while True: # DO NOT EDIT
+	### Uncommented this if you want to make a backup of every generation
+	# evolver.pickleSelf()
+
 	evolver.updatePopulation() # DO NOT EDIT
 
 	### Leave this uncommented if you want the evolution to log the best 
