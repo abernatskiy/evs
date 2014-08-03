@@ -11,6 +11,8 @@ else:
 evolver = pickle.load(file)
 file.close()
 
+evolver.recover()
+
 while True: # DO NOT EDIT
 	### Leave this uncommented if you want to make a backup of every generation
 	evolver.pickleSelf()

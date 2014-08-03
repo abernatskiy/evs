@@ -31,6 +31,10 @@ class BaseIndividual(object):
 		self.id = currentID
 		currentID = currentID + 1
 
+	def recoverID(self):
+		global currentID
+		currentID = self.id+1 if self.id+1 > currentID else currentID
+
 	def checkID(self, ID):
 		if self.id != ID:
 			raise ValueError('ID check failed')
