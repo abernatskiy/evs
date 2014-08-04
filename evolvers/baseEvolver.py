@@ -38,7 +38,7 @@ class BaseEvolver(object):
 		file.close()
 
 	def recover(self):
-		map(lambda x: x.recover(), self.population)
+		map(lambda x: x.recoverID(), self.population)
 
 	def printBestIndividual(self):
 		bestIndiv = self.population[-1]

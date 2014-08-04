@@ -32,6 +32,7 @@ from communicators.unixPipe import Communicator   # Communicates with the client
 #from evolvers.hillClimber import Evolver
 from evolvers.afpo import Evolver                 # recommended
 #from evolvers.averagingAfpo import Evolver
+#from evolvers.doubtfulAfpo import Evolver
 
 ############ PARAMS SECTION #############
 
@@ -64,7 +65,7 @@ evolver = Evolver(comm, indivParams, evolParams) # DO NOT EDIT
 
 while True: # DO NOT EDIT
 	### Uncommented this if you want to make a backup of every generation
-	# evolver.pickleSelf()
+	evolver.pickleSelf()
 
 	evolver.updatePopulation() # DO NOT EDIT
 

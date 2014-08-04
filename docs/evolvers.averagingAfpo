@@ -1,4 +1,4 @@
-AFPO (Age-Fitness Pareto Optimization) - evolutionary algorithm 
+Averaging AFPO - evolutionary algorithm 
 similar to AFPO (see docs/evolvers.afpo), but using evaluations 
 averaged over a sample of size sampleSize instead of a single 
 evaluation to select most fit individuals. This is useful when 
