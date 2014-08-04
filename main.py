@@ -52,7 +52,7 @@ from evolvers.afpo import Evolver                 # recommended
 # pass the class Individual to the class Evolver
 
 indivParams = {'length': 32, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
-evolParams = {'indivClass': Individual, 'populationSize': 30}
+evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True}
 
 ### Specify the arguments of the Communicator constructor. Typically those 
 # would be the addresses (in a general sense) associated with the 
@@ -75,5 +75,5 @@ while True: # DO NOT EDIT
 
 	### Uncomment/comment these lines to turn on/off various aspects of 
 	# command line output
-	evolver.printBestIndividual()
+	#evolver.printBestIndividual()
 	#evolver.printPopulation()

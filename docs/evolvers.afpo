@@ -12,4 +12,8 @@ Required parameters:
 indivClass           Class of the evolutionary individuals.
 populationSize       Size of the population.
 
+Non-required parameters:
+printParetoFront     Whether to print or not to print the 
+                     Pareto front
+
 This evolver never requests evaluation of an individual twice.
