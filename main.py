@@ -52,7 +52,7 @@ from evolvers.afpo import Evolver                 # recommended
 # pass the class Individual to the class Evolver
 
 indivParams = {'length': 32, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
-evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True}
+evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True, 'randomSeed': 9001}
 
 ### Specify the arguments of the Communicator constructor. Typically those 
 # would be the addresses (in a general sense) associated with the 

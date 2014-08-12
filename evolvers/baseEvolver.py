@@ -1,4 +1,5 @@
 from copy import deepcopy
+import numpy as np
 
 class BaseEvolver(object):
 	'''Base class for evolutionary algorithms. Provides 
@@ -9,6 +10,9 @@ class BaseEvolver(object):
 		self.population = []
 		self.logHeaderWritten = False
 		self.generation = 0
+		if self.params.has_key('randomSeed'):
+			np.random.seed(self.params['randomSeed'])
+		self.randomGeneratorState = np.random.get_state()
 
 	def updatePopulation(self):
 		self.generation += 1
