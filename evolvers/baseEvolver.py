@@ -12,12 +12,12 @@ class BaseEvolver(object):
 		self.generation = 0
 		if self.params.has_key('randomSeed'):
 			np.random.seed(self.params['randomSeed'])
-		self.randomGeneratorState = np.random.get_state()
 
 	def updatePopulation(self):
 		self.generation += 1
 
 	def pickleSelf(self):
+		self.randomGeneratorState = np.random.get_state()
 		if not hasattr(self, '__pickleSelfCalled__'):
 			self.__pickleSelfCalled__ = True
 			import os
@@ -42,7 +42,8 @@ class BaseEvolver(object):
 		file.close()
 
 	def recover(self):
-		map(lambda x: x.recoverID(), self.population)
+		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
+		np.random.set_state(self.randomGeneratorState)
 
 	def printBestIndividual(self):
 		bestIndiv = self.population[-1]
