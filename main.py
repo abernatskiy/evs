@@ -23,8 +23,8 @@ from individuals.trinaryVector import Individual  # Vector of numbers from {-1,0
 ### Class Communicator implements the method for supplying the individuals 
 # to the client and getting back the evaluations. Available options:
 
-#from communicators.unixPipe import Communicator   # Communicates with the client through a pair of named UNIX pipes
-from communicators.textFile import Communicator  # Communicates with the client through a pair of text files
+from communicators.unixPipe import Communicator   # Communicates with the client through a pair of named UNIX pipes
+#from communicators.textFile import Communicator  # Communicates with the client through a pair of text files
 
 ### Class Evolver handles selection of the fittest and generation of new 
 # individuals. See docs/evolvers.* for descriptions. Available options:
@@ -69,8 +69,8 @@ evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront'
 # would be the addresses (in a general sense) associated with the 
 # communication channels between the server and the client
 
-#comm = Communicator('evaluations.pipe', 'individuals.pipe') # for communicators.unixPipe
-comm = Communicator('evaluations.txt', 'individuals.txt')  # for communicators.textFile
+comm = Communicator('evaluations.pipe', 'individuals.pipe') # for communicators.unixPipe
+#comm = Communicator('evaluations.txt', 'individuals.txt')  # for communicators.textFile
 
 evolver = Evolver(comm, indivParams, evolParams) # DO NOT EDIT 
 
