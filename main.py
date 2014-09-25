@@ -23,8 +23,8 @@ from individuals.trinaryVector import Individual  # Vector of numbers from {-1,0
 ### Class Communicator implements the method for supplying the individuals 
 # to the client and getting back the evaluations. Available options:
 
-#from communicators.unixPipe import Communicator   # Communicates with the client through a pair of named UNIX pipes
-from communicators.textFile import Communicator  # Communicates with the client through a pair of text files
+from communicators.unixPipe import Communicator   # Communicates with the client through a pair of named UNIX pipes
+#from communicators.textFile import Communicator  # Communicates with the client through a pair of text files
 
 ### Class Evolver handles selection of the fittest and generation of new 
 # individuals. See docs/evolvers.* for descriptions. Available options:
@@ -51,15 +51,26 @@ from evolvers.afpo import Evolver                 # recommended
 # DO NOT EDIT the 'indivClass' parameter form evolParams - it is required to 
 # pass the class Individual to the class Evolver
 
-indivParams = {'length': 32, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
-evolParams = {'indivClass': Individual, 'populationSize': 4, 'printParetoFront': True, 'randomSeed': 9001}
+# Useful values:
+# For k=0 connections between inputs and outputs are direct and there are 
+# four weights. For other k's:
+# k		4k		4k+k^2
+# 1		4			5
+# 2		8			12
+# 3		12		21
+#	4		16		32
+#	5		20		45
+#	6		24		60
+
+indivParams = {'length': 12, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
+evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True, 'randomSeed': 9001}
 
 ### Specify the arguments of the Communicator constructor. Typically those 
 # would be the addresses (in a general sense) associated with the 
 # communication channels between the server and the client
 
-#comm = Communicator('evaluations.pipe', 'individuals.pipe') # for communicators.unixPipe
-comm = Communicator('evaluations.txt', 'individuals.txt')  # for communicators.textFile
+comm = Communicator('evaluations.pipe', 'individuals.pipe') # for communicators.unixPipe
+#comm = Communicator('evaluations.txt', 'individuals.txt')  # for communicators.textFile
 
 evolver = Evolver(comm, indivParams, evolParams) # DO NOT EDIT 
 
