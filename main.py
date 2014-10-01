@@ -62,7 +62,7 @@ from evolvers.afpo import Evolver                 # recommended
 #	5		20		45
 #	6		24		60
 
-indivParams = {'length': 12, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
+indivParams = {'length': 4, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
 evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True, 'randomSeed': 9001}
 
 ### Specify the arguments of the Communicator constructor. Typically those 
