@@ -63,7 +63,10 @@ from evolvers.afpo import Evolver                 # recommended
 #	6		24		60
 
 indivParams = {'length': 4, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
-evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True, 'randomSeed': 9001}
+
+import sys
+
+evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True, 'randomSeed': int(sys.argv[1]), 'genStopAfter': 50}
 
 ### Specify the arguments of the Communicator constructor. Typically those 
 # would be the addresses (in a general sense) associated with the 
@@ -76,7 +79,7 @@ evolver = Evolver(comm, indivParams, evolParams) # DO NOT EDIT
 
 while True: # DO NOT EDIT
 	### Uncommented this if you want to make a backup of every generation
-	evolver.pickleSelf()
+	# evolver.pickleSelf()
 
 	evolver.updatePopulation() # DO NOT EDIT
 
