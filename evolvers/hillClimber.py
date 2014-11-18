@@ -19,6 +19,8 @@ class Evolver(BaseEvolver):
 		self.communicator.evaluate(self.population)
 
 	def updatePopulation(self):
+		super(Evolver, self).updatePopulation()
+
 		newPopulation = deepcopy(self.population)
 		for newIndiv in newPopulation:
 			newIndiv.mutate()

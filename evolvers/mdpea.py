@@ -19,18 +19,19 @@ class Evolver(BaseEvolver):
 		self.communicator.evaluate(self.population)
 
 	def updatePopulation(self):
-		self.population.sort()
-		indiv = self.population[-1]
+		super(Evolver, self).updatePopulation()
+		bestIndiv = self.population[-1]
 		self.population = []
 
-		mutatedIndiv = deepcopy(indiv)
+		mutatedIndiv = deepcopy(bestIndiv)
 		while not mutatedIndiv.mutate():
 			pass
 		self.population.append(mutatedIndiv)
 		
-		randomIndiv = self.params['indivClass'](indiv.params)
+		randomIndiv = self.params['indivClass'](bestIndiv.params)
 		self.population.append(randomIndiv)
 
 		self.communicator.evaluate(self.population)
 
-		self.population.append(indiv)
+		self.population.append(bestIndiv)
+		self.population.sort()

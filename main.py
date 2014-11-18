@@ -91,4 +91,4 @@ while True: # DO NOT EDIT
 	### Uncomment/comment these lines to turn on/off various aspects of 
 	# command line output
 	#evolver.printBestIndividual()
-	evolver.printPopulation()
+	#evolver.printPopulation()
