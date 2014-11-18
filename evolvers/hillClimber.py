@@ -9,6 +9,7 @@ class Evolver(BaseEvolver):
      methods and parameters:
        communicator.evaluate(population)
        evolParams['indivClass']
+       evolParams['indivClass'].mutate()
        evolParams['populationSize']'''
 	def __init__(self, communicator, indivParams, evolParams):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams)

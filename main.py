@@ -30,9 +30,10 @@ from communicators.unixPipe import Communicator   # Communicates with the client
 # individuals. See docs/evolvers.* for descriptions. Available options:
 
 #from evolvers.hillClimber import Evolver
-from evolvers.afpo import Evolver                 # recommended
+#from evolvers.afpo import Evolver                 # recommended
 #from evolvers.averagingAfpo import Evolver
 #from evolvers.doubtfulAfpo import Evolver
+from evolvers.mdpea import Evolver
 
 ############ PARAMS SECTION #############
 
@@ -90,4 +91,4 @@ while True: # DO NOT EDIT
 	### Uncomment/comment these lines to turn on/off various aspects of 
 	# command line output
 	#evolver.printBestIndividual()
-	#evolver.printPopulation()
+	evolver.printPopulation()
