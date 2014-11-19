@@ -4,6 +4,9 @@ class BaseCommunicator(object):
 	def __init__(self):
 		self.cache = {}
 
+	def fitnessTransform(self, fitness, individual):
+		return fitness
+
 	def evaluate(self, indivList):
 		if indivList == []:
 			return indivList
@@ -31,5 +34,5 @@ class BaseCommunicator(object):
 			print str(len(indivList))  + ' != '  + str(len(evaluations))
 			raise IOError('No of evaluations is different from no of individuals')
 		for i in xrange(len(indivList)):
-			indivList[i].setEvaluation(evaluations[i])
+			indivList[i].setEvaluation(self.fitnessTransform(evaluations[i], indivList[i]))
 		return indivList
