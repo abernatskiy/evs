@@ -33,7 +33,8 @@ from communicators.unixPipe import Communicator   # Communicates with the client
 #from evolvers.afpo import Evolver                 # recommended
 #from evolvers.averagingAfpo import Evolver
 #from evolvers.doubtfulAfpo import Evolver
-from evolvers.mdpea import Evolver
+#from evolvers.mdpea import Evolver
+from evolvers.mdpeacc import Evolver
 
 ############ PARAMS SECTION #############
 
@@ -63,7 +64,7 @@ from evolvers.mdpea import Evolver
 #	5		20		45
 #	6		24		60
 
-indivParams = {'length': 4, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1}
+indivParams = {'length': 4, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1, 'connectionCost': 20000}
 
 import sys
 
