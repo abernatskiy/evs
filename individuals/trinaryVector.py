@@ -21,11 +21,6 @@ class Individual(BaseIndividual):
 			representation += str(value)
 		return representation
 
-	def setEvaluation(self, scoreStr):
-		valueStrings = scoreStr.split()
-		if self.checkID(int(valueStrings[0])):
-			self.score = float(valueStrings[1])
-
 	def mutate(self):
 		newValues = []
 		mutated = False

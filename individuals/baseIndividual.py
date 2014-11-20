@@ -46,3 +46,8 @@ class BaseIndividual(object):
 			raise ValueError('Score presence checked for an unscored individual')
 		else:
 			return True
+
+	def setEvaluation(self, scoreStr):
+		valueStrings = scoreStr.split()
+		if self.checkID(int(valueStrings[0])):
+			self.score = float(valueStrings[1])
