@@ -64,11 +64,13 @@ from evolvers.mdpeacc import Evolver
 #	5		20		45
 #	6		24		60
 
-indivParams = {'length': 4, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1, 'connectionCost': 20000}
-
 import sys
 
+indivParams = {'length': 4, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1, 'connectionCost': float(sys.argv[2])}
+# second argument is connection cost
+
 evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True, 'randomSeed': int(sys.argv[1]), 'genStopAfter': 50}
+# first argument is random seed
 
 ### Specify the arguments of the Communicator constructor. Typically those 
 # would be the addresses (in a general sense) associated with the 
