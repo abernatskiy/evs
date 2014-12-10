@@ -34,7 +34,7 @@ from communicators.unixPipe import Communicator   # Communicates with the client
 #from evolvers.averagingAfpo import Evolver
 #from evolvers.doubtfulAfpo import Evolver
 #from evolvers.mdpea import Evolver
-from evolvers.mdpeacc import Evolver
+from evolvers.bruteForcePareto import Evolver
 
 ############ PARAMS SECTION #############
 
@@ -69,7 +69,7 @@ import sys
 indivParams = {'length': 4, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1, 'connectionCost': float(sys.argv[2])}
 # second argument is connection cost
 
-evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True, 'randomSeed': int(sys.argv[1]), 'genStopAfter': 50}
+evolParams = {'indivClass': Individual, 'populationSize': 30, 'printParetoFront': True, 'randomSeed': int(sys.argv[1]), 'genStopAfter': 1, 'secondMinObj': lambda x: len(filter(lambda y: y!=0, x.values))}
 # first argument is random seed
 
 ### Specify the arguments of the Communicator constructor. Typically those 
@@ -81,15 +81,15 @@ comm = Communicator('evaluations.pipe', 'individuals.pipe') # for communicators.
 
 evolver = Evolver(comm, indivParams, evolParams) # DO NOT EDIT 
 
-while True: # DO NOT EDIT
+#while True: # DO NOT EDIT
 	### Uncommented this if you want to make a backup of every generation
 	# evolver.pickleSelf()
 
-	evolver.updatePopulation() # DO NOT EDIT
+#	evolver.updatePopulation() # DO NOT EDIT
 
 	### Leave this uncommented if you want the evolution to log the best 
 	# individual and its fitness at each generation
-	evolver.logBestIndividual()
+#	evolver.logBestIndividual()
 
 	### Uncomment/comment these lines to turn on/off various aspects of 
 	# command line output

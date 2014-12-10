@@ -25,10 +25,10 @@ class Evolver(BaseEvolver):
 		self.population.append(indiv)
 		nextIndiv = deepcopy(indiv)
 		while nextIndiv.increment():
-			population.append(nextIndiv)
+			self.population.append(nextIndiv)
 			newNextIndiv = deepcopy(nextIndiv)
 			nextIndiv = newNextIndiv
-#		self.communicator.evaluate(self.population)
+		self.communicator.evaluate(self.population)
 
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
