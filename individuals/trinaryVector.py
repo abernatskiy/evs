@@ -41,3 +41,29 @@ class Individual(BaseIndividual):
 	def isDominatedBy(self, other):
 		if self.checkIfScored() and other.checkIfScored():
 			return self.score < other.score
+
+	def setValuesToTheFirstSet(self): # for bruteforce searches
+		self.values = -1*np.ones(self.params['length'], dtype=np.int)
+		self.renewID()
+
+	def increment(self): # for bruteforce searches
+		'''Increments the trinary vector as if it was a trinary number.
+       Returns False whenever the first value (corresponding to the trinary 0) is passed'''
+		numRepr = 0
+		order = 0
+		base = 3
+		for val in self.values:
+			numRepr += (val+1)*np.power(base, order)
+			order += 1
+		numRepr += 1
+		if numRepr / np.power(base, order) >= 1:
+			self.setValuesToTheFirstSet()
+			self.renewID()
+			return False
+		while order > 0:
+			order -= 1
+			curDig = numRepr / np.power(base, order)
+			numRepr -= curDig*np.power(base, order)
+			self.values[order] = curDig - 1
+		self.renewID()
+		return True
