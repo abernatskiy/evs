@@ -1,6 +1,23 @@
 from copy import deepcopy
 import numpy as np
 
+def firstDominatedBySecond(indiv0, indiv1, func0, func1):
+	'''Assumes that both functions are minimized, as in the classical Pareto front picture'''
+	# truth table:
+	#                  f0(i0)<f0(i1)    f0(i0)=f0(i1)    f0(i0)>f0(i1)
+	# f1(i0)<f1(i1)    F                F                F
+	# f1(i0)=f1(i1)    F                F                T
+	# f1(i0)>f1(i1)    F                T                T
+	if indiv0.id == indiv1.id:
+		raise RuntimeError('AFPO: Two individuals with the same ID compared')
+	if func0(indiv0) == func0(indiv1):
+		if func1(indiv0) == func1(indiv1):
+			return False
+		else:
+			return func1(indiv0) > func1(indiv1)
+	else:
+		return func0(indiv0) > func0(indiv1) and func1(indiv0) >= func1(indiv1)
+
 class BaseEvolver(object):
 	'''Base class for evolutionary algorithms. Provides 
      methods for creating server output.'''
@@ -70,3 +87,12 @@ class BaseEvolver(object):
 				logFile.write('# Columns: generation score ID indivDesc0 indivDesc1 ...\n')
 			self.logHeaderWritten = True
 			self.logBestIndividual()
+
+	def findParetoFront(self, func0, func1):
+		for indiv in self.population:
+			indiv.__dominated__ = False
+		for ii in self.population:
+			for ij in self.population:
+				ii.__dominated__ = firstDominatedBySecond(ii, ij, func0, func1)
+		paretoFront = filter(lambda x: x.__dominated__, self.population)
+		return paretoFront
