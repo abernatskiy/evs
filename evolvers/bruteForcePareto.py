@@ -32,5 +32,6 @@ class Evolver(BaseEvolver):
 
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
-		paretoFront = findParetoFront(lambda x: -1*x.score, evolParams['secondMinObj'])
-		self.population = paretoFront
+		paretoFront = self.findParetoFront(lambda x: -1*x.score, self.params['secondMinObj'])
+#		self.population = paretoFront
+		return paretoFront
