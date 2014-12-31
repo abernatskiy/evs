@@ -45,6 +45,7 @@ class Individual(TriVecIndividual):
 		self.values = np.zeros(self.params['length'])
 		while np.count_nonzero(self.values) < self.params['initDensity']:
 			self.insert()
+		self.renewID()
 
 	def countRegulators(self, node):
 		adjMat = self.values.reshape(self.numNodes, self.numNodes)
@@ -83,5 +84,7 @@ class Individual(TriVecIndividual):
 			if np.random.random() < self.params['mutProbability']:
 				self.mutateNode(i)
 				mutated = True
+		if mutated:
+			self.renewID()
 		return mutated
 		
