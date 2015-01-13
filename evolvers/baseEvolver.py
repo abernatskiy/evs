@@ -77,16 +77,16 @@ class BaseEvolver(object):
 			print str(indiv) + ' score: ' + str(indiv.score)
 		print ''
 
-	def logBestIndividual(self):
+	def logBestIndividual(self, filename='bestIndividual.log'):
 		bestIndiv = self.population[-1]
 		if self.logHeaderWritten:
-			with open('bestIndividual.log', 'a') as logFile:
+			with open(filename, 'a') as logFile:
 				logFile.write(str(self.generation) + ' ' + str(bestIndiv.score) + ' ' + str(bestIndiv) + '\n')
 		else:
-			with open('bestIndividual.log', 'w') as logFile:
+			with open(filename, 'w') as logFile:
 				logFile.write('# Columns: generation score ID indivDesc0 indivDesc1 ...\n')
 			self.logHeaderWritten = True
-			self.logBestIndividual()
+			self.logBestIndividual(filename=filename)
 
 	def findParetoFront(self, func0, func1):
 		for indiv in self.population:

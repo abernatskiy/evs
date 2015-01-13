@@ -15,6 +15,7 @@ class Individual(TriVecIndividual):
 		self.changeFrac = self.params['mutExploration']
 		self.deleteFrac = (1.0 - self.changeFrac)/(self.params['mutInsDelRatio']+1)
 		self.insertFrac = 1.0 - self.changeFrac - self.deleteFrac
+		self.values = np.random.random_integers(-1, 1, size=self.params['length'])
 
 	def insert(self):
 		space = len(self.values) - np.count_nonzero(self.values)
@@ -64,8 +65,10 @@ class Individual(TriVecIndividual):
 			randVal = np.random.random()
 			if randVal < self.changeFrac:
 				mutated = self.change()
-			else if randVal < (self.changeFrac + self.insertFrac):
+			elif randVal < (self.changeFrac + self.insertFrac):
 				mutated = self.insert()
 			else:
 				mutated = self.delete()
+		if mutated:
+			self.renewID()
 		return mutated

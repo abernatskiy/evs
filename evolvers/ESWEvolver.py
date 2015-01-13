@@ -1,5 +1,5 @@
 from copy import deepcopy
-from proportionalEvolver import ProportionalEvolver
+from proportionalEvolver import Evolver as ProportionalEvolver
 
 class ESWEvolver(ProportionalEvolver):
 	'''Proportional evover with the initial population 

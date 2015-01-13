@@ -67,3 +67,7 @@ class Individual(BaseIndividual):
 			self.values[order] = curDig - 1
 		self.renewID()
 		return True
+
+	def setValuesToZero(self): # for sparse-first search
+		self.values = np.zeros(self.params['length'], dtype=np.int)
+		self.renewID()
