@@ -72,10 +72,10 @@ from evolvers.proportionalEvolver import Evolver
 import sys
 
 #indivParams = {'length': 10*10, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1, 'connectionCost': 0.0}
-indivParams = {'length': 6*6, 'mutProbability': 0.05, 'mutExploration': 0.6, 'mutInsDelRatio': 1.0}
+indivParams = {'length': 6*6, 'mutProbability': 0.05, 'mutExploration': 0.6, 'mutInsDelRatio': 0.9}
 
 #evolParams = {'indivClass': Individual, 'populationSize': 100, 'printParetoFront': True, 'randomSeed': int(sys.argv[3]), 'genStopAfter': 2000, 'secondMinObj': lambda x: len(filter(lambda y: y!=0, x.values))}
-evolParams = {'indivClass': Individual, 'populationSize': 100, 'randomSeed': int(sys.argv[3]), 'genStopAfter': 1000, 'initialPopulationType': 'random'}
+evolParams = {'indivClass': Individual, 'populationSize': 100, 'randomSeed': int(sys.argv[3]), 'genStopAfter': 1000, 'initialPopulationType': 'sparse'}
 # third argument is random seed
 
 ### Specify the arguments of the Communicator constructor. Typically those 
