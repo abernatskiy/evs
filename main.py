@@ -75,7 +75,7 @@ import sys
 indivParams = {'length': 6*6, 'mutProbability': 0.05, 'mutExploration': 0.6, 'mutInsDelRatio': 0.9}
 
 #evolParams = {'indivClass': Individual, 'populationSize': 100, 'printParetoFront': True, 'randomSeed': int(sys.argv[3]), 'genStopAfter': 2000, 'secondMinObj': lambda x: len(filter(lambda y: y!=0, x.values))}
-evolParams = {'indivClass': Individual, 'populationSize': 100, 'randomSeed': int(sys.argv[3]), 'genStopAfter': 1000, 'initialPopulationType': 'sparse'}
+evolParams = {'indivClass': Individual, 'populationSize': 100, 'randomSeed': int(sys.argv[3]), 'genStopAfter': 1000, 'initialPopulationType': 'random'}
 # third argument is random seed
 
 ### Specify the arguments of the Communicator constructor. Typically those 
