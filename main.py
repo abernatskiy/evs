@@ -97,6 +97,7 @@ for i in xrange(500):
 	# evolver.pickleSelf()
 
 	evolver.updatePopulation() # DO NOT EDIT
+	print str(i)
 
 	### Leave this uncommented if you want the evolution to log the best 
 	# individual and its fitness at each generation
@@ -106,6 +107,7 @@ evolver.printBestIndividual()
 
 for i in xrange(1500):
 	evolver.updatePopulation() # DO NOT EDIT
+	print str(i+500)
 
 evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
 evolver.printBestIndividual()

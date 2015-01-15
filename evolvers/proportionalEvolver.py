@@ -36,7 +36,13 @@ class Evolver(BaseEvolver):
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
 		weights = np.array(map(lambda x: x.score, self.population), dtype=np.float)
-		weights = weights/weights.sum()
+#		print "Weights: " + str(weights)
+#		print "Sum: " + str(weights.sum())
+		if weights.sum() == 0.0:
+			print("Warning: ProportionalEvolver: no fit individuals, zero-sum scores, selecting the ancestors equiprobably")
+			weights = np.ones(len(weights))/len(weights)
+		else:
+			weights = weights/weights.sum()
 		newPopulation = []
 		while len(newPopulation) < self.params['populationSize']:
 			parent = np.random.choice(self.population, p=weights)

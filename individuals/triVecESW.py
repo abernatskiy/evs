@@ -44,7 +44,7 @@ class Individual(TriVecIndividual):
 		print("Insert: One should not dwell here\n")
 
 	def initSparse(self):
-		self.values = np.zeros(self.params['length'])
+		self.values = np.zeros(self.params['length'], dtype=np.int)
 		while np.count_nonzero(self.values) < self.params['initDensity']:
 			self.insert()
 		self.renewID()
