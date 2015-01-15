@@ -39,7 +39,8 @@ from communicators.unixPipe import Communicator   # Communicates with the client
 #from evolvers.doubtfulAfpo import Evolver
 #from evolvers.mdpea import Evolver
 #from evolvers.bruteForcePareto import Evolver
-from evolvers.proportionalEvolver import Evolver
+#from evolvers.proportionalEvolver import Evolver
+from evolvers.ESWEvolver import Evolver
 
 ############ PARAMS SECTION #############
 
