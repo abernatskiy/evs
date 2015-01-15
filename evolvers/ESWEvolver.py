@@ -1,7 +1,7 @@
 from copy import deepcopy
 from proportionalEvolver import Evolver as ProportionalEvolver
 
-class ESWEvolver(ProportionalEvolver):
+class Evolver(ProportionalEvolver):
 	'''Proportional evover with the initial population 
      formed as in Espinosa-Soto Wagner 2010. Unlikely 
      to work with any Individuals other than those 
