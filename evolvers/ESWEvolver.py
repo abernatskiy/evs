@@ -14,3 +14,4 @@ class Evolver(ProportionalEvolver):
 			indiv = deepcopy(baseIndiv)
 			indiv.mutate()
 			self.population.append(indiv)
+		self.communicator.evaluate(self.population)
