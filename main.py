@@ -20,9 +20,8 @@
 #from individuals.trinaryVector import Individual  # Vector of numbers from {-1,0,1}
 #from individuals.floatVector import Individual    # Vector of floating point values of fixed decimal precision
 #from individuals.triVecAdvMut import Individual   # Vector of numbers from {-1,0,1} with advanced mutation operator capable of biasing the search towards or away from sparsity
-#from individuals.triVecAdvMutESWLike import Individual   # Vector of numbers from {-1,0,1} with advanced mutation operator capable of biasing the search towards or away from sparsity
-from individuals.triVecESW import Individual      # Vector of numbers from {-1,0,1} with Espinosa-Soto Wagner - style mutation operator (biased towards critical networks)
-
+from individuals.triVecAdvMutESWLike import Individual   # Vector of numbers from {-1,0,1} with advanced mutation operator capable of biasing the search towards or away from sparsity
+#from individuals.triVecESW import Individual      # Vector of numbers from {-1,0,1} with Espinosa-Soto Wagner - style mutation operator (biased towards critical networks)
 
 ### Class Communicator implements the method for supplying the individuals 
 # to the client and getting back the evaluations. Available options:
@@ -39,8 +38,8 @@ from communicators.unixPipe import Communicator   # Communicates with the client
 #from evolvers.doubtfulAfpo import Evolver
 #from evolvers.mdpea import Evolver
 #from evolvers.bruteForcePareto import Evolver
-#from evolvers.proportionalEvolver import Evolver
-from evolvers.ESWEvolver import Evolver
+from evolvers.proportionalEvolver import Evolver
+#from evolvers.ESWEvolver import Evolver
 
 ############ PARAMS SECTION #############
 
@@ -73,10 +72,10 @@ from evolvers.ESWEvolver import Evolver
 import sys
 
 #indivParams = {'length': 10*10, 'precision': 4, 'mutationProbability': 0.03, 'mutationAmplitude': 0.1, 'connectionCost': 0.0}
-indivParams = {'length': 10*10, 'mutProbability': 0.05, 'mutExploration': 0.6, 'mutInsDelRatio': 0.9, 'initDensity': 20}
+indivParams = {'length': 10*10, 'mutProbability': 0.05, 'mutExploration': 0.5, 'mutInsDelRatio': 0.9}
 
 #evolParams = {'indivClass': Individual, 'populationSize': 100, 'printParetoFront': True, 'randomSeed': int(sys.argv[3]), 'genStopAfter': 2000, 'secondMinObj': lambda x: len(filter(lambda y: y!=0, x.values))}
-evolParams = {'indivClass': Individual, 'populationSize': 100, 'randomSeed': int(sys.argv[3]), 'genStopAfter': 2000, 'initialPopulationType': 'random'}
+evolParams = {'indivClass': Individual, 'populationSize': 100, 'randomSeed': int(sys.argv[3]), 'genStopAfter': 500, 'initialPopulationType': 'sparse'}
 # third argument is random seed
 
 ### Specify the arguments of the Communicator constructor. Typically those 
@@ -92,25 +91,15 @@ comm = Communicator(sys.argv[1], sys.argv[2]) # for communicators.unixPipe
 evolver = Evolver(comm, indivParams, evolParams) # DO NOT EDIT 
 
 #while True: # DO NOT EDIT
-for i in xrange(500):
+for i in xrange(2000):
 	### Uncommented this if you want to make a backup of every generation
 	# evolver.pickleSelf()
 
-	evolver.updatePopulation() # DO NOT EDIT
 	print str(i)
-
+	evolver.updatePopulation() # DO NOT EDIT
 	### Leave this uncommented if you want the evolution to log the best 
 	# individual and its fitness at each generation
-
-evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
-evolver.printBestIndividual()
-
-for i in xrange(1500):
-	evolver.updatePopulation() # DO NOT EDIT
-	print str(i+500)
-
-evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
-evolver.printBestIndividual()
+	evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
 
 	### Uncomment/comment these lines to turn on/off various aspects of 
 	# command line output
