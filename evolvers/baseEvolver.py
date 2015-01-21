@@ -67,6 +67,9 @@ class BaseEvolver(object):
 		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
 		np.random.set_state(self.randomGeneratorState)
 
+	def printGeneration(self):
+		print self.generation
+
 	def printBestIndividual(self):
 		bestIndiv = self.population[-1]
 		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
