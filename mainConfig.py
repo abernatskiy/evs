@@ -51,4 +51,4 @@ while True:
 	### Uncomment/comment these lines to turn on/off various aspects of command line output
 	evolver.printGeneration()
 #	evolver.printBestIndividual()
-	evolver.printPopulation()
+#	evolver.printPopulation()

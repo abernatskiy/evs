@@ -79,17 +79,30 @@ class Individual(TriVecIndividual):
 					pos -= 1
 				secondNode += 1
 			self.values[secondNode*self.numNodes + node] = -1 if np.random.random() < 0.5 else 1
-		elif regulators != 0:
-			# flip randomly selected regulator
-			pos = np.random.randint(regulators)
+		else:
+			if regulators != 0:
+				# remove randomly selected regulator
+				pos = np.random.randint(regulators)
+				secondNode = 0
+				while True:
+					if self.values[secondNode*self.numNodes + node] != 0:
+						if pos == 0:
+							break
+						pos -= 1
+					secondNode += 1
+				self.values[secondNode*self.numNodes + node] = 0
+				regulators -= 1
+
+			# add randomly selected regulator
+			pos = np.random.randint(self.numNodes - regulators)
 			secondNode = 0
 			while True:
-				if self.values[secondNode*self.numNodes + node] != 0:
+				if self.values[secondNode*self.numNodes + node] == 0:
 					if pos == 0:
 						break
 					pos -= 1
 				secondNode += 1
-			self.values[secondNode*self.numNodes + node] = -1 if self.values[secondNode*self.numNodes + node] == 1 else 1
+			self.values[secondNode*self.numNodes + node] = -1 if np.random.random() < 0.5 else 1
 
 	def mutate(self):
 		mutated = False
