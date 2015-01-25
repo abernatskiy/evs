@@ -15,7 +15,7 @@ Evolver = importlib.import_module('evolvers.' + conf.get('classes', 'evolver')).
 Communicator = importlib.import_module('communicators.' + conf.get('classes', 'communicator')).Communicator
 
 floats = ['mutExploration', 'mutInsDelRatio', 'mutProbability']
-ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed']
+ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity']
 
 def loadDict(section):
 	global conf, floats, ints
