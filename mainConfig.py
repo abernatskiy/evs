@@ -15,7 +15,7 @@ Evolver = importlib.import_module('evolvers.' + conf.get('classes', 'evolver')).
 Communicator = importlib.import_module('communicators.' + conf.get('classes', 'communicator')).Communicator
 
 floats = ['mutExploration', 'mutInsDelRatio', 'mutProbability']
-ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity']
+ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity', 'beginConn', 'endConn']
 
 def loadDict(section):
 	global conf, floats, ints
@@ -38,6 +38,10 @@ evolParams['randomSeed'] = int(sys.argv[3])
 comm = Communicator(sys.argv[1], sys.argv[2])
 evolver = Evolver(comm, indivParams, evolParams)
 
+evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
+if evolParams.has_key('logEveryPopulation') and evolParams['logEveryPopulation'] == 'yes':
+	evolver.logPopulation(prefix = 'seed' + str(evolParams['randomSeed']))
+
 while True:
 	### Uncommented this if you want to make a backup of every generation
 	# evolver.pickleSelf()
@@ -47,6 +51,8 @@ while True:
 	### Leave this uncommented if you want the evolution to log the best 
 	# individual and its fitness at each generation
 	evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
+	if evolParams.has_key('logEveryPopulation') and evolParams['logEveryPopulation'] == 'yes':
+		evolver.logPopulation(prefix = 'seed' + str(evolParams['randomSeed']))
 
 	### Uncomment/comment these lines to turn on/off various aspects of command line output
 	evolver.printGeneration()

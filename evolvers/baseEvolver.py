@@ -91,6 +91,13 @@ class BaseEvolver(object):
 			self.logHeaderWritten = True
 			self.logBestIndividual(filename=filename)
 
+	def logPopulation(self, prefix='population'):
+		filename = prefix + '_gen' + str(self.generation) + '.log'
+		with open(filename, 'a') as logFile:
+			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
+			for indiv in self.population:
+				logFile.write(str(indiv.score) + ' ' + str(indiv) + '\n')
+
 	def findParetoFront(self, func0, func1):
 		for indiv in self.population:
 			indiv.__dominated__ = False
