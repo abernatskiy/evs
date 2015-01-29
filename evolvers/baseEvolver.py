@@ -12,7 +12,8 @@ def firstDominatedBySecond(indiv0, indiv1, func0, func1):
 		raise RuntimeError('Pareto optimization error: Two individuals with the same ID compared')
 	if func0(indiv0) == func0(indiv1):
 		if func1(indiv0) == func1(indiv1):
-			return False
+#			return False # leads to an exponential explosion of the Pareto front, according to Josh
+			return indiv0.id < indiv1.id # lower ID indicates that indiv0 was generated before indiv1 and is older
 		else:
 			return func1(indiv0) > func1(indiv1)
 	else:

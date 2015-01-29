@@ -110,7 +110,7 @@ class Individual(TriVecIndividual):
 			if np.random.random() < self.params['mutProbability']:
 				self.mutateNode(i)
 				mutated = True
-		if mutated:
-			self.renewID()
+#		if mutated:
+		self.renewID()
 		return mutated
 		

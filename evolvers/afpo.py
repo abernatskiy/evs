@@ -50,7 +50,7 @@ class Evolver(BaseEvolver):
 			if not indiv.__dominated__:
 				paretoFront.append(indiv)
 
-		if self.params.has_key('printParetoFront') and self.params['printParetoFront']:
+		if self.params.has_key('printParetoFront') and self.params['printParetoFront'] == 'yes':
 			for indiv in paretoFront:
 				print str(indiv) + ' score: ' + str(indiv.score) + ' age: ' + str(indiv.age)
 			print ''
