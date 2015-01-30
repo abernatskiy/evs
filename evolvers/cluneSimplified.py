@@ -28,6 +28,7 @@ class Evolver(BaseEvolver):
 		else:
 			raise ValueError('Wrong type of initial population')
 		self.communicator.evaluate(self.population)
+		self.population.sort(key = lambda x: x.score)
 
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()

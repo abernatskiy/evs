@@ -3,17 +3,13 @@ from copy import deepcopy
 from baseEvolver import BaseEvolver
 
 class Evolver(BaseEvolver):
-	'''Multiobjective algorithm which optimizes 
-     connection cost. See Clune 2013
-       evolParams['noiseAmplitude']
+	'''Multiobjective algorithm which optimizes age
        evolParams['populationSize']
        evolParams['initialPopulationType']
         - can be 'random' or 'sparse'.
         If 'sparse' is chosen, the following
         method is required:
-       evolParams['indivClass'].setValuesToZero().
-     NOTE: unlike AFPO, this method does not work
-     too well with probability-1 mutations'''
+       evolParams['indivClass'].setValuesToZero().'''
 	def __init__(self, communicator, indivParams, evolParams):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams)
 		if self.params['initialPopulationType'] == 'random':
@@ -29,16 +25,17 @@ class Evolver(BaseEvolver):
 		else:
 			raise ValueError('Wrong type of initial population')
 		self.communicator.evaluate(self.population)
-		self.noisifyAllScores()
 		self.population.sort(key = lambda x: x.score)
+		for indiv in self.population:
+			indiv.age = 0
 
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
-		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: len(filter(lambda y: y!=0, x.values)))
+		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: x.age)
 
 		if self.params.has_key('printParetoFront') and self.params['printParetoFront'] == 'yes':
 			for indiv in paretoFront:
-				print str(indiv) + ' score: ' + str(indiv.score) + ' number of connections: ' + str(len(filter(lambda y: y!=0, indiv.values)))
+				print str(indiv) + ' score: ' + str(indiv.score) + ' age: ' + str(indiv.age)
 			print ''
 
 		# a useful warning
@@ -55,8 +52,10 @@ class Evolver(BaseEvolver):
 			parent = np.random.choice(paretoFront)
 			child = deepcopy(parent)
 			child.mutate()
+			child.age = 0
 			newPopulation.append(child)
 		self.population = newPopulation
 		self.communicator.evaluate(self.population)
-		self.noisifyAllScores()
 		self.population.sort(key = lambda x: x.score)
+		for indiv in self.population:
+			indiv.age += 1
