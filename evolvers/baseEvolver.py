@@ -108,3 +108,7 @@ class BaseEvolver(object):
 					ii.__dominated__ = True
 		paretoFront = filter(lambda x: not x.__dominated__, self.population)
 		return paretoFront
+
+	def noisifyAllScores(self):
+		for indiv in self.population:
+			indiv.noisifyScore(self.params['noiseAmplitude'])

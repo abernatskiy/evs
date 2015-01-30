@@ -14,7 +14,7 @@ Individual = importlib.import_module('individuals.' + conf.get('classes', 'indiv
 Evolver = importlib.import_module('evolvers.' + conf.get('classes', 'evolver')).Evolver
 Communicator = importlib.import_module('communicators.' + conf.get('classes', 'communicator')).Communicator
 
-floats = ['mutExploration', 'mutInsDelRatio', 'mutProbability']
+floats = ['mutExploration', 'mutInsDelRatio', 'mutProbability', 'noiseAmplitude']
 ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity', 'beginConn', 'endConn']
 
 def loadDict(section):

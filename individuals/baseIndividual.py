@@ -1,3 +1,4 @@
+import numpy as np
 currentID = 0
 
 class BaseIndividual(object):
@@ -51,3 +52,6 @@ class BaseIndividual(object):
 		valueStrings = scoreStr.split()
 		if self.checkID(int(valueStrings[0])):
 			self.score = float(valueStrings[1])
+
+	def noisifyScore(self, amplitude):
+		self.score += (np.random.random()*2-1)*amplitude
