@@ -19,6 +19,12 @@ def firstDominatedBySecond(indiv0, indiv1, func0, func1):
 	else:
 		return func0(indiv0) > func0(indiv1) and func1(indiv0) >= func1(indiv1)
 
+def firstStochasticallyDominatedBySecond(indiv0, indiv1, func0, func1, secondObjProb):
+	if np.random.random() > secondObjProb:
+		return func0(indiv0) > func0(indiv1)
+	else:
+		return firstDominatedBySecond(indiv0, indiv1, func0, func1)
+
 class BaseEvolver(object):
 	'''Base class for evolutionary algorithms. Provides 
      methods for creating server output.'''
@@ -105,6 +111,16 @@ class BaseEvolver(object):
 		for ii in self.population:
 			for ij in self.population:
 				if not ii is ij and firstDominatedBySecond(ii, ij, func0, func1):
+					ii.__dominated__ = True
+		paretoFront = filter(lambda x: not x.__dominated__, self.population)
+		return paretoFront
+
+	def findStochasticalParetoFront(self, func0, func1):
+		for indiv in self.population:
+			indiv.__dominated__ = False
+		for ii in self.population:
+			for ij in self.population:
+				if not ii is ij and firstStochasticallyDominatedBySecond(ii, ij, func0, func1, self.params['secondObjectiveProbability']):
 					ii.__dominated__ = True
 		paretoFront = filter(lambda x: not x.__dominated__, self.population)
 		return paretoFront
