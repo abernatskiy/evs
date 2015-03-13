@@ -14,8 +14,11 @@ class BaseIndividual(object):
        - ID check and renewal;
        - check for score existence.
    '''
-	def __init__(self, params):
+	def __init__(self, params, generation=0):
 		self.renewID()
+		if params.has_key('trackAncestry') and params['trackAncestry'] == 'yes':
+			self.ancestry = []
+			self.ancestry.append((-1, generation))
 		self.params = params
 
 	def __repr__(self):
@@ -27,7 +30,9 @@ class BaseIndividual(object):
 	def __eq__(self, other):
 		return self.id == other.id
 
-	def renewID(self):
+	def renewID(self, generation=0):
+		if hasattr(self, 'params') and self.params.has_key('trackAncestry') and self.params['trackAncestry'] == 'yes':
+			self.ancestry.append((self.id, generation))
 		global currentID
 		self.id = currentID
 		currentID = currentID + 1

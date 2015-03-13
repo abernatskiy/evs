@@ -30,7 +30,7 @@ class Evolver(BaseEvolver):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams)
 		self.indivParams = indivParams
 		for i in xrange(self.params['populationSize']):
-			indiv = self.params['indivClass'](self.indivParams)
+			indiv = self.params['indivClass'](self.indivParams, generation=self.generation)
 			indiv.age = 0
 			self.population.append(indiv)
 		self.communicator.evaluate(self.population)
@@ -76,12 +76,12 @@ class Evolver(BaseEvolver):
 		mutated = []
 		while len(mutated) < self.params['populationSize'] - len(paretoFront) - 1:
 			newIndiv = deepcopy(np.random.choice(paretoFront))
-			if newIndiv.mutate():
+			if newIndiv.mutate(generation=self.generation): # required keyword argument for ancestry tracking
 				mutated.append(newIndiv)
 
 		# injecting a random individual
 		if len(paretoFront) < self.params['populationSize']:
-			mutated.append(self.params['indivClass'](self.indivParams))
+			mutated.append(self.params['indivClass'](self.indivParams, generation=self.generation))
 			mutated[-1].age = 0
 
 		self.communicator.evaluate(mutated)

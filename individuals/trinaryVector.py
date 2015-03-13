@@ -10,8 +10,8 @@ class Individual(BaseIndividual):
        mutationProbability - probability that mutation occurs upon 
                              mutate() call (for each value)
 	'''
-	def __init__(self, params):
-		super(Individual, self).__init__(params)
+	def __init__(self, params, generation=0):
+		super(Individual, self).__init__(params, generation=generation)
 		self.values = np.random.random_integers(-1, 1, size=self.params['length'])
 
 	def __str__(self):
@@ -21,7 +21,7 @@ class Individual(BaseIndividual):
 			representation += str(value)
 		return representation
 
-	def mutate(self):
+	def mutate(self, generation=0):
 		newValues = []
 		mutated = False
 		for val in self.values:
@@ -32,7 +32,7 @@ class Individual(BaseIndividual):
 			else:
 				newValues.append(val)
 		if mutated:
-			self.renewID()
+			self.renewID(generation=generation)
 			self.values = np.array(newValues)
 			return True
 		else:
