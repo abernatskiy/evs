@@ -34,13 +34,23 @@ class BaseEvolver(object):
 		self.population = []
 		self.logHeaderWritten = False
 		self.generation = 0
+		# little dirty hack which exploit the fact that there's always just one Evolver to communicate generation number to Individuals
+		if self.ancestryTrackingEnabled():
+			indivParams['trackAncestry'] = 'yes'
+			import __builtin__
+			if not hasattr(__builtin__, 'globalGenerationCounter'):
+				__builtin__.globalGenerationCounter = 0
+			else:
+				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
 		if self.params.has_key('randomSeed'):
 			np.random.seed(self.params['randomSeed'])
 
 	def updatePopulation(self):
 		self.generation += 1
-		if self.params.has_key('genStopAfter'):
-			if self.generation > self.params['genStopAfter']:
+		if self.ancestryTrackingEnabled():
+			import __builtin__
+			__builtin__.globalGenerationCounter += 1
+		if self.params.has_key('genStopAfter') and self.generation > self.params['genStopAfter']:
 				print 'Done.\n'
 				import sys
 				sys.exit(0)
@@ -73,6 +83,14 @@ class BaseEvolver(object):
 	def recover(self):
 		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
 		np.random.set_state(self.randomGeneratorState)
+		if self.ancestryTrackingEnabled(): # if we're dealing with ancestry tracking (disabled by default)...
+			import __builtin__
+			if not hasattr(__builtin__, 'globalGenerationCounter'):
+				# ...we should restore the content of out 'global' variable
+				__builtin__.globalGenerationCounter = self.generation
+			else:
+				# it may happen that we're trying to continue evolution using a new version of python in which our little hack no longer works
+				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
 
 	def printGeneration(self):
 		print self.generation
@@ -94,6 +112,7 @@ class BaseEvolver(object):
 				logFile.write(str(self.generation) + ' ' + str(bestIndiv.score) + ' ' + str(bestIndiv) + '\n')
 		else:
 			with open(filename, 'w') as logFile:
+				logFile.write('# Evolver parameters: ' + str(self.params) + '\n')
 				logFile.write('# Columns: generation score ID indivDesc0 indivDesc1 ...\n')
 			self.logHeaderWritten = True
 			self.logBestIndividual(filename=filename)
@@ -101,6 +120,7 @@ class BaseEvolver(object):
 	def logPopulation(self, prefix='population'):
 		filename = prefix + '_gen' + str(self.generation) + '.log'
 		with open(filename, 'a') as logFile:
+			logFile.write('# Evolver parameters: ' + str(self.params) + '\n')
 			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
 			for indiv in self.population:
 				logFile.write(str(indiv.score) + ' ' + str(indiv) + '\n')
@@ -128,3 +148,6 @@ class BaseEvolver(object):
 	def noisifyAllScores(self):
 		for indiv in self.population:
 			indiv.noisifyScore(self.params['noiseAmplitude'])
+
+	def ancestryTrackingEnabled(self):
+		return hasattr(self, 'params') and self.params.has_key('trackAncestry') and self.params['trackAncestry'] == 'yes'
