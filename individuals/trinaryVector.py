@@ -21,6 +21,11 @@ class Individual(BaseIndividual):
 			representation += str(value)
 		return representation
 
+	def fromStr(self, representation):
+		integers = map(int, representation.split())
+		self.id = integers[0]
+		self.values = integers[1:]
+
 	def mutate(self):
 		newValues = []
 		mutated = False

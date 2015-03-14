@@ -85,10 +85,9 @@ evolParams = {'indivClass': Individual, 'populationSize': 40, 'printParetoFront'
 
 comm = Communicator('/tmp/eval', '/tmp/indiv')
 
-evolver = Evolver(comm, indivParams, evolParams) # DO NOT EDIT 
+evolver = Evolver(comm, indivParams, evolParams, initialPopulationFileName='exampleInitialPopulation.txt')
 
-#while True: # DO NOT EDIT
-for i in xrange(2000):
+while True: # DO NOT EDIT
 	### Uncommented this if you want to make a backup of every generation
 	evolver.pickleSelf()
 

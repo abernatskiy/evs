@@ -26,12 +26,13 @@ class Evolver(BaseEvolver):
      as valuable as the more fit one if it is younger. Required
      methods and parameters, aside from the common set:
        evolParams['populationSize']'''
-	def __init__(self, communicator, indivParams, evolParams):
-		super(Evolver, self).__init__(communicator, indivParams, evolParams)
-		for i in xrange(self.params['populationSize']):
+	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
+		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName = initialPopulationFileName)
+		while len(self.population) < self.params['populationSize']:
 			indiv = self.params['indivClass'](self.indivParams)
-			indiv.age = 0
 			self.population.append(indiv)
+		for indiv in self.population:
+			indiv.age = 0
 		self.communicator.evaluate(self.population)
 
 	def updatePopulation(self):

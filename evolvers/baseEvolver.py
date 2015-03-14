@@ -28,11 +28,10 @@ def firstStochasticallyDominatedBySecond(indiv0, indiv1, func0, func1, secondObj
 class BaseEvolver(object):
 	'''Base class for evolutionary algorithms. Provides 
      methods for creating server output.'''
-	def __init__(self, communicator, indivParams, evolParams):
+	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
 		self.communicator = communicator
 		self.params = evolParams
 		self.indivParams = indivParams
-		self.population = []
 		self.logHeaderWritten = False
 		self.generation = 0
 		# little dirty hack which exploit the fact that there's always just one Evolver to communicate generation number to Individuals
@@ -45,6 +44,9 @@ class BaseEvolver(object):
 				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
 		if self.params.has_key('randomSeed'):
 			np.random.seed(self.params['randomSeed'])
+		self.population = []
+		if not initialPopulationFileName is None:
+			self.appendPopulationFromFile(initialPopulationFileName)
 
 	def updatePopulation(self):
 		self.generation += 1
@@ -154,3 +156,16 @@ class BaseEvolver(object):
 
 	def ancestryTrackingEnabled(self):
 		return hasattr(self, 'params') and self.params.has_key('trackAncestry') and self.params['trackAncestry'] == 'yes'
+
+	def populationIsValid(self):
+		return len(self.population) <= self.params['populationSize'] and all([ type(indiv) == self.params['indivClass'] for indiv in self.population ])
+
+	def appendPopulationFromFile(self, filename):
+		file = open(filename, 'r')
+		for line in file:
+			indiv = self.params['indivClass'](self.indivParams)
+			indiv.fromStr(line)
+			self.population.append(indiv)
+		if not self.populationIsValid():
+			raise ValueError('Inital population is too large')
+		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
