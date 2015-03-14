@@ -31,6 +31,7 @@ class BaseEvolver(object):
 	def __init__(self, communicator, indivParams, evolParams):
 		self.communicator = communicator
 		self.params = evolParams
+		self.indivParams = indivParams
 		self.population = []
 		self.logHeaderWritten = False
 		self.generation = 0
@@ -113,6 +114,7 @@ class BaseEvolver(object):
 		else:
 			with open(filename, 'w') as logFile:
 				logFile.write('# Evolver parameters: ' + str(self.params) + '\n')
+				logFile.write('# Individual parameters: ' + str(self.indivParams) + '\n')
 				logFile.write('# Columns: generation score ID indivDesc0 indivDesc1 ...\n')
 			self.logHeaderWritten = True
 			self.logBestIndividual(filename=filename)
@@ -121,6 +123,7 @@ class BaseEvolver(object):
 		filename = prefix + '_gen' + str(self.generation) + '.log'
 		with open(filename, 'a') as logFile:
 			logFile.write('# Evolver parameters: ' + str(self.params) + '\n')
+			logFile.write('# Individual parameters: ' + str(self.indivParams) + '\n')
 			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
 			for indiv in self.population:
 				logFile.write(str(indiv.score) + ' ' + str(indiv) + '\n')

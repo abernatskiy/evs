@@ -28,7 +28,6 @@ class Evolver(BaseEvolver):
        evolParams['populationSize']'''
 	def __init__(self, communicator, indivParams, evolParams):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams)
-		self.indivParams = indivParams
 		for i in xrange(self.params['populationSize']):
 			indiv = self.params['indivClass'](self.indivParams)
 			indiv.age = 0
