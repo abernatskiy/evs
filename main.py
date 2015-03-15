@@ -17,7 +17,8 @@
 ### Class Individual implementats an evolutionary individual (aka genome, aka 
 # candidate solution). Available options:
 
-from individuals.trinaryVector import Individual  # Vector of numbers from {-1,0,1}
+#from individuals.trinaryVector import Individual  # Vector of numbers from {-1,0,1}
+from individuals.trinaryVectorSureMutation import Individual  # Vector of numbers from {-1,0,1}
 #from individuals.floatVector import Individual    # Vector of floating point values of fixed decimal precision
 #from individuals.triVecAdvMut import Individual   # Vector of numbers from {-1,0,1} with advanced mutation operator capable of biasing the search towards or away from sparsity
 #from individuals.triVecAdvMutESWLike import Individual   # Vector of numbers from {-1,0,1} with advanced mutation operator capable of biasing the search towards or away from sparsity
@@ -33,12 +34,12 @@ from communicators.unixPipe import Communicator   # Communicates with the client
 # individuals. See docs/evolvers.* for descriptions. Available options:
 
 #from evolvers.hillClimber import Evolver
-from evolvers.afpo import Evolver                 # recommended
+#from evolvers.afpo import Evolver                 # recommended
 #from evolvers.averagingAfpo import Evolver
 #from evolvers.doubtfulAfpo import Evolver
 #from evolvers.mdpea import Evolver
 #from evolvers.bruteForcePareto import Evolver
-#from evolvers.proportionalEvolver import Evolver
+from evolvers.proportionalEvolver import Evolver
 #from evolvers.ESWEvolver import Evolver
 
 ############ PARAMS SECTION #############
@@ -71,9 +72,15 @@ from evolvers.afpo import Evolver                 # recommended
 
 import sys
 
-indivParams = {'length': 4, 'mutationProbability': 0.03}
-#indivParams = {'length': 12, 'mutationProbability': 0.03}
-evolParams = {'indivClass': Individual, 'populationSize': 40, 'printParetoFront': True, 'randomSeed': int(sys.argv[1]), 'trackAncestry': 'yes', 'genStopAfter': 10}
+indivParams = {'length': 4}
+#indivParams = {'length': 12}
+evolParams = {'indivClass': Individual, \
+              'populationSize': 10, \
+              'printParetoFront': True, \
+              'randomSeed': int(sys.argv[1]), \
+              'trackAncestry': 'yes', \
+              'genStopAfter': 10, \
+              'eliteSize': 1}
 # first argument is random seed
 
 ### Specify the arguments of the Communicator constructor. Typically those 
@@ -85,13 +92,16 @@ evolParams = {'indivClass': Individual, 'populationSize': 40, 'printParetoFront'
 
 comm = Communicator('/tmp/eval', '/tmp/indiv')
 
-evolver = Evolver(comm, indivParams, evolParams, initialPopulationFileName='exampleInitialPopulation.txt')
+#evolver = Evolver(comm, indivParams, evolParams, initialPopulationFileName='initialPopulation.txt')
+evolver = Evolver(comm, indivParams, evolParams)
 
+i = 0
 while True: # DO NOT EDIT
 	### Uncommented this if you want to make a backup of every generation
 	evolver.pickleSelf()
 
 	print i
+	i += 1
 	evolver.updatePopulation() # DO NOT EDIT
 	### Leave this uncommented if you want the evolution to log the best 
 	# individual and its fitness at each generation

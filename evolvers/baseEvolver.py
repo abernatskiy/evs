@@ -69,7 +69,7 @@ class BaseEvolver(object):
 				os.makedirs('./backups')
 			oldpickles = glob.glob('./backups/*.p')
 			if oldpickles != []:
-				print 'Old backups found! Press Ctrl+C in 10 seconds to abort their erasing...\n'
+				print 'Old backups found! Press Ctrl+C in 10 seconds to abort erasing them...\n'
 			time.sleep(10)
 			for file in oldpickles:
 				os.remove(file)

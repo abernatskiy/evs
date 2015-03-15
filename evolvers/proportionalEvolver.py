@@ -12,39 +12,40 @@ class Evolver(BaseEvolver):
        evolParams['populationSize']
        evolParams['initialPopulationType']
         - can be 'random' or 'sparse'.
+        Defaults to 'random'.
         If 'sparse' is chosen, the following
         method is required:
        evolParams['indivClass'].setValuesToZero().
+       evolParams['eliteSize']
      NOTE: unlike AFPO, this method does not work
      too well with probability-1 mutations'''
-	def __init__(self, communicator, indivParams, evolParams):
-		super(Evolver, self).__init__(communicator, indivParams, evolParams)
-		if self.params['initialPopulationType'] == 'random':
-			for i in xrange(self.params['populationSize']):
-				indiv = self.params['indivClass'](indivParams)
-				self.population.append(indiv)
-		elif self.params['initialPopulationType'] == 'sparse':
-		  for i in xrange(self.params['populationSize']):
-				indiv = self.params['indivClass'](indivParams)
+	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
+		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName = initialPopulationFileName)
+		while len(self.population) < self.params['populationSize']:
+			indiv = self.params['indivClass'](indivParams)
+			if not self.params.has_key('initialPopulationType') or self.params['initialPopulationType'] == 'random':
+				pass
+			elif self.params['initialPopulationType'] == 'sparse':
 				indiv.setValuesToZero()
 				indiv.mutate()
-				self.population.append(indiv)
-		else:
-			raise ValueError('Wrong type of initial population')
+			else:
+				raise ValueError('Wrong type of initial population')
+			self.population.append(indiv)
 		self.communicator.evaluate(self.population)
 		self.population.sort(key = lambda x: x.score)
 
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
 		weights = np.array(map(lambda x: x.score, self.population), dtype=np.float)
-#		print "Weights: " + str(weights)
-#		print "Sum: " + str(weights.sum())
 		if weights.sum() == 0.0:
 			print("Warning: ProportionalEvolver: no fit individuals, zero-sum scores, selecting the ancestors equiprobably")
 			weights = np.ones(len(weights))/len(weights)
 		else:
 			weights = weights/weights.sum()
-		newPopulation = []
+		if self.params.has_key('eliteSize'):
+			newPopulation = self.population[-1*self.params['eliteSize']:]
+		else:
+			newPopulation = []
 		while len(newPopulation) < self.params['populationSize']:
 			parent = np.random.choice(self.population, p=weights)
 			child = deepcopy(parent)
