@@ -17,8 +17,8 @@
 ### Class Individual implementats an evolutionary individual (aka genome, aka 
 # candidate solution). Available options:
 
-#from individuals.trinaryVector import Individual  # Vector of numbers from {-1,0,1}
-from individuals.trinaryVectorSureMutation import Individual  # Vector of numbers from {-1,0,1}
+#from individuals.trinaryVector import Individual  # Vector of numbers from {-1,0,1} mutating in a classic way - with a fixed probability per gene
+from individuals.trinaryVectorSureMutation import Individual  # Vector of numbers from {-1,0,1} which always mutates when mutate() is called
 #from individuals.floatVector import Individual    # Vector of floating point values of fixed decimal precision
 #from individuals.triVecAdvMut import Individual   # Vector of numbers from {-1,0,1} with advanced mutation operator capable of biasing the search towards or away from sparsity
 #from individuals.triVecAdvMutESWLike import Individual   # Vector of numbers from {-1,0,1} with advanced mutation operator capable of biasing the search towards or away from sparsity
@@ -27,8 +27,8 @@ from individuals.trinaryVectorSureMutation import Individual  # Vector of number
 ### Class Communicator implements the method for supplying the individuals 
 # to the client and getting back the evaluations. Available options:
 
-from communicators.unixPipe import Communicator   # Communicates with the client through a pair of named UNIX pipes
-#from communicators.textFile import Communicator  # Communicates with the client through a pair of text files
+#from communicators.unixPipe import Communicator   # Communicates with the client through a pair of named UNIX pipes
+from communicators.textFile import Communicator  # Communicates with the client through a pair of text files
 
 ### Class Evolver handles selection of the fittest and generation of new 
 # individuals. See docs/evolvers.* for descriptions. Available options:
@@ -79,7 +79,7 @@ evolParams = {'indivClass': Individual, \
               'printParetoFront': True, \
               'randomSeed': int(sys.argv[1]), \
               'trackAncestry': 'yes', \
-              'genStopAfter': 10, \
+#              'genStopAfter': 10, \
               'eliteSize': 1}
 # first argument is random seed
 
@@ -88,20 +88,17 @@ evolParams = {'indivClass': Individual, \
 # communication channels between the server and the client
 
 #comm = Communicator('evaluations.pipe', 'individuals.pipe') # for communicators.unixPipe
-#comm = Communicator('evaluations.txt', 'individuals.txt')  # for communicators.textFile
-
-comm = Communicator('/tmp/eval', '/tmp/indiv')
+comm = Communicator('evaluations.txt', 'individuals.txt')  # for communicators.textFile
+#comm = Communicator('/tmp/eval', '/tmp/indiv')
 
 #evolver = Evolver(comm, indivParams, evolParams, initialPopulationFileName='initialPopulation.txt')
 evolver = Evolver(comm, indivParams, evolParams)
 
-i = 0
 while True: # DO NOT EDIT
 	### Uncommented this if you want to make a backup of every generation
 	evolver.pickleSelf()
 
-	print i
-	i += 1
+	print evolver.generation
 	evolver.updatePopulation() # DO NOT EDIT
 	### Leave this uncommented if you want the evolution to log the best 
 	# individual and its fitness at each generation

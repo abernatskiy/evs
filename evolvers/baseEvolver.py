@@ -54,9 +54,9 @@ class BaseEvolver(object):
 			import __builtin__
 			__builtin__.globalGenerationCounter += 1
 		if self.params.has_key('genStopAfter') and self.generation > self.params['genStopAfter']:
-				print 'Done.\n'
-				import sys
-				sys.exit(0)
+			print 'Done.\n'
+			import sys
+			sys.exit(0)
 
 	def pickleSelf(self):
 		self.randomGeneratorState = np.random.get_state()

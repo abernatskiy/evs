@@ -70,6 +70,8 @@ class BaseIndividual(object):
 
 	def setEvaluation(self, scoreStr):
 		valueStrings = scoreStr.split()
+		if len(valueStrings) != 2:
+			raise ValueError('Incorrectly formatted evaluation line')
 		if self.checkID(int(valueStrings[0])):
 			self.score = float(valueStrings[1])
 

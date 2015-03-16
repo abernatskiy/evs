@@ -17,6 +17,7 @@ while True: # DO NOT EDIT
 	### Leave this uncommented if you want to make a backup of every generation
 	evolver.pickleSelf()
 
+	print evolver.generation
 	evolver.updatePopulation() # DO NOT EDIT
 
 	### Leave this uncommented if you want the evolution to log the best 
@@ -25,5 +26,5 @@ while True: # DO NOT EDIT
 
 	### Uncomment/comment these lines to turn on/off various aspects of 
 	# command line output
-	evolver.printBestIndividual()
+	#evolver.printBestIndividual()
 	#evolver.printPopulation()

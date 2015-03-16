@@ -26,10 +26,14 @@ class BaseCommunicator(object):
 		evaluations = self.read()
 		while '' in evaluations:
 			evaluations.remove('')
-		if len(indivList) != len(evaluations):
-			print str(indivList)  + ' '  + str(evaluations)
-			print str(len(indivList))  + ' != '  + str(len(evaluations))
-			raise IOError('No of evaluations is different from no of individuals')
-		for i in xrange(len(indivList)):
-			indivList[i].setEvaluation(evaluations[i])
+		try:
+			if len(indivList) != len(evaluations):
+#				print str(indivList)  + ' '  + str(evaluations)
+				raise ValueError('No of evaluations is different from no of individuals (' +  str(len(indivList))  + ' != '  + str(len(evaluations)) + ')')
+			for i in xrange(len(indivList)):
+				indivList[i].setEvaluation(evaluations[i])
+		except ValueError as e:
+			print 'Problem reading evaluations: ' + e.args[0]
+			print 'Try again'
+			return self.evaluate(indivList)
 		return indivList
