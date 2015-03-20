@@ -34,12 +34,12 @@ from communicators.textFile import Communicator  # Communicates with the client 
 # individuals. See docs/evolvers.* for descriptions. Available options:
 
 #from evolvers.hillClimber import Evolver
-from evolvers.afpo import Evolver                 # recommended
+#from evolvers.afpo import Evolver                 # recommended
 #from evolvers.averagingAfpo import Evolver
 #from evolvers.doubtfulAfpo import Evolver
 #from evolvers.mdpea import Evolver
 #from evolvers.bruteForcePareto import Evolver
-#from evolvers.proportionalEvolver import Evolver
+from evolvers.proportionalEvolver import Evolver
 #from evolvers.ESWEvolver import Evolver
 
 ############ PARAMS SECTION #############
@@ -79,7 +79,7 @@ evolParams = {'indivClass': Individual, \
               'randomSeed': int(sys.argv[1]), \
               'trackAncestry': 'yes', \
 #              'genStopAfter': 10, \
-#              'eliteSize': 1, \
+              'eliteSize': 1, \
              }
 # first argument is random seed
 
