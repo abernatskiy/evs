@@ -66,9 +66,9 @@ from evolvers.proportionalEvolver import Evolver
 # 1		4			5
 # 2		8			12
 # 3		12		21
-#	4		16		32
-#	5		20		45
-#	6		24		60
+# 4		16		32
+# 5		20		45
+# 6		24		60
 
 import sys
 
@@ -89,7 +89,6 @@ evolParams = {'indivClass': Individual, \
 
 #comm = Communicator('evaluations.pipe', 'individuals.pipe') # for communicators.unixPipe
 comm = Communicator('evaluations.txt', 'individuals.txt')  # for communicators.textFile
-#comm = Communicator('/tmp/eval', '/tmp/indiv')
 
 #evolver = Evolver(comm, indivParams, evolParams, initialPopulationFileName='initialPopulation.txt')
 evolver = Evolver(comm, indivParams, evolParams)
