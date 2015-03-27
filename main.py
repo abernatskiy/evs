@@ -60,7 +60,7 @@ from evolvers.proportionalEvolver import Evolver
 # pass the class Individual to the class Evolver
 
 # Useful values:
-# For k=0 connections between inputs and outputs are direct and there are 
+# For k=0 connections between inputs and outputs are direct and there are
 # four weights. For other k's:
 # k		4k		4k+k^2
 # 1		4			5
@@ -76,16 +76,16 @@ indivParams = {'length': 12}
 evolParams = {'indivClass': Individual, \
               'populationSize': 10, \
               'printParetoFront': True, \
-              'randomSeed': int(sys.argv[1]), \
+              'randomSeed': int(sys.argv[1]), # this means that the first command line argument is used as a random seed \
               'trackAncestry': 'yes', \
 #              'genStopAfter': 10, \
               'eliteSize': 1, \
+              'saveBeforeEvaluation': 'yes', \
+              'logBestIndividual': 'yes', \
              }
-# first argument is random seed
 
-### Specify the arguments of the Communicator constructor. Typically those 
-# would be the addresses (in a general sense) associated with the 
-# communication channels between the server and the client
+### Specify the arguments of the Communicator constructor. Typically those would be the addresses
+# (in a general sense) associated with the communication channels between the server and the client
 
 #comm = Communicator('evaluations.pipe', 'individuals.pipe') # for communicators.unixPipe
 comm = Communicator('evaluations.txt', 'individuals.txt')  # for communicators.textFile
@@ -93,17 +93,12 @@ comm = Communicator('evaluations.txt', 'individuals.txt')  # for communicators.t
 #evolver = Evolver(comm, indivParams, evolParams, initialPopulationFileName='initialPopulation.txt')
 evolver = Evolver(comm, indivParams, evolParams)
 
-while True: # DO NOT EDIT
-	### Uncommented this if you want to make a backup of every generation
-	evolver.pickleSelf()
-
+# DO NOT EDIT ANYTHING BELOW
+while True:
 	print evolver.generation
-	evolver.updatePopulation() # DO NOT EDIT
-	### Leave this uncommented if you want the evolution to log the best 
-	# individual and its fitness at each generation
-	evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
-
-	### Uncomment/comment these lines to turn on/off various aspects of 
-	# command line output
-#	evolver.printBestIndividual()
-#	evolver.printPopulation()
+	evolver.saveBeforeEvaluation()
+	evolver.updatePopulation()
+	evolver.saveAfterEvaluation()
+	evolver.logBestIndividual()
+	evolver.printBestIndividual()
+	evolver.printPopulation()
