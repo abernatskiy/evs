@@ -26,7 +26,7 @@ def firstStochasticallyDominatedBySecond(indiv0, indiv1, func0, func1, secondObj
 		return firstDominatedBySecond(indiv0, indiv1, func0, func1)
 
 class BaseEvolver(object):
-	'''Base class for evolutionary algorithms. Provides 
+	'''Base class for evolutionary algorithms. Provides
      methods for creating server output.'''
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
 		self.communicator = communicator
@@ -63,17 +63,21 @@ class BaseEvolver(object):
 		if not hasattr(self, '__pickleSelfCalled__'):
 			self.__pickleSelfCalled__ = True
 			import os
-			import glob
 			import time
-			if not os.path.exists('./backups'):
-				os.makedirs('./backups')
-			oldpickles = glob.glob('./backups/*.p')
-			if oldpickles != []:
-				print 'Old backups found! Press Ctrl+C in 10 seconds to abort erasing them...'
-				time.sleep(10)
-				for file in oldpickles:
-					os.remove(file)
-				print 'Backups erased'
+			import shutil
+			if os.path.isdir('./backups'):
+				print 'Old phenotypes found. Moving to a backups.save folder'
+				if os.path.exists('./backups.save'):
+					print 'WARNING! Phenotype save folder found at backups.save. Overwriting in 10 seconds, press Ctrl+C to abort...'
+					time.sleep(10)
+					shutil.rmtree('./backups.save')
+					print 'Folder backups.save erased'
+				shutil.move('./backups', './backups.save')
+				os.mkdir('./backups')
+			elif os.path.exists('./backups'):
+				raise IOError('Backups path exists, but is not a directory')
+			else:
+				os.mkdir('./backups')
 		if not hasattr(self, '__pickleLoaded__') or not self.__pickleLoaded__:
 			global pickle
 			import pickle
