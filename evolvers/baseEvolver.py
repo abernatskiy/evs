@@ -26,7 +26,7 @@ def firstStochasticallyDominatedBySecond(indiv0, indiv1, func0, func1, secondObj
 		return firstDominatedBySecond(indiv0, indiv1, func0, func1)
 
 class BaseEvolver(object):
-	'''Base class for evolutionary algorithms. Provides 
+	'''Base class for evolutionary algorithms. Provides
      methods for creating server output.'''
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
 		self.communicator = communicator
@@ -58,26 +58,31 @@ class BaseEvolver(object):
 			import sys
 			sys.exit(0)
 
-	def pickleSelf(self):
+	def pickleSelf(self, postfix=''):
 		self.randomGeneratorState = np.random.get_state()
 		if not hasattr(self, '__pickleSelfCalled__'):
 			self.__pickleSelfCalled__ = True
 			import os
-			import glob
 			import time
-			if not os.path.exists('./backups'):
-				os.makedirs('./backups')
-			oldpickles = glob.glob('./backups/*.p')
-			if oldpickles != []:
-				print 'Old backups found! Press Ctrl+C in 10 seconds to abort erasing them...\n'
-			time.sleep(10)
-			for file in oldpickles:
-				os.remove(file)
+			import shutil
+			if os.path.isdir('./backups'):
+				print 'Old phenotypes found. Moving to a backups.save folder'
+				if os.path.exists('./backups.save'):
+					print 'WARNING! Phenotype save folder found at backups.save. Overwriting in 10 seconds, press Ctrl+C to abort...'
+					time.sleep(10)
+					shutil.rmtree('./backups.save')
+					print 'Folder backups.save erased'
+				shutil.move('./backups', './backups.save')
+				os.mkdir('./backups')
+			elif os.path.exists('./backups'):
+				raise IOError('Backups path exists, but is not a directory')
+			else:
+				os.mkdir('./backups')
 		if not hasattr(self, '__pickleLoaded__') or not self.__pickleLoaded__:
 			global pickle
 			import pickle
 			self.__pickleLoaded__ = True
-		file = open('./backups/' + str(self.generation).zfill(10) + '.p', 'w')
+		file = open('./backups/' + str(self.generation).zfill(10) + postfix + '.p', 'w')
 		self.__pickleLoaded__ = False
 		pickle.dump(self, file)
 		self.__pickleLoaded = True
@@ -89,7 +94,7 @@ class BaseEvolver(object):
 		if self.ancestryTrackingEnabled(): # if we're dealing with ancestry tracking (disabled by default)...
 			import __builtin__
 			if not hasattr(__builtin__, 'globalGenerationCounter'):
-				# ...we should restore the content of out 'global' variable
+				# ...we should restore the content of our 'global' generation counter
 				__builtin__.globalGenerationCounter = self.generation
 			else:
 				# it may happen that we're trying to continue evolution using a new version of python in which our little hack no longer works
@@ -99,16 +104,24 @@ class BaseEvolver(object):
 		print self.generation
 
 	def printBestIndividual(self):
+		if not (hasattr(self, 'params') and self.params.has_key('printBestIndividual') and self.params['printBestIndividual'] == 'yes'):
+			return
 		bestIndiv = self.population[-1]
 		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
 
 	def printPopulation(self):
+		if not (hasattr(self, 'params') and self.params.has_key('printPopulation') and self.params['printPopulation'] == 'yes'):
+			return
 		print '----------'
 		for indiv in self.population:
 			print str(indiv) + ' score: ' + str(indiv.score)
 		print ''
 
-	def logBestIndividual(self, filename='bestIndividual.log'):
+	def logBestIndividual(self, filename=None):
+		if not (hasattr(self, 'params') and self.params.has_key('logBestIndividual') and self.params['logBestIndividual'] == 'yes'):
+			return
+		if filename is None:
+			filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log'
 		bestIndiv = self.population[-1]
 		if self.logHeaderWritten:
 			with open(filename, 'a') as logFile:
@@ -122,6 +135,8 @@ class BaseEvolver(object):
 			self.logBestIndividual(filename=filename)
 
 	def logPopulation(self, prefix='population'):
+		if not (hasattr(self, 'params') and self.params.has_key('logPopulation') and self.params['logPopulation'] == 'yes'):
+			return
 		filename = prefix + '_gen' + str(self.generation) + '.log'
 		with open(filename, 'a') as logFile:
 			logFile.write('# Evolver parameters: ' + str(self.params) + '\n')
@@ -169,3 +184,13 @@ class BaseEvolver(object):
 		if not self.populationIsValid():
 			raise ValueError('Inital population is too large')
 		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
+
+	def saveBeforeEvaluation(self):
+		if hasattr(self, 'params') and self.params.has_key('saveBeforeEvaluation') and self.params['saveBeforeEvaluation'] == 'yes':
+			self.stateType = 'before_evaluation'
+			self.pickleSelf()
+
+	def saveAfterEvaluation(self):
+		if hasattr(self, 'params') and self.params.has_key('saveAfterEvaluation') and self.params['saveAfterEvaluation'] == 'yes':
+			self.stateType = 'after_evaluation'
+			self.pickleSelf(postfix='.afterEvaluation')

@@ -12,19 +12,25 @@ evolver = pickle.load(file)
 file.close()
 
 evolver.recover()
+if hasattr(evolver, 'stateType'):
+	if evolver.stateType == 'before_evaluation':
+		evolver.updatePopulation()
+		evolver.saveAfterEvaluation()
+		evolver.logBestIndividual()
+		evolver.printBestIndividual()
+		evolver.printPopulation()
+	elif evolver.stateType == 'after_evaluation':
+		pass
+	else:
+		raise ValueError('Wrong value of the state type string, cannot continue')
+else:
+	print 'Recovering from a backup made by old (pre-1.1-r2) EVS. Everything should be fine, just letting you know.'
 
-while True: # DO NOT EDIT
-	### Leave this uncommented if you want to make a backup of every generation
-	evolver.pickleSelf()
-
+while True:
 	print evolver.generation
-	evolver.updatePopulation() # DO NOT EDIT
-
-	### Leave this uncommented if you want the evolution to log the best 
-	# individual and its fitness at each generation
+	evolver.saveBeforeEvaluation()
+	evolver.updatePopulation()
+	evolver.saveAfterEvaluation()
 	evolver.logBestIndividual()
-
-	### Uncomment/comment these lines to turn on/off various aspects of 
-	# command line output
-	#evolver.printBestIndividual()
-	#evolver.printPopulation()
+	evolver.printBestIndividual()
+	evolver.printPopulation()
