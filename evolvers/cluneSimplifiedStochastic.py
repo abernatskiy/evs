@@ -3,14 +3,18 @@ from copy import deepcopy
 from baseEvolver import BaseEvolver
 
 class Evolver(BaseEvolver):
-	'''Multiobjective algorithm which optimizes 
-     connection cost. See Clune 2013
+	'''Multiobjective algorithm which optimizes
+     connection cost. See Clune Mouret Lipson 2013.
+
+     Required stuff:
        evolParams['populationSize']
        evolParams['initialPopulationType']
         - can be 'random' or 'sparse'.
         If 'sparse' is chosen, the following
         method is required:
+       evolParams['secondObjectiveProbability']
        evolParams['indivClass'].setValuesToZero().
+
      NOTE: unlike AFPO, this method does not work
      too well with probability-1 mutations'''
 	def __init__(self, communicator, indivParams, evolParams):

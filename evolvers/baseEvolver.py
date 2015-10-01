@@ -59,6 +59,8 @@ class BaseEvolver(object):
 			sys.exit(0)
 
 	def pickleSelf(self, postfix=''):
+		if not (hasattr(self, 'params') and self.params.has_key('backup') and self.params['backup'] == 'yes'):
+			return
 		self.randomGeneratorState = np.random.get_state()
 		if not hasattr(self, '__pickleSelfCalled__'):
 			self.__pickleSelfCalled__ = True
@@ -101,21 +103,34 @@ class BaseEvolver(object):
 				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
 
 	def printGeneration(self):
-		print self.generation
+		print 'Generation ' + str(self.generation)
 
 	def printBestIndividual(self):
-		if not (hasattr(self, 'params') and self.params.has_key('printBestIndividual') and self.params['printBestIndividual'] == 'yes'):
-			return
-		bestIndiv = self.population[-1]
-		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
+		if hasattr(self, 'params') and self.params.has_key('printBestIndividual') and self.params['printBestIndividual'] == 'yes':
+			bestIndiv = self.population[-1]
+			print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
 
 	def printPopulation(self):
-		if not (hasattr(self, 'params') and self.params.has_key('printPopulation') and self.params['printPopulation'] == 'yes'):
-			return
-		print '----------'
-		for indiv in self.population:
-			print str(indiv) + ' score: ' + str(indiv.score)
-		print ''
+		if hasattr(self, 'params') and self.params.has_key('printPopulation') and self.params['printPopulation'] == 'yes':
+			print '-----------'
+			for indiv in self.population:
+				print str(indiv) + ' score: ' + str(indiv.score)
+			print ''
+
+	def printParetoFront(self, paretoFront, objname, objfunc):
+		if hasattr(self, 'params') and self.params.has_key('printParetoFront') and self.params['printParetoFront'] == 'yes':
+			print 'Pareto front:'
+			for indiv in paretoFront:
+				print str(indiv) + ' score: ' + str(indiv.score) + ' ' + objname + ': ' + str(objfunc(indiv))
+			print ''
+
+	def paretoWarning(self, paretoFront):
+		# Warn user when the Pareto front gets too large
+		r = float(len(paretoFront))/float(self.params['populationSize'])
+		if r == 0.0:
+			raise RuntimeError('No nondominated individuals!')
+		if r > 0.75:
+			print 'WARNING! Proportion of nondominated individuals too high (' + str(r) + ')'
 
 	def logBestIndividual(self, filename=None):
 		if not (hasattr(self, 'params') and self.params.has_key('logBestIndividual') and self.params['logBestIndividual'] == 'yes'):

@@ -33,17 +33,8 @@ class Evolver(BaseEvolver):
 		super(Evolver, self).updatePopulation()
 		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: x.age)
 
-		if self.params.has_key('printParetoFront') and self.params['printParetoFront'] == 'yes':
-			for indiv in paretoFront:
-				print str(indiv) + ' score: ' + str(indiv.score) + ' age: ' + str(indiv.age)
-			print ''
-
-		# a useful warning
-		r = float(len(paretoFront))/float(self.params['populationSize'])
-		if r == 0.0:
-			raise RuntimeError('No nondominated individuals!')
-		if r > 0.75:
-			print 'WARNING! Proportion of nondominated individuals too high (' + str(r) + ')'
+		self.printParetoFront(paretoFront, 'time since mutation', lambda x: x.age)
+		self.paretoWarning(paretoFront)
 
 		newPopulation = []
 		for indiv in paretoFront:

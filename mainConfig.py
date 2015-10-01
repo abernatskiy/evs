@@ -1,20 +1,36 @@
 #!/usr/bin/python2
 
-# Usage: mainConfig.py <evals> <indivs> <randseed> <config>
+# Parsing CLI
 
-import sys
+import argparse
+
+cliParser = argparse.ArgumentParser(description='EVolutionary Server implementation based on INI config files', epilog='For config format see exampleConfig.ini')
+cliParser.add_argument('evalsFileName', metavar='evalsFileName', type=str, help='file or pipe for incoming individual evaluations')
+cliParser.add_argument('indivFileName', metavar='indivFileName', type=str, help='file or pipe for outgoing individual genomes')
+cliParser.add_argument('randSeed', metavar='randSeed', type=int, help='integer to be used as random seed')
+cliParser.add_argument('configFileName', metavar='configFileName', type=str, help='config file')
+
+cliArgs = cliParser.parse_args()
+
+# Parsing the config file
+
 import ConfigParser
-import importlib
 
 conf = ConfigParser.RawConfigParser()
 conf.optionxform = str # required to keep the uppercase-containing fields working
-conf.read(sys.argv[4])
+conf.read(cliArgs.configFileName)
+
+# Loading the appropriate implementation of the three main classes: Individual, Evolver and Communicator
+
+import importlib
 
 Individual = importlib.import_module('individuals.' + conf.get('classes', 'individual')).Individual
 Evolver = importlib.import_module('evolvers.' + conf.get('classes', 'evolver')).Evolver
 Communicator = importlib.import_module('communicators.' + conf.get('classes', 'communicator')).Communicator
 
-floats = ['mutExploration', 'mutInsDelRatio', 'mutProbability', 'noiseAmplitude', 'secondObjectiveProbability']
+# Loading parameters
+
+floats = ['mutExploration', 'mutInsDelRatio', 'mutProbability', 'mutationProbability', 'mutationAmplitude', 'noiseAmplitude', 'secondObjectiveProbability']
 ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity', 'beginConn', 'endConn']
 
 def loadDict(section):
@@ -30,31 +46,35 @@ def loadDict(section):
 	return dict
 
 indivParams = loadDict('indivParams')
-
 evolParams = loadDict('evolParams')
 evolParams['indivClass'] = Individual
-evolParams['randomSeed'] = int(sys.argv[3])
+evolParams['randomSeed'] = int(cliArgs.randSeed)
 
-comm = Communicator(sys.argv[1], sys.argv[2])
+# Creating communicator and evolver objects
+# This causes the initial population to be evaluated
+
+comm = Communicator(cliArgs.evalsFileName, cliArgs.indivFileName)
 evolver = Evolver(comm, indivParams, evolParams)
 
-evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
-if evolParams.has_key('logEveryPopulation') and evolParams['logEveryPopulation'] == 'yes':
-	evolver.logPopulation(prefix = 'seed' + str(evolParams['randomSeed']))
+def generateLogsAndStdout():
+	# Generation number is printed after every update
+	evolver.printGeneration()
+
+	# Config-dependent output functions: won't do anything unless the config contains explicit permission
+	evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
+	evolver.logPopulation(prefix = 'population' + str(evolParams['randomSeed']))
+	evolver.printBestIndividual()
+	evolver.printPopulation()
+
+generateLogsAndStdout()
+
+# Running the evolution
 
 while True:
-	### Uncommented this if you want to make a backup of every generation
-	# evolver.pickleSelf()
+	# Config-dependent backup function: doesn't do anything unless evolver.params['backups'] == 'yes'
+	evolver.pickleSelf()
 
-	evolver.updatePopulation() # DO NOT EDIT
+	# Advance evolution by one generation, whatever that means
+	evolver.updatePopulation()
 
-	### Leave this uncommented if you want the evolution to log the best 
-	# individual and its fitness at each generation
-	evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
-	if evolParams.has_key('logEveryPopulation') and evolParams['logEveryPopulation'] == 'yes':
-		evolver.logPopulation(prefix = 'seed' + str(evolParams['randomSeed']))
-
-	### Uncomment/comment these lines to turn on/off various aspects of command line output
-	evolver.printGeneration()
-#	evolver.printBestIndividual()
-#	evolver.printPopulation()
+	generateLogsAndStdout()
