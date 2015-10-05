@@ -153,7 +153,7 @@ class BaseEvolver(object):
 		if not (hasattr(self, 'params') and self.params.has_key('logPopulation') and self.params['logPopulation'] == 'yes'):
 			return
 		filename = prefix + '_gen' + str(self.generation) + '.log'
-		with open(filename, 'a') as logFile:
+		with open(filename, 'w') as logFile:
 			logFile.write('# Evolver parameters: ' + str(self.params) + '\n')
 			logFile.write('# Individual parameters: ' + str(self.indivParams) + '\n')
 			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
