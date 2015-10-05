@@ -17,6 +17,7 @@ class Evolver(BaseEvolver):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName = initialPopulationFileName)
 		while len(self.population) < self.params['populationSize']:
 			indiv = self.params['indivClass'](indivParams)
+			self.population.append(indiv)
 		self.params['genStopAfter'] = 1
 		self.communicator.evaluate(self.population)
 
