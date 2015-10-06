@@ -28,7 +28,6 @@ class BaseCommunicator(object):
 			evaluations.remove('')
 		try:
 			if len(indivList) != len(evaluations):
-#				print str(indivList)  + ' '  + str(evaluations)
 				raise ValueError('No of evaluations is different from no of individuals (' +  str(len(indivList))  + ' != '  + str(len(evaluations)) + ')')
 			for i in xrange(len(indivList)):
 				indivList[i].setEvaluation(evaluations[i])
