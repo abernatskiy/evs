@@ -31,7 +31,7 @@ Communicator = importlib.import_module('communicators.' + conf.get('classes', 'c
 # Loading parameters
 
 floats = ['mutExploration', 'mutInsDelRatio', 'mutProbability', 'mutationProbability', 'mutationAmplitude', 'noiseAmplitude', 'secondObjectiveProbability']
-ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity', 'beginConn', 'endConn']
+ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity', 'beginConn', 'endConn', 'eliteSize']
 
 def loadDict(section):
 	global conf, floats, ints
