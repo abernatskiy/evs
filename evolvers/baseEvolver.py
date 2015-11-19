@@ -61,6 +61,9 @@ class BaseEvolver(object):
 	def pickleSelf(self, postfix=''):
 		if not (hasattr(self, 'params') and self.params.has_key('backup') and self.params['backup'] == 'yes'):
 			return
+		picklingPeriod = 1 if not self.params.has_key('backupPeriod') else self.params['backupPeriod']
+		if not self.generation % picklingPeriod == 0:
+			return
 		self.randomGeneratorState = np.random.get_state()
 		if not hasattr(self, '__pickleSelfCalled__'):
 			self.__pickleSelfCalled__ = True
@@ -151,6 +154,9 @@ class BaseEvolver(object):
 
 	def logPopulation(self, prefix='population'):
 		if not (hasattr(self, 'params') and self.params.has_key('logPopulation') and self.params['logPopulation'] == 'yes'):
+			return
+		populationLoggingPeriod = 1 if not self.params.has_key('backupPeriod') else self.params['backupPeriod']
+		if not self.generation % populationLoggingPeriod == 0:
 			return
 		filename = prefix + '_gen' + str(self.generation) + '.log'
 		with open(filename, 'w') as logFile:

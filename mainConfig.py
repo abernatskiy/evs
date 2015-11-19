@@ -31,7 +31,7 @@ Communicator = importlib.import_module('communicators.' + conf.get('classes', 'c
 # Loading parameters
 
 floats = ['mutExploration', 'mutInsDelRatio', 'mutProbability', 'mutationProbability', 'mutationAmplitude', 'noiseAmplitude', 'secondObjectiveProbability']
-ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity', 'beginConn', 'endConn', 'eliteSize']
+ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity', 'beginConn', 'endConn', 'eliteSize', 'backupPeriod', 'logPopulationPeriod']
 
 def loadDict(section):
 	global conf, floats, ints
@@ -72,6 +72,8 @@ generateLogsAndStdout()
 
 while True:
 	# Config-dependent backup function: doesn't do anything unless evolver.params['backups'] == 'yes'
+	# Will make backups at every generation if evolver.params['backupPeriod'] is not set, otherwise
+	# will make a backup once every evolver.params['backupPeriod'] iterations
 	evolver.pickleSelf()
 
 	# Advance evolution by one generation, whatever that means
