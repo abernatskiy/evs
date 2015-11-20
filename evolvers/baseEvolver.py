@@ -59,10 +59,7 @@ class BaseEvolver(object):
 			sys.exit(0)
 
 	def pickleSelf(self, postfix=''):
-		if not (hasattr(self, 'params') and self.params.has_key('backup') and self.params['backup'] == 'yes'):
-			return
-		picklingPeriod = 1 if not self.params.has_key('backupPeriod') else self.params['backupPeriod']
-		if not self.generation % picklingPeriod == 0:
+		if not self._shouldIRunAPeriodicFunctionNow('backup'):
 			return
 		self.randomGeneratorState = np.random.get_state()
 		if not hasattr(self, '__pickleSelfCalled__'):
@@ -106,26 +103,31 @@ class BaseEvolver(object):
 				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
 
 	def printGeneration(self):
+		if not self._shouldIRunAPeriodicFunctionNow('printGeneration'):
+			return
 		print 'Generation ' + str(self.generation)
 
 	def printBestIndividual(self):
-		if hasattr(self, 'params') and self.params.has_key('printBestIndividual') and self.params['printBestIndividual'] == 'yes':
-			bestIndiv = self.population[-1]
-			print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
+		if not self._shouldIRunAPeriodicFunctionNow('printBestIndividual'):
+			return
+		bestIndiv = self.population[-1]
+		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
 
 	def printPopulation(self):
-		if hasattr(self, 'params') and self.params.has_key('printPopulation') and self.params['printPopulation'] == 'yes':
-			print '-----------'
-			for indiv in self.population:
-				print str(indiv) + ' score: ' + str(indiv.score)
-			print ''
+		if not self._shouldIRunAPeriodicFunctionNow('printPopulation'):
+			return
+		print '-----------'
+		for indiv in self.population:
+			print str(indiv) + ' score: ' + str(indiv.score)
+		print ''
 
 	def printParetoFront(self, paretoFront, objname, objfunc):
-		if hasattr(self, 'params') and self.params.has_key('printParetoFront') and self.params['printParetoFront'] == 'yes':
-			print 'Pareto front:'
-			for indiv in paretoFront:
-				print str(indiv) + ' score: ' + str(indiv.score) + ' ' + objname + ': ' + str(objfunc(indiv))
-			print ''
+		if not self._shouldIRunAPeriodicFunctionNow('printParetoFront'):
+			return
+		print 'Pareto front:'
+		for indiv in paretoFront:
+			print str(indiv) + ' score: ' + str(indiv.score) + ' ' + objname + ': ' + str(objfunc(indiv))
+		print ''
 
 	def paretoWarning(self, paretoFront):
 		# Warn user when the Pareto front gets too large
@@ -136,7 +138,7 @@ class BaseEvolver(object):
 			print 'WARNING! Proportion of nondominated individuals too high (' + str(r) + ')'
 
 	def logBestIndividual(self, filename=None):
-		if not (hasattr(self, 'params') and self.params.has_key('logBestIndividual') and self.params['logBestIndividual'] == 'yes'):
+		if not self._shouldIRunAPeriodicFunctionNow('logBestIndividual'):
 			return
 		if filename is None:
 			filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log'
@@ -153,10 +155,7 @@ class BaseEvolver(object):
 			self.logBestIndividual(filename=filename)
 
 	def logPopulation(self, prefix='population'):
-		if not (hasattr(self, 'params') and self.params.has_key('logPopulation') and self.params['logPopulation'] == 'yes'):
-			return
-		populationLoggingPeriod = 1 if not self.params.has_key('backupPeriod') else self.params['backupPeriod']
-		if not self.generation % populationLoggingPeriod == 0:
+		if not self._shouldIRunAPeriodicFunctionNow('logPopulation'):
 			return
 		filename = prefix + '_gen' + str(self.generation) + '.log'
 		with open(filename, 'w') as logFile:
@@ -206,12 +205,20 @@ class BaseEvolver(object):
 			raise ValueError('Inital population is too large')
 		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
 
-	def saveBeforeEvaluation(self):
-		if hasattr(self, 'params') and self.params.has_key('saveBeforeEvaluation') and self.params['saveBeforeEvaluation'] == 'yes':
-			self.stateType = 'before_evaluation'
-			self.pickleSelf()
+	def generateLogsAndStdout(self):
+		# Generation number is printed after every update
+		self.printGeneration()
 
-	def saveAfterEvaluation(self):
-		if hasattr(self, 'params') and self.params.has_key('saveAfterEvaluation') and self.params['saveAfterEvaluation'] == 'yes':
-			self.stateType = 'after_evaluation'
-			self.pickleSelf(postfix='.afterEvaluation')
+		# Config-dependent output functions: won't do anything unless the config contains explicit permission
+		self.logBestIndividual(filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log')
+		self.logPopulation(prefix = 'population' + str(self.params['randomSeed']))
+		self.printBestIndividual()
+		self.printPopulation()
+
+	def _shouldIRunAPeriodicFunctionNow(self, paramname):
+		if not (hasattr(self, 'params') and self.params.has_key(paramname) and self.params[paramname] == 'yes'):
+			return False
+		period = 1 if not self.params.has_key(paramname + 'Period') else self.params[paramname + 'Period']
+		if not self.generation % period == 0:
+			return False
+		return True

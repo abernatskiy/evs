@@ -56,27 +56,16 @@ evolParams['randomSeed'] = int(cliArgs.randSeed)
 comm = Communicator(cliArgs.evalsFileName, cliArgs.indivFileName)
 evolver = Evolver(comm, indivParams, evolParams)
 
-def generateLogsAndStdout():
-	# Generation number is printed after every update
-	evolver.printGeneration()
-
-	# Config-dependent output functions: won't do anything unless the config contains explicit permission
-	evolver.logBestIndividual(filename = 'bestIndividual' + str(evolParams['randomSeed']) + '.log')
-	evolver.logPopulation(prefix = 'population' + str(evolParams['randomSeed']))
-	evolver.printBestIndividual()
-	evolver.printPopulation()
-
-generateLogsAndStdout()
+# Config-dependent backup function: doesn't do anything unless evolver.params['backups'] == 'yes'
+# Will make backups at every generation if evolver.params['backupPeriod'] is not set, otherwise
+# will make a backup once every evolver.params['backupPeriod'] iterations
+evolver.pickleSelf()
+evolver.generateLogsAndStdout()
 
 # Running the evolution
-
 while True:
-	# Config-dependent backup function: doesn't do anything unless evolver.params['backups'] == 'yes'
-	# Will make backups at every generation if evolver.params['backupPeriod'] is not set, otherwise
-	# will make a backup once every evolver.params['backupPeriod'] iterations
-	evolver.pickleSelf()
-
 	# Advance evolution by one generation, whatever that means
 	evolver.updatePopulation()
 
-	generateLogsAndStdout()
+	evolver.pickleSelf()
+	evolver.generateLogsAndStdout()
