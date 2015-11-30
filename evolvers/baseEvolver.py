@@ -47,7 +47,7 @@ class BaseEvolver(object):
 			np.random.seed(self.params['randomSeed'])
 		self.population = []
 		if not initialPopulationFileName is None:
-			self.appendPopulationFromFile(initialPopulationFileName)
+			self._appendPopulationFromFile(initialPopulationFileName)
 
 	def updatePopulation(self):
 		self.generation += 1
@@ -116,18 +116,18 @@ class BaseEvolver(object):
 					file.write(s)
 		os.remove(oldFilename)
 
-	def printGeneration(self):
+	def _printGeneration(self):
 		if not self._shouldIRunAPeriodicFunctionNow('printGeneration'):
 			return
 		print 'Generation ' + str(self.generation)
 
-	def printBestIndividual(self):
+	def _printBestIndividual(self):
 		if not self._shouldIRunAPeriodicFunctionNow('printBestIndividual'):
 			return
 		bestIndiv = self.population[-1]
 		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
 
-	def printPopulation(self):
+	def _printPopulation(self):
 		if not self._shouldIRunAPeriodicFunctionNow('printPopulation'):
 			return
 		print '-----------'
@@ -151,41 +151,6 @@ class BaseEvolver(object):
 		if r > 0.75:
 			print 'WARNING! Proportion of nondominated individuals too high (' + str(r) + ')'
 
-	def logBestIndividual(self, filename=None):
-		if not self._shouldIRunAPeriodicFunctionNow('logBestIndividual'):
-			return
-		if filename is None:
-			filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log'
-		self._bestIndividualLogFileName = filename
-		bestIndiv = self.population[-1]
-		if self.logHeaderWritten:
-			with open(filename, 'a') as logFile:
-				logFile.write(str(self.generation) + ' ' + str(bestIndiv.score) + ' ' + str(bestIndiv) + '\n')
-		else:
-			with open(filename, 'w') as logFile:
-				self._writeParamsToLog(logFile)
-				logFile.write('# Columns: generation score ID indivDesc0 indivDesc1 ...\n')
-			self.logHeaderWritten = True
-			self.logBestIndividual(filename=filename)
-
-	def logPopulation(self, prefix='population'):
-		if not self._shouldIRunAPeriodicFunctionNow('logPopulation'):
-			return
-		filename = prefix + '_gen' + str(self.generation) + '.log'
-		with open(filename, 'w') as logFile:
-			self._writeParamsToLog(logFile)
-			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
-			for indiv in self.population:
-				logFile.write(str(indiv.score) + ' ' + str(indiv) + '\n')
-
-	def _writeParamsToLog(self, file):
-		file.write('# Evolver parameters: ' + self._deterministicDict2Str(self.params) + '\n')
-		file.write('# Individual parameters: ' + self._deterministicDict2Str(self.indivParams) + '\n')
-
-	def _deterministicDict2Str(self, dict):
-		pairStrs = [ '\'' + key + '\': ' + str(dict[key]) for key in sorted(dict.keys()) ]
-		return '{' + ','.join(pairStrs) + '}'
-
 	def findParetoFront(self, func0, func1):
 		for indiv in self.population:
 			indiv.__dominated__ = False
@@ -206,6 +171,41 @@ class BaseEvolver(object):
 		paretoFront = filter(lambda x: not x.__dominated__, self.population)
 		return paretoFront
 
+	def _logBestIndividual(self, filename=None):
+		if not self._shouldIRunAPeriodicFunctionNow('logBestIndividual'):
+			return
+		if filename is None:
+			filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log'
+		self._bestIndividualLogFileName = filename
+		bestIndiv = self.population[-1]
+		if self.logHeaderWritten:
+			with open(filename, 'a') as logFile:
+				logFile.write(str(self.generation) + ' ' + str(bestIndiv.score) + ' ' + str(bestIndiv) + '\n')
+		else:
+			with open(filename, 'w') as logFile:
+				self._writeParamsToLog(logFile)
+				logFile.write('# Columns: generation score ID indivDesc0 indivDesc1 ...\n')
+			self.logHeaderWritten = True
+			self._logBestIndividual(filename=filename)
+
+	def _logPopulation(self, prefix='population'):
+		if not self._shouldIRunAPeriodicFunctionNow('logPopulation'):
+			return
+		filename = prefix + '_gen' + str(self.generation) + '.log'
+		with open(filename, 'w') as logFile:
+			self._writeParamsToLog(logFile)
+			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
+			for indiv in self.population:
+				logFile.write(str(indiv.score) + ' ' + str(indiv) + '\n')
+
+	def _writeParamsToLog(self, file):
+		file.write('# Evolver parameters: ' + self._deterministicDict2Str(self.params) + '\n')
+		file.write('# Individual parameters: ' + self._deterministicDict2Str(self.indivParams) + '\n')
+
+	def _deterministicDict2Str(self, dict):
+		pairStrs = [ '\'' + key + '\': ' + str(dict[key]) for key in sorted(dict.keys()) ]
+		return '{' + ','.join(pairStrs) + '}'
+
 	def noisifyAllScores(self):
 		for indiv in self.population:
 			indiv.noisifyScore(self.params['noiseAmplitude'])
@@ -213,7 +213,7 @@ class BaseEvolver(object):
 	def populationIsValid(self):
 		return len(self.population) <= self.params['populationSize'] and all([ type(indiv) == self.params['indivClass'] for indiv in self.population ])
 
-	def appendPopulationFromFile(self, filename):
+	def _appendPopulationFromFile(self, filename):
 		file = open(filename, 'r')
 		for line in file:
 			indiv = self.params['indivClass'](self.indivParams)
@@ -225,13 +225,13 @@ class BaseEvolver(object):
 
 	def generateLogsAndStdout(self):
 		# Generation number is printed after every update
-		self.printGeneration()
+		self._printGeneration()
 
 		# Config-dependent output functions: won't do anything unless the config contains explicit permission
-		self.logBestIndividual(filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log')
-		self.logPopulation(prefix = 'population' + str(self.params['randomSeed']))
-		self.printBestIndividual()
-		self.printPopulation()
+		self._logBestIndividual(filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log')
+		self._logPopulation(prefix = 'population' + str(self.params['randomSeed']))
+		self._printBestIndividual()
+		self._printPopulation()
 
 	def _paramIsEnabled(self, paramName):
 		return hasattr(self, 'params') and self.params.has_key(paramName) and self.params[paramName] == 'yes'
