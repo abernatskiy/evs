@@ -1,5 +1,6 @@
 from copy import deepcopy
 import numpy as np
+import os
 
 def firstDominatedBySecond(indiv0, indiv1, func0, func1):
 	'''Assumes that both functions are minimized, as in the classical Pareto front picture'''
@@ -35,7 +36,7 @@ class BaseEvolver(object):
 		self.logHeaderWritten = False
 		self.generation = 0
 		# little dirty hack which exploit the fact that there's always just one Evolver to communicate generation number to Individuals
-		if self.ancestryTrackingEnabled():
+		if self._paramIsEnabled('trackAncestry'):
 			indivParams['trackAncestry'] = 'yes'
 			import __builtin__
 			if not hasattr(__builtin__, 'globalGenerationCounter'):
@@ -50,7 +51,7 @@ class BaseEvolver(object):
 
 	def updatePopulation(self):
 		self.generation += 1
-		if self.ancestryTrackingEnabled():
+		if self._paramIsEnabled('trackAncestry'):
 			import __builtin__
 			__builtin__.globalGenerationCounter += 1
 		if self.params.has_key('genStopAfter') and self.generation > self.params['genStopAfter']:
@@ -93,7 +94,7 @@ class BaseEvolver(object):
 	def recover(self):
 		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
 		np.random.set_state(self.randomGeneratorState)
-		if self.ancestryTrackingEnabled(): # if we're dealing with ancestry tracking (disabled by default)...
+		if self._paramIsEnabled('trackAncestry'): # if we're dealing with ancestry tracking (disabled by default)...
 			import __builtin__
 			if not hasattr(__builtin__, 'globalGenerationCounter'):
 				# ...we should restore the content of our 'global' generation counter
@@ -101,6 +102,19 @@ class BaseEvolver(object):
 			else:
 				# it may happen that we're trying to continue evolution using a new version of python in which our little hack no longer works
 				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
+		if self._paramIsEnabled('logBestIndividual'):
+			self._truncateLogFile(self._bestIndividualLogFileName)
+
+	def _truncateLogFile(self, filename):
+		oldFilename = filename + '.old'
+		os.rename(filename, oldFilename)
+		with open(oldFilename, 'r') as oldFile:
+			with open(filename, 'w') as file:
+				for s in oldFile:
+					if s.startswith(str(self.generation)):
+						break
+					file.write(s)
+		os.remove(oldFilename)
 
 	def printGeneration(self):
 		if not self._shouldIRunAPeriodicFunctionNow('printGeneration'):
@@ -142,14 +156,14 @@ class BaseEvolver(object):
 			return
 		if filename is None:
 			filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log'
+		self._bestIndividualLogFileName = filename
 		bestIndiv = self.population[-1]
 		if self.logHeaderWritten:
 			with open(filename, 'a') as logFile:
 				logFile.write(str(self.generation) + ' ' + str(bestIndiv.score) + ' ' + str(bestIndiv) + '\n')
 		else:
 			with open(filename, 'w') as logFile:
-				logFile.write('# Evolver parameters: ' + str(self.params) + '\n')
-				logFile.write('# Individual parameters: ' + str(self.indivParams) + '\n')
+				self._writeParamsToLog(logFile)
 				logFile.write('# Columns: generation score ID indivDesc0 indivDesc1 ...\n')
 			self.logHeaderWritten = True
 			self.logBestIndividual(filename=filename)
@@ -159,11 +173,18 @@ class BaseEvolver(object):
 			return
 		filename = prefix + '_gen' + str(self.generation) + '.log'
 		with open(filename, 'w') as logFile:
-			logFile.write('# Evolver parameters: ' + str(self.params) + '\n')
-			logFile.write('# Individual parameters: ' + str(self.indivParams) + '\n')
+			self._writeParamsToLog(logFile)
 			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
 			for indiv in self.population:
 				logFile.write(str(indiv.score) + ' ' + str(indiv) + '\n')
+
+	def _writeParamsToLog(self, file):
+		file.write('# Evolver parameters: ' + self._deterministicDict2Str(self.params) + '\n')
+		file.write('# Individual parameters: ' + self._deterministicDict2Str(self.indivParams) + '\n')
+
+	def _deterministicDict2Str(self, dict):
+		pairStrs = [ '\'' + key + '\': ' + str(dict[key]) for key in sorted(dict.keys()) ]
+		return '{' + ','.join(pairStrs) + '}'
 
 	def findParetoFront(self, func0, func1):
 		for indiv in self.population:
@@ -189,9 +210,6 @@ class BaseEvolver(object):
 		for indiv in self.population:
 			indiv.noisifyScore(self.params['noiseAmplitude'])
 
-	def ancestryTrackingEnabled(self):
-		return hasattr(self, 'params') and self.params.has_key('trackAncestry') and self.params['trackAncestry'] == 'yes'
-
 	def populationIsValid(self):
 		return len(self.population) <= self.params['populationSize'] and all([ type(indiv) == self.params['indivClass'] for indiv in self.population ])
 
@@ -215,10 +233,13 @@ class BaseEvolver(object):
 		self.printBestIndividual()
 		self.printPopulation()
 
-	def _shouldIRunAPeriodicFunctionNow(self, paramname):
-		if not (hasattr(self, 'params') and self.params.has_key(paramname) and self.params[paramname] == 'yes'):
+	def _paramIsEnabled(self, paramName):
+		return hasattr(self, 'params') and self.params.has_key(paramName) and self.params[paramName] == 'yes'
+
+	def _shouldIRunAPeriodicFunctionNow(self, paramName):
+		if not self._paramIsEnabled(paramName):
 			return False
-		period = 1 if not self.params.has_key(paramname + 'Period') else self.params[paramname + 'Period']
+		period = 1 if not self.params.has_key(paramName + 'Period') else self.params[paramName + 'Period']
 		if not self.generation % period == 0:
 			return False
 		return True
