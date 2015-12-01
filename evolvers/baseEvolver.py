@@ -82,14 +82,13 @@ class BaseEvolver(object):
 			else:
 				os.mkdir('./backups')
 		if not hasattr(self, '__pickleLoaded__') or not self.__pickleLoaded__:
-			global pickle
-			import pickle
+			global cPickle
+			import cPickle
 			self.__pickleLoaded__ = True
-		file = open('./backups/' + str(self.generation).zfill(10) + postfix + '.p', 'w')
-		self.__pickleLoaded__ = False
-		pickle.dump(self, file)
-		self.__pickleLoaded = True
-		file.close()
+		with open('./backups/' + str(self.generation).zfill(10) + postfix + '.p', 'w') as file:
+			self.__pickleLoaded__ = False
+			cPickle.dump(self, file)
+			self.__pickleLoaded = True
 
 	def recover(self):
 		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID

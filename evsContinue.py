@@ -2,7 +2,7 @@
 
 import sys
 import os
-import pickle
+import cPickle
 
 def loadLastPickle():
 	bcfolder = 'backups'
@@ -18,7 +18,7 @@ def loadLastPickle():
 		with open(fullFileName, 'r') as curFile:
 			try:
 				print 'Trying to load ' + fullFileName + ' ...',
-				evolver = pickle.load(curFile)
+				evolver = cPickle.load(curFile)
 				print 'success!'
 				break
 			except:
@@ -33,7 +33,7 @@ if len(sys.argv) == 1:
 	evolver = loadLastPickle()
 elif len(sys.argv) == 2:
 	with open(sys.argv[1], 'r') as file:
-		evolver = pickle.load(file)
+		evolver = cPickle.load(file)
 else:
 	print('Usage: evsContinue.py [<backupPickleFileName>]\n'
 				'If no backup file is given, the program automatically searches for the one with a highest number at backups/')
@@ -46,5 +46,4 @@ while True:
 	evolver.updatePopulation()
 	evolver.pickleSelf()
 	evolver.generateLogsAndStdout()
-import pickle
 
