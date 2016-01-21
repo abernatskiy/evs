@@ -39,6 +39,8 @@ floats = ['mutExploration',
 					'secondObjectiveProbability',
 					'initLowerLimit',
 					'initUpperLimit',
+					'lowerCap',
+					'upperCap',
 					'relativeMutationAmplitude']
 ints = ['length',
 				'genStopAfter',
