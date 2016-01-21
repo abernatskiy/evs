@@ -11,7 +11,7 @@ class Individual(RealVector):
      normal distribution is equal to the number itself times the
      relativeMutationAmplitude parameter. If variables lowerCap
      or upperCap are defined, the result is clipped to the range
-     [lowerCap, upperCap]
+     [lowerCap, upperCap].
      Constructor takes a dictionary with the following parameter
      fields:
        initLowerLimit, initUpperLimit
@@ -22,6 +22,12 @@ class Individual(RealVector):
 	'''
 	def __init__(self, params):
 		super(Individual, self).__init__(params)
+
+		if not self.params.has_key('lowerCap'):
+			self.params['lowerCap'] = float('-Inf')
+		if not self.params.has_key('upperCap'):
+			self.params['upperCap'] = float('Inf')
+
 		self.values = np.random.random(size=self.params['length'])
 		self.values *= self.params['initUpperLimit'] - self.params['initLowerLimit']
 		self.values += self.params['initLowerLimit']
@@ -29,6 +35,7 @@ class Individual(RealVector):
 	def mutate(self):
 		mutPos = np.random.random_integers(0, self.values.size-1)
 		self.values[mutPos] *= (1. + self.params['relativeMutationAmplitude']*np.random.standard_normal())
+		self.values[mutPos] = np.clip(self.values[mutPos], self.params['lowerCap'], self.params['upperCap'])
 		self.renewID()
 		return True
 
