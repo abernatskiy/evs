@@ -1,0 +1,37 @@
+import numpy as np
+from realVector import Individual as RealVector
+
+class Individual(RealVector):
+	'''Class for evolutionary individuals described by a vector of
+     real numbers taken from [initLowerLimit, initUpperLimit]
+     of constant length, with a single-valued score represented
+     by a real number. The default mode of mutation is to increase
+     a randomly chosen number from the vector by a normally
+     distributed, zero-centered random number. The width of the
+     normal distribution is equal to the number itself times the
+     relativeMutationAmplitude parameter. If variables lowerCap
+     or upperCap are defined, the result is clipped to the range
+     [lowerCap, upperCap]
+     Constructor takes a dictionary with the following parameter
+     fields:
+       initLowerLimit, initUpperLimit
+       relativeMutationAmplitude
+       length                         - length of the vector
+     Optional fields:
+       lowerCap, upperCap
+	'''
+	def __init__(self, params):
+		super(Individual, self).__init__(params)
+		self.values = np.random.random(size=self.params['length'])
+		self.values *= self.params['initUpperLimit'] - self.params['initLowerLimit']
+		self.values += self.params['initLowerLimit']
+
+	def mutate(self):
+		mutPos = np.random.random_integers(0, self.values.size-1)
+		self.values[mutPos] *= (1. + self.params['relativeMutationAmplitude']*np.random.standard_normal())
+		self.renewID()
+		return True
+
+	def setValuesToZero(self): # for sparse-first search
+		self.values = np.zeros(self.params['length'], dtype=np.int)
+		self.renewID()
