@@ -14,13 +14,6 @@ class Individual(BaseIndividual):
 		super(Individual, self).__init__(params)
 		self.values = np.random.random_integers(-1, 1, size=self.params['length'])
 
-	def __str__(self):
-		representation = str(self.id)
-		for value in self.values:
-			representation += ' '
-			representation += str(value)
-		return representation
-
 	def fromStr(self, representation):
 		integers = map(int, representation.split())
 		self.id = integers[0]
@@ -42,10 +35,6 @@ class Individual(BaseIndividual):
 			return True
 		else:
 			return False
-
-	def isDominatedBy(self, other):
-		if self.checkIfScored() and other.checkIfScored():
-			return self.score < other.score
 
 	def setValuesToTheFirstSet(self): # for bruteforce searches
 		self.values = -1*np.ones(self.params['length'], dtype=np.int)

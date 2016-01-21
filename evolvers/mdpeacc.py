@@ -17,7 +17,7 @@ class Evolver(BaseEvolver):
 		class ConnectionCostIndividuals(self.params['indivClass']):
 			def numConnections(self):
 				return np.count_nonzero(self.values)
-			def isDominatedBy(self, other):
+			def __lt__(self, other):
 				return (self.score - self.params['connectionCost']*self.numConnections()) < (other.score - other.params['connectionCost']*other.numConnections())
 		self.params['indivClass'] = ConnectionCostIndividuals
 		for i in xrange(3):

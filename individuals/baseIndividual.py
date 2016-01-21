@@ -10,7 +10,7 @@ class BaseIndividual(object):
        - representations of the individuals, given that __str__() is 
          defined for the derived class;
        - strict comparison of the individuals, given that 
-         isDominatedBy() is defined for the derived class;
+         __lt__() is defined for the derived class;
        - ID check and renewal;
        - check for score existence.
    '''
@@ -35,11 +35,21 @@ class BaseIndividual(object):
 			import __builtin__
 			self.ancestry.append((-1, __builtin__.globalGenerationCounter)) # teleported here from evolvers.baseEvolver
 
+	def __str__(self):
+		representation = str(self.id)
+		for value in self.values:
+			representation += ' '
+			representation += str(value)
+		return representation
+
 	def __repr__(self):
 		return self.__str__()
 
 	def __lt__(self, other):
-		return self.isDominatedBy(other)
+		if self.checkIfScored() and other.checkIfScored():
+			return self.score < other.score
+		else:
+			raise ValueError('Unscored individuals cannot be compared')
 
 	def __eq__(self, other):
 		return self.id == other.id
