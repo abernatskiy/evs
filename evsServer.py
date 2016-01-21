@@ -30,8 +30,25 @@ Communicator = importlib.import_module('communicators.' + conf.get('classes', 'c
 
 # Loading parameters
 
-floats = ['mutExploration', 'mutInsDelRatio', 'mutProbability', 'mutationProbability', 'mutationAmplitude', 'noiseAmplitude', 'secondObjectiveProbability']
-ints = ['length', 'genStopAfter', 'populationSize', 'randomSeed', 'initDensity', 'beginConn', 'endConn', 'eliteSize']
+floats = ['mutExploration',
+					'mutInsDelRatio',
+					'mutProbability',
+					'mutationProbability',
+					'mutationAmplitude',
+					'noiseAmplitude',
+					'secondObjectiveProbability',
+					'initLowerLimit',
+					'initUpperLimit',
+					'relativeMutationAmplitude']
+ints = ['length',
+				'genStopAfter',
+				'populationSize',
+				'randomSeed',
+				'initDensity',
+				'beginConn',
+				'endConn',
+				'eliteSize',
+				'precision']
 
 periodicActionBools = ['logPopulation', 'logBestIndividual', 'printBestIndividual', 'printParetoFront', 'printPopulation', 'backup']
 periodicActionPeriods = [ x + 'Period' for x in periodicActionBools ]
