@@ -39,6 +39,7 @@ floats = ['mutExploration',
 					'secondObjectiveProbability',
 					'initLowerLimit',
 					'initUpperLimit',
+					'initProbabilityOfConnection',
 					'lowerCap',
 					'upperCap',
 					'relativeMutationAmplitude']

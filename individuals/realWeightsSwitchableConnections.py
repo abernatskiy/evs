@@ -22,16 +22,19 @@ class Individual(RealVectorTunableBoundsSureMutation):
         mutInsDelRatio parameter.
      Constructor takes a dictionary with the following parameter
      fields:
+       length
        initLowerLimit, initUpperLimit
+       mutExploration
        relativeMutationAmplitude
-       length                         - length of the vector
+       mutInsDelRatio
      Optional fields:
-       lowerCap, upperCap
+       initProbabilityOfConnection (default 1)
+       lowerCap, upperCap (default -Inf, Inf)
 	'''
 	def __init__(self, params):
 		super(Individual, self).__init__(params)
 
-		if not self.params.has_key('initProbabilityOfConnection')
+		if not self.params.has_key('initProbabilityOfConnection'):
 			self.params['initProbabilityOfConnection'] = 1.0
 
 		self.changeFrac = self.params['mutExploration']
@@ -52,7 +55,7 @@ class Individual(RealVectorTunableBoundsSureMutation):
 		if positions == []:
 			return -1
 		else:
-			return np.random.choose(positions)
+			return np.random.choice(positions)
 
 	def isAZeroWeight(self, pos):
 		return self.values[pos] == 0.0
@@ -62,27 +65,32 @@ class Individual(RealVectorTunableBoundsSureMutation):
 		self.values[pos] = np.clip(self.values[pos], self.params['lowerCap'], self.params['upperCap'])
 
 	def _insert(self):
+#		print 'Inserting'
 		insPos = self._getRandomPosition(False)
+#		print 'Got position ' + str(insPos)
 		if insPos != -1:
 			self.values[insPos] = self.getAnInitialValue()
+#			print 'Initialized a weight with ' + str(self.values[insPos])
 			if not self.isAZeroWeight(insPos):
+#				print 'Nontrivial change - returning True'
 				self.mask[insPos] = True
 				return True
 			else:
+#				print 'Trivial change - returning False'
 				self.values[insPos] = 0.0
 		return False
 
 	def _delete(self):
-		insPos = self._getRandomPosition(True)
-		if insPos != -1:
-			self.mask[insPos] = False
-			self.values[insPos] = 0.0
+		delPos = self._getRandomPosition(True)
+		if delPos != -1:
+			self.mask[delPos] = False
+			self.values[delPos] = 0.0
 			return True
 		return False
 
 	def _change(self):
-		insPos = self._getRandomPosition(True)
-		if insPos != -1:
+		mutPos = self._getRandomPosition(True)
+		if mutPos != -1:
 			oldVal = self.values[mutPos]
 			self.changeWeight(mutPos)
 			if self.isAZeroWeight(mutPos):
@@ -94,13 +102,17 @@ class Individual(RealVectorTunableBoundsSureMutation):
 
 	def mutate(self):
 		mutated = False
-		randVal = np.random.random()
-		if randVal < self.changeFrac:
-			mutated = self._change()
-		elif randVal < (self.changeFrac + self.insertFrac):
-			mutated = self._insert()
-		else:
-			mutated = self._delete()
-    if mutated:
-      self.renewID()
-    return mutated
+#		print 'Mutating ' + str(self)
+		while not mutated:
+			randVal = np.random.random()
+			if randVal < self.changeFrac:
+#				print 'Chose change'
+				mutated = self._change()
+			elif randVal < (self.changeFrac + self.insertFrac):
+#				print 'Chose insertion'
+				mutated = self._insert()
+			else:
+#				print 'Chose deletion'
+				mutated = self._delete()
+		self.renewID()
+		return True
