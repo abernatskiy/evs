@@ -28,9 +28,12 @@ class Individual(RealVector):
 		if not self.params.has_key('upperCap'):
 			self.params['upperCap'] = float('Inf')
 
-		self.values = np.random.random(size=self.params['length'])
-		self.values *= self.params['initUpperLimit'] - self.params['initLowerLimit']
-		self.values += self.params['initLowerLimit']
+		self.values = []
+		for i in xrange(self.params['length']):
+			self.values.append(self.getAnInitialValue())
+
+	def getAnInitialValue(self):
+		return self.params['initLowerLimit'] + (self.params['initUpperLimit'] - self.params['initLowerLimit'])*np.random.random()
 
 	def mutate(self):
 		mutPos = np.random.random_integers(0, self.values.size-1)
