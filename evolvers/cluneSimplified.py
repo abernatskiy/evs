@@ -32,7 +32,10 @@ class Evolver(BaseEvolver):
 
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
-		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: len(filter(lambda y: y!=0, x.values)))
+
+#		print 'Making a Pareto front'
+#		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: len(filter(lambda y: y!=0, x.values)))
+		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: len(filter(lambda y: y, x.mask)))
 
 		if self.params.has_key('printParetoFront') and self.params['printParetoFront'] == 'yes':
 			for indiv in paretoFront:
@@ -46,14 +49,22 @@ class Evolver(BaseEvolver):
 		if r > 0.75:
 			print 'WARNING! Proportion of nondominated individuals too high (' + str(r) + ')'
 
+#		print 'Creating a new population'
 		newPopulation = []
 		for indiv in paretoFront:
 			newPopulation.append(indiv)
 		while len(newPopulation) < self.params['populationSize']:
+#			print 'Adding a child'
 			parent = np.random.choice(paretoFront)
+#			print 'Chose a parent ' + str(parent)
 			child = deepcopy(parent)
+#			print 'Copying successful'
 			child.mutate()
+#			print 'Mutating a child'
 			newPopulation.append(child)
+#			print 'Appended the child to the new population'
+#		print 'Made a population'
 		self.population = newPopulation
 		self.communicator.evaluate(self.population)
 		self.population.sort(key = lambda x: x.score)
+#		print 'Exiting updatePopulation()'
