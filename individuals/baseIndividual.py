@@ -90,3 +90,7 @@ class BaseIndividual(object):
 
 	def ancestryTrackingEnabled(self):
 		return hasattr(self, 'params') and self.params.has_key('trackAncestry') and self.params['trackAncestry'] == 'yes'
+
+	def setParamDefault(self, paramName, paramVal):
+		if not self.params.has_key(paramName):
+			self.params[paramName] = paramVal
