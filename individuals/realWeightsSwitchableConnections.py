@@ -115,4 +115,5 @@ class Individual(RealVectorTunableBoundsSureMutation):
 #				print 'Chose deletion'
 				mutated = self._delete()
 		self.renewID()
+#		print 'Result is ' + str(self)
 		return True

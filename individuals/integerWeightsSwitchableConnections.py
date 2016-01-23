@@ -61,8 +61,9 @@ class Individual(RealWeightsSwitchableConnections):
 		return self.values[pos] == 0.0
 
 	def changeWeight(self, pos):
-		self.values[pos] += np.random.choice(inclusiveRange(-1.*self.params['mutationAmplitude'], self.params['mutationAmplitude']))
-		self.values[mutPos] = np.clip(self.values[mutPos], self.params['lowerCap'], self.params['upperCap'])
+		inc = np.random.choice(inclusiveRange(-1.*self.params['mutationAmplitude'], self.params['mutationAmplitude']))
+		self.values[pos] = np.clip(self.values[pos] + inc, self.params['lowerCap'], self.params['upperCap'])
+#		print 'Increment by ' + str(inc) + ' has been attempted'
 
 	def getAnInitialValue(self):
 		return np.random.choice(inclusiveRange(self.params['initLowerLimit'], self.params['initUpperLimit']))
