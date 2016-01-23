@@ -41,3 +41,7 @@ class Individual(RealVector):
 		self.values[mutPos] = np.clip(self.values[mutPos], self.params['lowerCap'], self.params['upperCap'])
 		self.renewID()
 		return True
+
+	def setValuesToTheFirstSet(self):
+		for i in xrange(self.params['length']):
+			self.values[i] = self.params['lowerCap']
