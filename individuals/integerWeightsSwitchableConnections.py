@@ -43,8 +43,13 @@ class Individual(RealWeightsSwitchableConnections):
 	def __init__(self, params):
 		super(Individual, self).__init__(params)
 
-		if not self.params.has_key('mutationAmplitude'):
-			self.params['mutationAmplitude'] = 1.0
+		self.setParamDefault('mutationAmplitude', 1.0)
+		if not np.isfinite(self.params['lowerCap']):
+			print 'WARNING! Lower cap undefined or infinite, resetting to -1'
+			self.params['lowerCap'] = -1.0
+		if not np.isfinite(self.params['upperCap']):
+			print 'WARNING! Upper cap undefined or infinite, resetting to 1'
+			self.params['upperCap'] = 1.0
 
 		self._ensureParamIntegerness('initLowerLimit')
 		self._ensureParamIntegerness('initUpperLimit')
@@ -54,7 +59,7 @@ class Individual(RealWeightsSwitchableConnections):
 
 	def _ensureParamIntegerness(self, paramName):
 		if not self.params[paramName].is_integer():
-			raise ValueError(paramName + ' should be an integer (is ' + str(self.params[paramName]))
+			raise ValueError(paramName + ' should be an integer (is ' + str(self.params[paramName]) + ')')
 
 	def isAZeroWeight(self, pos):
 		# Redefining to safeguard against possible forgetful alterations of the parent class
@@ -67,3 +72,41 @@ class Individual(RealWeightsSwitchableConnections):
 
 	def getAnInitialValue(self):
 		return np.random.choice(inclusiveRange(self.params['initLowerLimit'], self.params['initUpperLimit']))
+
+	def increment(self):
+#		print 'Incrementing ' + str(self)
+		lcap = int(self.params['lowerCap'])
+		ucap = int(self.params['upperCap'])
+		base = ucap-lcap+1
+#		print 'Bounds are ' + str(lcap) + ' and ' + str(ucap) + ', base is ' + str(base)
+
+		if not hasattr(self, '__incrementCalled__') or not self.__incrementCalled__:
+			self.__incrementCalled__ = True
+			ssize = base**self.params['length']
+			if ssize > 10**9:
+				print 'WARNING! This is madness. Brute force serach attempted in space of more than 10^9 genotypes.'
+
+		self.renewID() # we start with it because it is inevitable
+
+		numRepr = 0
+		order = 0
+		for val in self.values:
+			numRepr += (int(val)-lcap)*(base**order)
+			order += 1
+#		print 'Current numerical representation is ' + str(numRepr)
+
+		numRepr += 1
+
+		if numRepr / (base**order) >= 1:
+#			print 'Upper cap is hit!'
+			self.setValuesToTheFirstSet()
+			return False
+
+		while order > 0:
+			order -= 1
+			curDig = numRepr / (base**order)
+			numRepr -= curDig*(base**order)
+#			print 'For order ' + str(order) + ' the digit is ' + str(curDig) + ': the remainder is ' + str(numRepr)
+			self.values[order] = float(lcap + curDig)
+#		print 'Ended up with ' + str(self)
+		return True
