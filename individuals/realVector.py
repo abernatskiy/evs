@@ -8,6 +8,6 @@ class Individual(BaseIndividual):
 		self.id = int(vals[0])
 		self.values = vals[1:]
 
-	def setValuesToZero(self): # for sparse-first search
+	def setValuesToZero(self): # for sparse-first search and certain brute force approaches
 		self.values = np.zeros(self.params['length'], dtype=np.int)
 		self.renewID()

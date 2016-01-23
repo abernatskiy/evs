@@ -41,7 +41,3 @@ class Individual(RealVector):
 		self.values[mutPos] = np.clip(self.values[mutPos], self.params['lowerCap'], self.params['upperCap'])
 		self.renewID()
 		return True
-
-	def setValuesToZero(self): # for sparse-first search
-		self.values = np.zeros(self.params['length'], dtype=np.int)
-		self.renewID()
