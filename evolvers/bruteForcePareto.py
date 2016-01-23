@@ -20,14 +20,23 @@ class Evolver(BaseEvolver):
 				evolParams['secondMinObj'](indiv)'''
 	def __init__(self, communicator, indivParams, evolParams):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams)
+
+		self.params['genStopAfter'] = 0
+
+		if not self.params.has_key('secondMinObj'):
+			print 'WARNING! The second objective function is undefined, falling back to constant'
+			self.params['secondMinObj'] = lambda x: 0
+
 		indiv = self.params['indivClass'](indivParams)
 		indiv.setValuesToTheFirstSet()
 		self.population.append(indiv)
+
 		nextIndiv = deepcopy(indiv)
 		while nextIndiv.increment():
 			self.population.append(nextIndiv)
 			newNextIndiv = deepcopy(nextIndiv)
 			nextIndiv = newNextIndiv
+
 		self.communicator.evaluate(self.population)
 
 	def updatePopulation(self):
