@@ -57,9 +57,12 @@ class BaseEvolver(object):
 			import __builtin__
 			__builtin__.globalGenerationCounter += 1
 		if self.params.has_key('genStopAfter') and self.generation > self.params['genStopAfter']:
-			print 'Done.\n'
-			import sys
-			sys.exit(0)
+			self.done()
+
+	def done(self):
+		print 'Done.\n'
+		import sys
+		sys.exit(0)
 
 	def pickleSelf(self, postfix=''):
 		if not self._shouldIRunAPeriodicFunctionNow('backup'):
@@ -152,14 +155,16 @@ class BaseEvolver(object):
 		if r > 0.75:
 			print 'WARNING! Proportion of nondominated individuals too high (' + str(r) + ')'
 
-	def findParetoFront(self, func0, func1, breakTiesByIDs=True):
-		for indiv in self.population:
+	def findParetoFront(self, func0, func1, breakTiesByIDs=True, population=None):
+		if population is None:
+			population = self.population
+		for indiv in population:
 			indiv.__dominated__ = False
-		for ii in self.population:
-			for ij in self.population:
+		for ii in population:
+			for ij in population:
 				if not ii is ij and firstDominatedBySecond(ii, ij, func0, func1, breakTiesByIDs=breakTiesByIDs):
 					ii.__dominated__ = True
-		paretoFront = filter(lambda x: not x.__dominated__, self.population)
+		paretoFront = filter(lambda x: not x.__dominated__, population)
 		return paretoFront
 
 	def findStochasticalParetoFront(self, func0, func1):
