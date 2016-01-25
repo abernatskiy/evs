@@ -117,3 +117,7 @@ class Individual(RealVectorTunableBoundsSureMutation):
 		self.renewID()
 #		print 'Result is ' + str(self)
 		return True
+
+	def setValuesToTheFirstSet(self):
+		super(Individual, self).setValuesToTheFirstSet()
+		self.mask = map(lambda x: x != 0.0, self.values)

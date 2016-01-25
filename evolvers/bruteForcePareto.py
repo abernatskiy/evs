@@ -28,6 +28,8 @@ class Evolver(BaseEvolver):
 		if not self.params.has_key('secondMinObj'):
 			print 'WARNING! The second objective function is undefined, falling back to constant'
 			self.params['secondMinObj'] = lambda x: 0
+		if not hasattr(self, '__secondObjName__'):
+			self.__secondObjName__ = 'unknown'
 
 		indiv = self.params['indivClass'](indivParams)
 		indiv.setValuesToTheFirstSet()
@@ -43,4 +45,4 @@ class Evolver(BaseEvolver):
 
 		paretoFront = self.findParetoFront(lambda x: -1*x.score, self.params['secondMinObj'])
 		self.logSubpopulation(paretoFront, 'logParetoFront', 'paretoFront')
-		self.printParetoFront(paretoFront, 'unknown', lambda x: 0)
+		self.printParetoFront(paretoFront, self.__secondObjName__, self.params['secondMinObj'])

@@ -110,4 +110,7 @@ class Individual(RealWeightsSwitchableConnections):
 #			print 'For order ' + str(order) + ' the digit is ' + str(curDig) + ': the remainder is ' + str(numRepr)
 			self.values[order] = float(lcap + curDig)
 #		print 'Ended up with ' + str(self)
+
+		self.mask = map(lambda x: x!=0.0, self.values)
+
 		return True

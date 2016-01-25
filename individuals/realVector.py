@@ -9,5 +9,5 @@ class Individual(BaseIndividual):
 		self.values = vals[1:]
 
 	def setValuesToZero(self): # for sparse-first search only! Use setValuesToTheFirstSet() for bruteforce applications
-		self.values = np.zeros(self.params['length'], dtype=np.int)
+		self.values = np.zeros(self.params['length'], dtype=np.float)
 		self.renewID()
