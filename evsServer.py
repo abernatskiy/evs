@@ -51,20 +51,25 @@ ints = ['length',
 				'beginConn',
 				'endConn',
 				'eliteSize',
-				'precision']
+				'precision',
+				'bruteForceChunkSize']
+
+bools = ['paretoBreakTiesByIDs']
 
 periodicActionBools = ['logPopulation', 'logBestIndividual', 'printBestIndividual', 'printParetoFront', 'printPopulation', 'backup']
 periodicActionPeriods = [ x + 'Period' for x in periodicActionBools ]
 ints += periodicActionPeriods
 
 def loadDict(section):
-	global conf, floats, ints
+	global conf, floats, ints, bools
 	dict = {}
 	for item in conf.items(section):
 		if item[0] in ints:
 			dict[item[0]] = int(item[1])
 		elif item[0] in floats:
 			dict[item[0]] = float(item[1])
+		elif item[0] in bools:
+			dict[item[0]] = (item[1] == 'yes')
 		else:
 			dict[item[0]] = item[1]
 	return dict

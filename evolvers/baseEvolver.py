@@ -2,7 +2,7 @@ from copy import deepcopy
 import numpy as np
 import os
 
-def firstDominatedBySecond(indiv0, indiv1, func0, func1):
+def firstDominatedBySecond(indiv0, indiv1, func0, func1, breakTiesByIDs=True):
 	'''Assumes that both functions are minimized, as in the classical Pareto front picture'''
 	# truth table:
 	#                  f0(i0)<f0(i1)    f0(i0)=f0(i1)    f0(i0)>f0(i1)
@@ -13,8 +13,10 @@ def firstDominatedBySecond(indiv0, indiv1, func0, func1):
 		raise RuntimeError('Pareto optimization error: Two individuals with the same ID compared')
 	if func0(indiv0) == func0(indiv1):
 		if func1(indiv0) == func1(indiv1):
-#			return False # leads to an exponential explosion of the Pareto front, according to Josh
-			return indiv0.id < indiv1.id # lower ID indicates that indiv0 was generated before indiv1 and is older
+			if breakTiesByIDs:
+				return indiv0.id < indiv1.id # lower ID indicates that indiv0 was generated before indiv1 and is older
+			else:
+				return False
 		else:
 			return func1(indiv0) > func1(indiv1)
 	else:
@@ -150,12 +152,12 @@ class BaseEvolver(object):
 		if r > 0.75:
 			print 'WARNING! Proportion of nondominated individuals too high (' + str(r) + ')'
 
-	def findParetoFront(self, func0, func1):
+	def findParetoFront(self, func0, func1, breakTiesByIDs=True):
 		for indiv in self.population:
 			indiv.__dominated__ = False
 		for ii in self.population:
 			for ij in self.population:
-				if not ii is ij and firstDominatedBySecond(ii, ij, func0, func1):
+				if not ii is ij and firstDominatedBySecond(ii, ij, func0, func1, breakTiesByIDs=breakTiesByIDs):
 					ii.__dominated__ = True
 		paretoFront = filter(lambda x: not x.__dominated__, self.population)
 		return paretoFront
@@ -252,3 +254,7 @@ class BaseEvolver(object):
 		if not self.generation % period == 0:
 			return False
 		return True
+
+	def setParamDefault(self, paramName, paramVal):
+		if not self.params.has_key(paramName):
+			self.params[paramName] = paramVal

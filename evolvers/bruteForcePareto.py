@@ -31,18 +31,32 @@ class Evolver(BaseEvolver):
 		if not hasattr(self, '__secondObjName__'):
 			self.__secondObjName__ = 'unknown'
 
+		self.setParamDefault('bruteForceChunkSize', -1)
+		self.setParamDefault('paretoBreakTiesByIDs', False)
+
 		indiv = self.params['indivClass'](indivParams)
 		indiv.setValuesToTheFirstSet()
-		self.population.append(indiv)
 
-		nextIndiv = deepcopy(indiv)
+		self.nextIndiv = self._addSpaceChunk(indiv, self.params['bruteForceChunkSize'])
+		self.communicator.evaluate(self.population)
+
+		self.paretoFront = self.findParetoFront(lambda x: -1*x.score, self.params['secondMinObj'], breakTiesByIDs=self.params['paretoBreakTiesByIDs'])
+		self.logSubpopulation(self.paretoFront, 'logParetoFront', 'paretoFront')
+		self.printParetoFront(self.paretoFront, self.__secondObjName__, self.params['secondMinObj'])
+
+	def _addSpaceChunk(self, initIndiv, chunkSize):
+		self.population.append(initIndiv)
+		nextIndiv = deepcopy(initIndiv)
+
+		i = 1
+
 		while nextIndiv.increment():
+			if chunkSize > 0 and i%chunkSize == 0:
+				return nextIndiv
 			self.population.append(nextIndiv)
 			newNextIndiv = deepcopy(nextIndiv)
 			nextIndiv = newNextIndiv
 
-		self.communicator.evaluate(self.population)
+			i += 1
 
-		paretoFront = self.findParetoFront(lambda x: -1*x.score, self.params['secondMinObj'])
-		self.logSubpopulation(paretoFront, 'logParetoFront', 'paretoFront')
-		self.printParetoFront(paretoFront, self.__secondObjName__, self.params['secondMinObj'])
+		return None
