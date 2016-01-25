@@ -83,8 +83,9 @@ class Individual(RealWeightsSwitchableConnections):
 		if not hasattr(self, '__incrementCalled__') or not self.__incrementCalled__:
 			self.__incrementCalled__ = True
 			ssize = base**self.params['length']
-			if ssize > 10**9:
-				print 'WARNING! This is madness. Brute force serach attempted in space of more than 10^9 genotypes.'
+			print 'Brute force search attempted on the space of ' + str(ssize) + ' individuals.'
+			if ssize > 10**8:
+				print 'WARNING! This is madness.'
 
 		self.renewID() # we start with it because it is inevitable
 

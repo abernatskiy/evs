@@ -4,14 +4,16 @@ from baseEvolver import BaseEvolver
 class Evolver(BaseEvolver):
 	'''Brute force Pareto front finder
      Not an evolutionary algorithm. Works by generating a
-     population of all possible solutions using 
+     population of all possible solutions using
      indiv.setValuesToTheFirstSet() and indiv.increment(),
-     then evaluating the population. In the first call of
-     updatePopulation() the Pareto front which maximizes
-     indiv.score and minimizes the 
-     params['secondMinObj'](indiv) function.
-     The population is then set to be the Pareto front.
-     Subsequent calls of updatePopulation do not change it.
+     then evaluating the population, then finding the
+     Pareto front which maximizes indiv.score and
+     minimizes the params['secondMinObj'](indiv) function.
+     The Pareto front is optionally logged
+     (logParetoFront=yes).
+		 The number of of generations is fixed to be zero,
+     so the updatePopulation() function returns False
+     on the first call.
        Required methods and parameters:
         communicator.evaluate(population)
         evolParams['indivClass']
@@ -39,8 +41,6 @@ class Evolver(BaseEvolver):
 
 		self.communicator.evaluate(self.population)
 
-	def updatePopulation(self):
-		super(Evolver, self).updatePopulation()
 		paretoFront = self.findParetoFront(lambda x: -1*x.score, self.params['secondMinObj'])
-#		self.population = paretoFront
-		return paretoFront
+		self.logSubpopulation(paretoFront, 'logParetoFront', 'paretoFront')
+		self.printParetoFront(paretoFront, 'unknown', lambda x: 0)
