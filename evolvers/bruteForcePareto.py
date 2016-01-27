@@ -45,6 +45,7 @@ class Evolver(BaseEvolver):
 		self.communicator.evaluate(self.population)
 
 		self.paretoFront = self.findParetoFront(lambda x: -1*x.score, self.params['secondMinObj'], breakTiesByIDs=self.params['paretoBreakTiesByIDs'])
+		self.paretoFront.sort(key = self.params['secondMinObj'])
 		self._outputPareto()
 
 	def _addSpaceChunk(self, initIndiv, chunkSize):
@@ -84,6 +85,7 @@ class Evolver(BaseEvolver):
 																						breakTiesByIDs=self.params['paretoBreakTiesByIDs'],
 																						population = self.paretoFront)
 
+		self.paretoFront.sort(key = self.params['secondMinObj'])
 		self._outputPareto()
 		if self.nextIndiv is None:
 			self.done()
