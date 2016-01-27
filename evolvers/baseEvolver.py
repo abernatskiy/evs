@@ -204,10 +204,13 @@ class BaseEvolver(object):
 			for indiv in self.population:
 				logFile.write(str(indiv.score) + ' ' + str(indiv) + '\n')
 
-	def logSubpopulation(self, subpopulation, inioption, prefix):
+	def logSubpopulation(self, subpopulation, inioption, prefix, genPostfix=True):
 		if not self._shouldIRunAPeriodicFunctionNow(inioption):
 			return
-		filename = prefix + '_gen' + str(self.generation) + '.log'
+		filename = prefix
+		if genPostfix:
+		 filename += '_gen' + str(self.generation)
+		filename += '.log'
 		with open(filename, 'w') as logFile:
 			self._writeParamsToLog(logFile)
 			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')

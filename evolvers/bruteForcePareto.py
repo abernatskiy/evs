@@ -25,6 +25,7 @@ class Evolver(BaseEvolver):
 
 		self.setParamDefault('bruteForceChunkSize', -1)
 		self.setParamDefault('paretoBreakTiesByIDs', False)
+		self.setParamDefault('logParetoFrontKeepAllGenerations', False)
 
 		if not self.params.has_key('bruteForceChunkSize') or self.params['bruteForceChunkSize'] <= 0:
 			self.params['genStopAfter'] = 0
@@ -64,7 +65,7 @@ class Evolver(BaseEvolver):
 		return None
 
 	def _outputPareto(self):
-		self.logSubpopulation(self.paretoFront, 'logParetoFront', 'paretoFront')
+		self.logSubpopulation(self.paretoFront, 'logParetoFront', 'paretoFront', genPostfix=self.params['logParetoFrontKeepAllGenerations'])
 		self.printParetoFront(self.paretoFront, self.__secondObjName__, self.params['secondMinObj'])
 
 	def updatePopulation(self):
