@@ -72,6 +72,9 @@ class Evolver(BaseEvolver):
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
 
+		if self.nextIndiv is None:
+			self.done()
+
 		self.population = []
 		self.nextIndiv = self._addSpaceChunk(self.nextIndiv, self.params['bruteForceChunkSize'])
 		self.communicator.evaluate(self.population)
@@ -87,5 +90,3 @@ class Evolver(BaseEvolver):
 
 		self.paretoFront.sort(key = self.params['secondMinObj'])
 		self._outputPareto()
-		if self.nextIndiv is None:
-			self.done()
