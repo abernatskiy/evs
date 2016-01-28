@@ -55,7 +55,8 @@ ints = ['length',
 				'bruteForceChunkSize']
 
 bools = [	'paretoBreakTiesByIDs',
-					'logParetoFrontKeepAllGenerations']
+					'logParetoFrontKeepAllGenerations',
+					'logConcatenatedPopulations']
 
 periodicActionBools = ['logPopulation', 'logBestIndividual', 'printBestIndividual', 'printParetoFront', 'printPopulation', 'backup']
 periodicActionPeriods = [ x + 'Period' for x in periodicActionBools ]

@@ -28,6 +28,13 @@ def firstStochasticallyDominatedBySecond(indiv0, indiv1, func0, func1, secondObj
 	else:
 		return firstDominatedBySecond(indiv0, indiv1, func0, func1)
 
+def afpr(number, precision=10):
+	'''Alignable floating point representation'''
+	if number < 0:
+		return ('%0.' + str(precision) + 'f') % number
+	else:
+		return ('%0.' + str(precision+1) + 'f') % number
+
 class BaseEvolver(object):
 	'''Base class for evolutionary algorithms. Provides
      methods for creating server output.'''
@@ -136,7 +143,7 @@ class BaseEvolver(object):
 			return
 		print '-----------'
 		for indiv in self.population:
-			print str(indiv) + ' score: ' + str(indiv.score)
+			print afpr(indiv) + ' score: ' + str(indiv.score)
 		print ''
 
 	def printParetoFront(self, paretoFront, objname, objfunc):
@@ -144,7 +151,7 @@ class BaseEvolver(object):
 			return
 		print 'Pareto front:'
 		for indiv in paretoFront:
-			print str(indiv) + ' score: ' + str(indiv.score) + ' ' + objname + ': ' + str(objfunc(indiv))
+			print str(indiv) + ' score: ' + afpr(indiv.score) + ' ' + objname + ': ' + str(objfunc(indiv))
 		print ''
 
 	def paretoWarning(self, paretoFront):
@@ -186,7 +193,7 @@ class BaseEvolver(object):
 		bestIndiv = self.population[-1]
 		if self.logHeaderWritten:
 			with open(filename, 'a') as logFile:
-				logFile.write(str(self.generation) + ' ' + str(bestIndiv.score) + ' ' + str(bestIndiv) + '\n')
+				logFile.write(str(self.generation) + ' ' + afpr(bestIndiv.score) + ' ' + str(bestIndiv) + '\n')
 		else:
 			with open(filename, 'w') as logFile:
 				self._writeParamsToLog(logFile)
@@ -202,7 +209,18 @@ class BaseEvolver(object):
 			self._writeParamsToLog(logFile)
 			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
 			for indiv in self.population:
-				logFile.write(str(indiv.score) + ' ' + str(indiv) + '\n')
+				logFile.write(afpr(indiv.score) + ' ' + str(indiv) + '\n')
+
+	def _logConcatenatedPopulation(self, filename='population'):
+		if not self.params.has_key('logConcatenatedPopulation') or not self.params['logConcatenatedPopulation']:
+			return
+		with open(filename, 'a') as logFile:
+			if not hasattr(self, '__concatenatedPopulationLogStarted__') or not self.__concatenatedPopulationLogStarted__:
+				self._writeParamsToLog(logFile)
+				logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
+				self.__concatenatedPopulationLogStarted__ = True
+			for indiv in self.population:
+				logFile.write(afpr(indiv.score) + ' ' + str(indiv) + '\n')
 
 	def logSubpopulation(self, subpopulation, inioption, prefix, genPostfix=True):
 		if not self._shouldIRunAPeriodicFunctionNow(inioption):
@@ -215,7 +233,7 @@ class BaseEvolver(object):
 			self._writeParamsToLog(logFile)
 			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
 			for indiv in subpopulation:
-				logFile.write(str(indiv.score) + ' ' + str(indiv) + '\n')
+				logFile.write(afpr(indiv.score) + ' ' + str(indiv) + '\n')
 
 	def _writeParamsToLog(self, file):
 		file.write('# Evolver parameters: ' + self._deterministicDict2Str(self.params) + '\n')
@@ -249,6 +267,7 @@ class BaseEvolver(object):
 		# Config-dependent output functions: won't do anything unless the config contains explicit permission
 		self._logBestIndividual(filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log')
 		self._logPopulation(prefix = 'population' + str(self.params['randomSeed']))
+		self._logConcatenatedPopulation(filename = 'population' + str(self.params['randomSeed']) + '.log')
 		self._printBestIndividual()
 		self._printPopulation()
 
