@@ -1,6 +1,9 @@
 from copy import deepcopy
 from baseEvolver import BaseEvolver
 
+def _appendCopyToParetoFront(object, indiv):
+	object.paretoFront.append(deepcopy(indiv))
+
 class Evolver(BaseEvolver):
 	'''Brute force Pareto front finder
      Not an evolutionary algorithm. Works by generating a
@@ -38,15 +41,32 @@ class Evolver(BaseEvolver):
 		if not hasattr(self, '__secondObjName__'):
 			self.__secondObjName__ = 'unknown'
 
+		self.firstObj = lambda x: -1*x.score
+
 		indiv = self.params['indivClass'](indivParams)
 		indiv.setValuesToTheFirstSet()
 
 		self.nextIndiv = self._addSpaceChunk(indiv, self.params['bruteForceChunkSize'])
 		self.communicator.evaluate(self.population)
 
-		self.paretoFront = self.findParetoFront(lambda x: -1*x.score, self.params['secondMinObj'], breakTiesByIDs=self.params['paretoBreakTiesByIDs'])
-		self.paretoFront.sort(key = self.params['secondMinObj'])
+		self.paretoFront = self.findParetoFront(self.firstObj, self.params['secondMinObj'], breakTiesByIDs=self.params['paretoBreakTiesByIDs'])
+
+		self.fullParetoFront = self.paretoFront
+		self.paretoFront = []
+		self._getObjPairs(self.fullParetoFront, firstOccurenceAction=_appendCopyToParetoFront)
+
+		self.fullParetoFront.sort(key = self.params['secondMinObj'])
+
 		self._outputPareto()
+
+	def _getObjPairs(self, subpop, firstOccurenceAction=None):
+		objpairs = set()
+		for indiv in subpop:
+			objpair = (self.firstObj(indiv), self.params['secondMinObj'](indiv))
+			if firstOccurenceAction and not objpair in objpairs:
+				firstOccurenceAction(self, indiv)
+			objpairs.add(objpair)
+		return objpairs
 
 	def _addSpaceChunk(self, initIndiv, chunkSize):
 		self.population.append(initIndiv)
@@ -66,7 +86,10 @@ class Evolver(BaseEvolver):
 		return None
 
 	def _outputPareto(self):
-		self.logSubpopulation(self.paretoFront, 'logParetoFront', 'paretoFront', genPostfix=self.params['logParetoFrontKeepAllGenerations'])
+		self.logSubpopulation(self.fullParetoFront, 'logParetoFront', 'paretoFront', genPostfix=self.params['logParetoFrontKeepAllGenerations'])
+		self.printParetoFront(self.fullParetoFront, self.__secondObjName__, self.params['secondMinObj'])
+
+		print "Short Pareto front:"
 		self.printParetoFront(self.paretoFront, self.__secondObjName__, self.params['secondMinObj'])
 
 	def updatePopulation(self):
@@ -79,14 +102,24 @@ class Evolver(BaseEvolver):
 		self.nextIndiv = self._addSpaceChunk(self.nextIndiv, self.params['bruteForceChunkSize'])
 		self.communicator.evaluate(self.population)
 
-		self.paretoFront += self.findParetoFront(lambda x: -1*x.score,
+		self.paretoFront += self.findParetoFront(self.firstObj,
 																						self.params['secondMinObj'],
 																						breakTiesByIDs=self.params['paretoBreakTiesByIDs'])
 
-		self.paretoFront = self.findParetoFront(lambda x: -1*x.score,
+		self.paretoFront = self.findParetoFront(self.firstObj,
 																						self.params['secondMinObj'],
 																						breakTiesByIDs=self.params['paretoBreakTiesByIDs'],
-																						population = self.paretoFront)
+																						population=self.paretoFront)
 
-		self.paretoFront.sort(key = self.params['secondMinObj'])
+		newObjPairs = self._getObjPairs(self.paretoFront)
+		for indiv in self.fullParetoFront:
+			objpair = (self.firstObj(indiv), self.params['secondMinObj'](indiv))
+			if objpair in newObjPairs and not indiv in self.paretoFront:
+				self.paretoFront.append(indiv)
+
+		self.fullParetoFront = self.paretoFront
+		self.paretoFront = []
+		self._getObjPairs(self.fullParetoFront, firstOccurenceAction=_appendCopyToParetoFront)
+
+		self.fullParetoFront.sort(key = self.params['secondMinObj'])
 		self._outputPareto()
