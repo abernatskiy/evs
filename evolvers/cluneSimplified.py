@@ -34,8 +34,8 @@ class Evolver(BaseEvolver):
 		super(Evolver, self).updatePopulation()
 
 #		print 'Making a Pareto front'
-#		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: len(filter(lambda y: y!=0, x.values)))
-		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: len(filter(lambda y: y, x.mask)))
+		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: len(filter(lambda y: y!=0, x.values)))
+#		paretoFront = self.findParetoFront(lambda x: -1*x.score, lambda x: len(filter(lambda y: y, x.mask)))
 
 		if self.params.has_key('printParetoFront') and self.params['printParetoFront'] == 'yes':
 			for indiv in paretoFront:
