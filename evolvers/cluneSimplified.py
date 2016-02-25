@@ -3,7 +3,7 @@ from copy import deepcopy
 from baseEvolver import BaseEvolver
 
 class Evolver(BaseEvolver):
-	'''Multiobjective algorithm which optimizes 
+	'''Multiobjective algorithm which optimizes
      connection cost. See Clune 2013
        evolParams['populationSize']
        evolParams['initialPopulationType']
@@ -13,16 +13,24 @@ class Evolver(BaseEvolver):
        evolParams['indivClass'].setValuesToZero().
      NOTE: unlike AFPO, this method does not work
      too well with probability-1 mutations'''
-	def __init__(self, communicator, indivParams, evolParams):
-		super(Evolver, self).__init__(communicator, indivParams, evolParams)
+	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
+		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
 		if self.params['initialPopulationType'] == 'random':
-			for i in xrange(self.params['populationSize']):
+			while len(self.population) < self.params['populationSize']:
 				indiv = self.params['indivClass'](indivParams)
 				self.population.append(indiv)
 		elif self.params['initialPopulationType'] == 'sparse':
-		  for i in xrange(self.params['populationSize']):
+			while len(self.population) < self.params['populationSize']:
 				indiv = self.params['indivClass'](indivParams)
 				indiv.setValuesToZero()
+				indiv.mutate()
+				self.population.append(indiv)
+		elif self.params['initialPopulationType'] == 'expandFromFile':
+			if not initialPopulationFileName:
+				raise ValueError('Initial population file name must be specified if initialPopulationType=expandFromFile is used')
+			curPopLen = len(self.population)
+			while len(self.population) < self.params['populationSize']:
+				indiv = deepcopy(np.random.choice(self.population[:curPopLen]))
 				indiv.mutate()
 				self.population.append(indiv)
 		else:
