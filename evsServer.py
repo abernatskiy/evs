@@ -85,7 +85,9 @@ evolParams['randomSeed'] = int(cliArgs.randSeed)
 # This causes the initial population to be evaluated
 
 comm = Communicator(cliArgs.evalsFileName, cliArgs.indivFileName)
-evolver = Evolver(comm, indivParams, evolParams)
+
+initialPopulationFileName = None if not evolParams.has_key('initialPopulationFile') else evolParams['initialPopulationFile']
+evolver = Evolver(comm, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
 
 # Config-dependent backup function: doesn't do anything unless evolver.params['backups'] == 'yes'
 # Will make backups at every generation if evolver.params['backupPeriod'] is not set, otherwise

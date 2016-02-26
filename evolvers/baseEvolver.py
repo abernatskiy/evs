@@ -143,7 +143,7 @@ class BaseEvolver(object):
 			return
 		print '-----------'
 		for indiv in self.population:
-			print afpr(indiv) + ' score: ' + str(indiv.score)
+			print str(indiv) + ' score: ' + str(indiv.score)
 		print ''
 
 	def printParetoFront(self, paretoFront, objname, objfunc):

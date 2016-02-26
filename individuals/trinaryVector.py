@@ -18,6 +18,7 @@ class Individual(BaseIndividual):
 		integers = map(int, representation.split())
 		self.id = integers[0]
 		self.values = integers[1:]
+		self.renewID()
 
 	def mutate(self):
 		newValues = []
