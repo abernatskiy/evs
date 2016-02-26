@@ -23,8 +23,8 @@ class Evolver(BaseEvolver):
         evolParams['indivClass'].setValuesToTheFirstSet()
 				evolParams['indivClass'].increment()
 				evolParams['secondMinObj'](indiv)'''
-	def __init__(self, communicator, indivParams, evolParams):
-		super(Evolver, self).__init__(communicator, indivParams, evolParams)
+	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName=None):
+		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
 
 		self.setParamDefault('bruteForceChunkSize', -1)
 		self.setParamDefault('paretoBreakTiesByIDs', False)
