@@ -60,7 +60,7 @@ class Evolver(BaseEvolver):
 		newPopulation = []
 #		for indiv in paretoFront:
 #			newPopulation.append(indiv)
-		while len(newPopulation) < self.params['populationSize']:
+		while len(newPopulation)+len(paretoFront) < self.params['populationSize']:
 			parent = np.random.choice(paretoFront)
 			child = deepcopy(parent)
 			child.mutate()
