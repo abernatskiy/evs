@@ -89,7 +89,7 @@ comm = Communicator(cliArgs.evalsFileName, cliArgs.indivFileName)
 initialPopulationFileName = None if not evolParams.has_key('initialPopulationFile') else evolParams['initialPopulationFile']
 evolver = Evolver(comm, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
 
-# Config-dependent backup function: doesn't do anything unless evolver.params['backups'] == 'yes'
+# Config-dependent backup function: doesn't do anything unless evolver.params['backup'] == 'yes'
 # Will make backups at every generation if evolver.params['backupPeriod'] is not set, otherwise
 # will make a backup once every evolver.params['backupPeriod'] iterations
 evolver.pickleSelf()

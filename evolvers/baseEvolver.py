@@ -115,6 +115,23 @@ class BaseEvolver(object):
 				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
 		if self._paramIsEnabled('logBestIndividual'):
 			self._truncateLogFile(self._bestIndividualLogFileName)
+		if self._paramIsEnabled('logConcatenatedPopulation'):
+			self._truncatePopulationFile('population0.log')
+
+	def _truncatePopulationFile(self, filename):
+		smallestID = 50000000
+		for indiv in self.population:
+			smallestID = indiv.id if indiv.id < smallestID else smallestID
+		print 'Splitting at ' + str(largestID)
+		oldFilename = filename + '.old'
+		os.rename(filename, oldFilename)
+		with open(oldFilename, 'r') as oldFile:
+			with open(filename, 'w') as file:
+				for s in oldFile:
+					if s.split(' ')[1] == str(largestID):
+						break
+					file.write(s)
+		os.remove(oldFilename)
 
 	def _truncateLogFile(self, filename):
 		oldFilename = filename + '.old'
