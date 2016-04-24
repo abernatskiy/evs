@@ -35,13 +35,13 @@ class Evolver(BaseEvolver):
 		elif self.params.has_key('genStopAfter'):
 			self.params.pop('genStopAfter')
 
-		if not self.params.has_key('secondMinObj'):
-			print 'WARNING! The second objective function is undefined, falling back to constant'
-			self.params['secondMinObj'] = lambda x: 0
+#		if not self.params.has_key('secondMinObj'):
+#			print 'WARNING! The second objective function is undefined, falling back to constant'
+#			(lambda x: sum(map(lambda y: 1 if y else 0, x.mask))) = lambda x: 0
 		if not hasattr(self, '__secondObjName__'):
-			self.__secondObjName__ = 'unknown'
+			self.__secondObjName__ = 'connection cost'
 
-		self.firstObj = lambda x: -1*x.score
+#		(lambda x: -1*x.score) = lambda x: -1*x.score
 
 		indiv = self.params['indivClass'](indivParams)
 		indiv.setValuesToTheFirstSet()
@@ -49,20 +49,20 @@ class Evolver(BaseEvolver):
 		self.nextIndiv = self._addSpaceChunk(indiv, self.params['bruteForceChunkSize'])
 		self.communicator.evaluate(self.population)
 
-		self.paretoFront = self.findParetoFront(self.firstObj, self.params['secondMinObj'], breakTiesByIDs=self.params['paretoBreakTiesByIDs'])
+		self.paretoFront = self.findParetoFront((lambda x: -1*x.score), (lambda x: sum(map(lambda y: 1 if y else 0, x.mask))), breakTiesByIDs=self.params['paretoBreakTiesByIDs'])
 
 		self.fullParetoFront = self.paretoFront
 		self.paretoFront = []
 		self._getObjPairs(self.fullParetoFront, firstOccurenceAction=_appendCopyToParetoFront)
 
-		self.fullParetoFront.sort(key = self.params['secondMinObj'])
+		self.fullParetoFront.sort(key = (lambda x: sum(map(lambda y: 1 if y else 0, x.mask))))
 
 		self._outputPareto()
 
 	def _getObjPairs(self, subpop, firstOccurenceAction=None):
 		objpairs = set()
 		for indiv in subpop:
-			objpair = (self.firstObj(indiv), self.params['secondMinObj'](indiv))
+			objpair = ((lambda x: -1*x.score)(indiv), (lambda x: sum(map(lambda y: 1 if y else 0, x.mask)))(indiv))
 			if firstOccurenceAction and not objpair in objpairs:
 				firstOccurenceAction(self, indiv)
 			objpairs.add(objpair)
@@ -87,10 +87,10 @@ class Evolver(BaseEvolver):
 
 	def _outputPareto(self):
 		self.logSubpopulation(self.fullParetoFront, 'logParetoFront', 'paretoFront', genPostfix=self.params['logParetoFrontKeepAllGenerations'])
-		self.printParetoFront(self.fullParetoFront, self.__secondObjName__, self.params['secondMinObj'])
+		self.printParetoFront(self.fullParetoFront, self.__secondObjName__, (lambda x: sum(map(lambda y: 1 if y else 0, x.mask))))
 
 		print "Short Pareto front:"
-		self.printParetoFront(self.paretoFront, self.__secondObjName__, self.params['secondMinObj'])
+		self.printParetoFront(self.paretoFront, self.__secondObjName__, (lambda x: sum(map(lambda y: 1 if y else 0, x.mask))))
 
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
@@ -102,18 +102,18 @@ class Evolver(BaseEvolver):
 		self.nextIndiv = self._addSpaceChunk(self.nextIndiv, self.params['bruteForceChunkSize'])
 		self.communicator.evaluate(self.population)
 
-		self.paretoFront += self.findParetoFront(self.firstObj,
-																						self.params['secondMinObj'],
+		self.paretoFront += self.findParetoFront((lambda x: -1*x.score),
+																						(lambda x: sum(map(lambda y: 1 if y else 0, x.mask))),
 																						breakTiesByIDs=self.params['paretoBreakTiesByIDs'])
 
-		self.paretoFront = self.findParetoFront(self.firstObj,
-																						self.params['secondMinObj'],
+		self.paretoFront = self.findParetoFront((lambda x: -1*x.score),
+																						(lambda x: sum(map(lambda y: 1 if y else 0, x.mask))),
 																						breakTiesByIDs=self.params['paretoBreakTiesByIDs'],
 																						population=self.paretoFront)
 
 		newObjPairs = self._getObjPairs(self.paretoFront)
 		for indiv in self.fullParetoFront:
-			objpair = (self.firstObj(indiv), self.params['secondMinObj'](indiv))
+			objpair = ((lambda x: -1*x.score)(indiv), (lambda x: sum(map(lambda y: 1 if y else 0, x.mask)))(indiv))
 			if objpair in newObjPairs and not indiv in self.paretoFront:
 				self.paretoFront.append(indiv)
 
@@ -121,5 +121,5 @@ class Evolver(BaseEvolver):
 		self.paretoFront = []
 		self._getObjPairs(self.fullParetoFront, firstOccurenceAction=_appendCopyToParetoFront)
 
-		self.fullParetoFront.sort(key = self.params['secondMinObj'])
+		self.fullParetoFront.sort(key = (lambda x: sum(map(lambda y: 1 if y else 0, x.mask))))
 		self._outputPareto()
