@@ -18,15 +18,16 @@ class Individual(RealWeightsSwitchableConnections):
      connection cost compuatations.
 
      The mutation proceeds as follows:
-      - with probability of mutExploration, the mutation operator
+      - With probability of mutExploration, the mutation operator
         will to attempt increase a randomly picked nonzero weight
         by a number randomly selected from
         [-mutationAmplitude, -mutationAmplitude+1, ... , mutationAmplitude]
         If the result ends up being a zero, the connection
-        is removed. If the result cannot be changed in the selected
-        direction due to limits (lowerCap, upperCap), no change is
-        made but the whole mutation process is restarted from scratch.
-      - all other cases are divided between the insertions and
+        is removed. If the result is out of the interval
+        [lowerCap, upperCap], it is clipped to fit it.
+        If there are no connections to pick from, the mutation process
+        starts over.
+      - All other cases are divided between the insertions and
         deletions. Ratio of the frequencies is controlled by the
         mutInsDelRatio parameter.
      Constructor takes a dictionary with the following parameter
