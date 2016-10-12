@@ -43,6 +43,7 @@ floats = ['mutExploration',
 					'lowerCap',
 					'upperCap',
 					'relativeMutationAmplitude']
+
 ints = ['length',
 				'genStopAfter',
 				'populationSize',
@@ -54,11 +55,17 @@ ints = ['length',
 				'precision',
 				'bruteForceChunkSize']
 
-bools = [	'paretoBreakTiesByIDs',
-					'logParetoFrontKeepAllGenerations',
-					'logConcatenatedPopulations']
+bools = ['paretoBreakTiesByIDs',
+				 'logParetoFrontKeepAllGenerations',
+				 'logConcatenatedPopulations',
+				 'useMaskForSparsity']
 
-periodicActionBools = ['logPopulation', 'logBestIndividual', 'printBestIndividual', 'printParetoFront', 'printPopulation', 'backup']
+periodicActionBools = ['logPopulation',
+											 'logBestIndividual',
+											 'printBestIndividual',
+											 'printParetoFront',
+											 'printPopulation',
+											 'backup']
 periodicActionPeriods = [ x + 'Period' for x in periodicActionBools ]
 ints += periodicActionPeriods
 
