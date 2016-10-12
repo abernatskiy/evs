@@ -45,7 +45,7 @@ class BaseEvolver(object):
 		self.logHeaderWritten = False
 		self.generation = 0
 		# little dirty hack which exploit the fact that there's always just one Evolver to communicate generation number to Individuals
-		if self._paramIsEnabled('trackAncestry'):
+		if self.paramIsEnabled('trackAncestry'):
 			indivParams['trackAncestry'] = 'yes'
 			import __builtin__
 			if not hasattr(__builtin__, 'globalGenerationCounter'):
@@ -60,7 +60,7 @@ class BaseEvolver(object):
 
 	def updatePopulation(self):
 		self.generation += 1
-		if self._paramIsEnabled('trackAncestry'):
+		if self.paramIsEnabled('trackAncestry'):
 			import __builtin__
 			__builtin__.globalGenerationCounter += 1
 		if self.params.has_key('genStopAfter') and self.generation > self.params['genStopAfter']:
@@ -105,7 +105,7 @@ class BaseEvolver(object):
 	def recover(self):
 		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
 		np.random.set_state(self.randomGeneratorState)
-		if self._paramIsEnabled('trackAncestry'): # if we're dealing with ancestry tracking (disabled by default)...
+		if self.paramIsEnabled('trackAncestry'): # if we're dealing with ancestry tracking (disabled by default)...
 			import __builtin__
 			if not hasattr(__builtin__, 'globalGenerationCounter'):
 				# ...we should restore the content of our 'global' generation counter
@@ -113,9 +113,9 @@ class BaseEvolver(object):
 			else:
 				# it may happen that we're trying to continue evolution using a new version of python in which our little hack no longer works
 				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
-		if self._paramIsEnabled('logBestIndividual'):
+		if self.paramIsEnabled('logBestIndividual'):
 			self._truncateLogFile(self._bestIndividualLogFileName)
-		if self._paramIsEnabled('logConcatenatedPopulation'):
+		if self.paramIsEnabled('logConcatenatedPopulation'):
 			self._truncatePopulationFile('population0.log')
 
 	def _truncatePopulationFile(self, filename):
@@ -180,6 +180,7 @@ class BaseEvolver(object):
 			print 'WARNING! Proportion of nondominated individuals too high (' + str(r) + ')'
 
 	def findParetoFront(self, func0, func1, breakTiesByIDs=True, population=None):
+		# The optional parameters are useful for bruteforce search algorithms
 		if population is None:
 			population = self.population
 		for indiv in population:
@@ -265,6 +266,7 @@ class BaseEvolver(object):
 			indiv.noisifyScore(self.params['noiseAmplitude'])
 
 	def populationIsValid(self):
+		'''True iff the population is not oversized and all individuals belong to the correct class'''
 		return len(self.population) <= self.params['populationSize'] and all([ type(indiv) == self.params['indivClass'] for indiv in self.population ])
 
 	def _appendPopulationFromFile(self, filename):
@@ -288,11 +290,17 @@ class BaseEvolver(object):
 		self._printBestIndividual()
 		self._printPopulation()
 
-	def _paramIsEnabled(self, paramName):
-		return hasattr(self, 'params') and self.params.has_key(paramName) and self.params[paramName] == 'yes'
+	def paramExists(self, paramName):
+		return hasattr(self, 'params') and self.params.has_key(paramName)
+
+	def paramIsEnabled(self, paramName):
+		return self.paramExists(paramName) and self.params[paramName] == 'yes'
+
+	def paramIsNonzero(self, paramName):
+		return self.paramExists(paramName) and self.params[paramName] != 0.
 
 	def _shouldIRunAPeriodicFunctionNow(self, paramName):
-		if not self._paramIsEnabled(paramName):
+		if not self.paramIsEnabled(paramName):
 			return False
 		period = 1 if not self.params.has_key(paramName + 'Period') else self.params[paramName + 'Period']
 		if not self.generation % period == 0:
