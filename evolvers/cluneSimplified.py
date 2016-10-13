@@ -74,6 +74,7 @@ class Evolver(BaseEvolver):
 			paretoFront = self.findParetoFront(lambda x: -1*x.score, connectionCostFunc)
 
 		self.printParetoFront(paretoFront, 'connection cost', connectionCostFunc)
+		self.logParetoFront(paretoFront)
 		self.paretoWarning(paretoFront)
 
 		newPopulation = []
