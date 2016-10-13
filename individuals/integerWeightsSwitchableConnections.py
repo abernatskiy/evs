@@ -5,17 +5,19 @@ def inclusiveRange(lval, uval):
 	return map(float, xrange(int(lval), int(uval)+1))
 
 class Individual(RealWeightsSwitchableConnections):
-	'''Class for evolutionary individuals described by a vector of
-     integer-valued weights taken from [initLowerLimit, initUpperLimit]
-     of constant length, with a single-valued score represented
-     by a real number. The integers are internally represented as
-     floating point numbers. This may reflect on the Individuals'
-     string representations.
+	'''Class for evolutionary individuals described by a vector of constant length
+     composed of integer-valued weights, with a single real-valued score. The
+     values are taken from [initLowerLimit, initUpperLimit] upon the
+     initialization and may change outside of these limits, but within
+     [lowerCap, upperCap].
+
+     The integers are internally represented as floating point numbers. This may
+     reflect on the Individuals' string representations.
 
      This class keeps track of which weights are zero and which
      are not using a member function isAZeroWeight(self, pos). This
      information is stored at self.map for use in mutation and
-     connection cost compuatations.
+     connection cost computations.
 
      The mutation proceeds as follows:
       - With probability of mutExploration, the mutation operator
@@ -24,18 +26,21 @@ class Individual(RealWeightsSwitchableConnections):
         [-mutationAmplitude, -mutationAmplitude+1, ... , mutationAmplitude]
         If the result ends up being a zero, the connection
         is removed. If the result is out of the interval
-        [lowerCap, upperCap], it is clipped to fit it.
+        [lowerCap, upperCap], it is clipped to fit the interval.
         If there are no connections to pick from, the mutation process
         starts over.
       - All other cases are divided between the insertions and
         deletions. Ratio of the frequencies is controlled by the
-        mutInsDelRatio parameter.
-     Constructor takes a dictionary with the following parameter
-     fields:
+        mutInsDelRatio parameter. If insertion is attempted on a fully
+        connected network or deletion is attempted on a network with no
+        connections, the mutation process starts over.
+
+     Constructor takes a dictionary with the following parameter fields:
        length
        initLowerLimit, initUpperLimit
        mutExploration
        mutInsDelRatio
+
      Optional fields:
        mutationAmplitude (default 1)
        initProbabilityOfConnection (default 1)
@@ -45,18 +50,19 @@ class Individual(RealWeightsSwitchableConnections):
 		super(Individual, self).__init__(params)
 
 		self.setParamDefault('mutationAmplitude', 1.0)
-		if not np.isfinite(self.params['lowerCap']):
-			print 'WARNING! Lower cap undefined or infinite, resetting to -1'
-			self.params['lowerCap'] = -1.0
-		if not np.isfinite(self.params['upperCap']):
-			print 'WARNING! Upper cap undefined or infinite, resetting to 1'
-			self.params['upperCap'] = 1.0
+		self._ensureParamIntegerness('mutationAmplitude')
 
 		self._ensureParamIntegerness('initLowerLimit')
 		self._ensureParamIntegerness('initUpperLimit')
-		self._ensureParamIntegerness('lowerCap')
-		self._ensureParamIntegerness('upperCap')
-		self._ensureParamIntegerness('mutationAmplitude')
+
+		if self.paramExists('lowerCap'):
+			self._ensureParamIntegerness('lowerCap')
+		else:
+			self.setParamDefault('lowerCap', -1.*np.inf)
+		if self.paramExists('upperCap')
+			self._ensureParamIntegerness('upperCap')
+		else:
+			self.setParamDefault('upperCap', np.inf)
 
 	def _ensureParamIntegerness(self, paramName):
 		if not self.params[paramName].is_integer():
@@ -75,6 +81,9 @@ class Individual(RealWeightsSwitchableConnections):
 		return np.random.choice(inclusiveRange(self.params['initLowerLimit'], self.params['initUpperLimit']))
 
 	def increment(self):
+		if not np.isfinite(self.params['lowerCap']) or not np.isfinite(self.params['upperCap']):
+			raise ValueError('Caps must be specified to use increment()')
+
 #		print 'Incrementing ' + str(self)
 		lcap = int(self.params['lowerCap'])
 		ucap = int(self.params['upperCap'])
