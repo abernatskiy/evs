@@ -66,7 +66,8 @@ periodicActionBools = ['logPopulation',
 											 'printParetoFront',
 											 'printPopulation',
 											 'backup',
-                       'printGeneration']
+                       'printGeneration',
+                       'logParetoFront']
 periodicActionPeriods = [ x + 'Period' for x in periodicActionBools ]
 ints += periodicActionPeriods
 
