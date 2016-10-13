@@ -94,3 +94,6 @@ class BaseIndividual(object):
 	def setParamDefault(self, paramName, paramVal):
 		if not self.params.has_key(paramName):
 			self.params[paramName] = paramVal
+
+	def paramExists(self, paramName):
+		return hasattr(self, 'params') and self.params.has_key(paramName)
