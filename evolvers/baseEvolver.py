@@ -280,10 +280,8 @@ class BaseEvolver(object):
 		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
 
 	def generateLogsAndStdout(self):
-		# Generation number is printed after every update
-		self._printGeneration()
-
 		# Config-dependent output functions: won't do anything unless the config contains explicit permission
+		self._printGeneration()
 		self._logBestIndividual(filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log')
 		self._logPopulation(prefix = 'population' + str(self.params['randomSeed']))
 		self._logConcatenatedPopulation(filename = 'population' + str(self.params['randomSeed']) + '.log')

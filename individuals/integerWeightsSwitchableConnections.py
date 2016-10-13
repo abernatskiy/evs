@@ -59,7 +59,7 @@ class Individual(RealWeightsSwitchableConnections):
 			self._ensureParamIntegerness('lowerCap')
 		else:
 			self.setParamDefault('lowerCap', -1.*np.inf)
-		if self.paramExists('upperCap')
+		if self.paramExists('upperCap'):
 			self._ensureParamIntegerness('upperCap')
 		else:
 			self.setParamDefault('upperCap', np.inf)
