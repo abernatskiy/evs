@@ -76,7 +76,7 @@ Subroutines for multiobjective evolvers:
 
 self.findParetoFront(func0, func1, breakTiesByIDs=True, population=None)
 self.findStochasticalParetoFront(func0, func1)
-self.printParetoFront(paretoFront)
+self.printParetoFront(paretoFront, objname, objfunc)
 self.logParetoFront(paretoFront)
 self.paretoWarning(paretoFront) # at 75% of the fixed population size
 
