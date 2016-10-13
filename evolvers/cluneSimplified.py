@@ -28,7 +28,8 @@ class Evolver(BaseEvolver):
          is not taken into account, the algorithm will assume that the
          individual with larger fitness dominates regardless of connection cost.
          See 2013 Clune et al.
-       evolParams['']
+       evolParams['useMaskForSparsity'] - use mask instead of comparing the
+         fields to zero to count nonzero values.
        evolParams['noiseAmplitude'] - if provided, noisy evaluations with a
 			  uniformly distributed noise of given amplitude will be simulated.
 
