@@ -124,3 +124,10 @@ class Individual(RealWeightsSwitchableConnections):
 		self.mask = map(lambda x: x!=0.0, self.values)
 
 		return True
+
+	def __str__(self):
+		representation = str(self.id)
+		for value in self.values:
+			representation += ' '
+			representation += str(int(value)) # default is too annoying
+		return representation
