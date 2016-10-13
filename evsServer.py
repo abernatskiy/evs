@@ -65,7 +65,8 @@ periodicActionBools = ['logPopulation',
 											 'printBestIndividual',
 											 'printParetoFront',
 											 'printPopulation',
-											 'backup']
+											 'backup',
+                       'printGeneration']
 periodicActionPeriods = [ x + 'Period' for x in periodicActionBools ]
 ints += periodicActionPeriods
 
@@ -86,7 +87,10 @@ def loadDict(section):
 indivParams = loadDict('indivParams')
 evolParams = loadDict('evolParams')
 evolParams['indivClass'] = Individual
-evolParams['randomSeed'] = int(cliArgs.randSeed)
+if evolParams.has_key('randomSeed'):
+	print('WARNING: CLI supplied random seed overriden by the one supplied in the config file. New value: ' + str(evolParams['randomSeed']))
+else:
+	evolParams['randomSeed'] = int(cliArgs.randSeed)
 
 # Creating communicator and evolver objects
 # This causes the initial population to be evaluated

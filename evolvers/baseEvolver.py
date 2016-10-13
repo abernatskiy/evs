@@ -240,8 +240,18 @@ class BaseEvolver(object):
 			for indiv in self.population:
 				logFile.write(afpr(indiv.score) + ' ' + str(indiv) + '\n')
 
-	def logSubpopulation(self, subpopulation, inioption, prefix, genPostfix=True):
-		if not self._shouldIRunAPeriodicFunctionNow(inioption):
+	def logSubpopulation(self, subpopulation, prefix, inioption=None, genPostfix=True):
+		'''Logs an arbitrary subpopulation.
+         Arguments:
+           subpopulation - subpopulation to log.
+           prefix - the base name of output files.
+           inioption - the name of the .ini option controlling the recording
+             process. If None, recording occurs unconditionally.
+           genPostfix - should the function append a postfix with a generation
+             number to the file name? If False, the file will be overwritten on
+             each call with the same prefix.
+		'''
+		if inioption and not self._shouldIRunAPeriodicFunctionNow(inioption):
 			return
 		filename = prefix
 		if genPostfix:
@@ -252,6 +262,13 @@ class BaseEvolver(object):
 			logFile.write('# Columns: score ID indivDesc0 indivDesc1 ...\n')
 			for indiv in subpopulation:
 				logFile.write(afpr(indiv.score) + ' ' + str(indiv) + '\n')
+
+	def logParetoFront(self, paretoFront):
+		if self.paramExists('logParetoFrontKeepAllGenerations'):
+			keepAllGens = self.params['logParetoFrontKeepAllGenerations']
+		else:
+			keepAllGens = False
+		self.logSubpopulation(paretoFront, 'paretoFront', inioption='logParetoFront', genPostfix=keepAllGens)
 
 	def _writeParamsToLog(self, file):
 		file.write('# Evolver parameters: ' + self._deterministicDict2Str(self.params) + '\n')
