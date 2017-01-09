@@ -45,9 +45,6 @@ floats = ['mutExploration',
 					'relativeMutationAmplitude']
 
 ints = ['length',
-				'genStopAfter',
-				'populationSize',
-				'randomSeed',
 				'initDensity',
 				'beginConn',
 				'endConn',
@@ -59,17 +56,6 @@ bools = ['paretoBreakTiesByIDs',
 				 'logParetoFrontKeepAllGenerations',
 				 'logConcatenatedPopulations',
 				 'useMaskForSparsity']
-
-periodicActionBools = ['logPopulation',
-											 'logBestIndividual',
-											 'printBestIndividual',
-											 'printParetoFront',
-											 'printPopulation',
-											 'backup',
-                       'printGeneration',
-                       'logParetoFront']
-periodicActionPeriods = [ x + 'Period' for x in periodicActionBools ]
-ints += periodicActionPeriods
 
 def loadDict(section):
 	global conf, floats, ints, bools

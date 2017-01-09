@@ -2,6 +2,10 @@ from copy import deepcopy
 import numpy as np
 import os
 
+import sys
+sys.path.append('..')
+from commons import afpr, translateParamDict
+
 def firstDominatedBySecond(indiv0, indiv1, func0, func1, breakTiesByIDs=True):
 	'''Assumes that both functions are minimized, as in the classical Pareto front picture'''
 	# truth table:
@@ -28,17 +32,11 @@ def firstStochasticallyDominatedBySecond(indiv0, indiv1, func0, func1, secondObj
 	else:
 		return firstDominatedBySecond(indiv0, indiv1, func0, func1)
 
-def afpr(number, precision=10):
-	'''Alignable floating point representation'''
-	if number < 0:
-		return ('%0.' + str(precision) + 'f') % number
-	else:
-		return ('%0.' + str(precision+1) + 'f') % number
-
 class BaseEvolver(object):
 	'''Base class for evolutionary algorithms. Provides
      methods for creating server output.'''
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
+		self.translateParams()
 		self.communicator = communicator
 		self.params = evolParams
 		self.indivParams = indivParams
@@ -57,6 +55,24 @@ class BaseEvolver(object):
 		self.population = []
 		if not initialPopulationFileName is None:
 			self._appendPopulationFromFile(initialPopulationFileName)
+
+	def translateParams(self):
+		bools = {'logParetoFrontKeepAllGenerations'}
+		ints = {'genStopAfter',
+		        'populationSize',
+		        'randomSeed'}
+		periodicActionBools = {'logPopulation',
+		                       'logBestIndividual',
+		                       'printBestIndividual',
+		                       'printParetoFront',
+		                       'printPopulation',
+		                       'backup',
+		                       'printGeneration',
+		                       'logParetoFront'}
+		bools.update(periodicActionBools)
+		ints.update({ x + 'Period' for x in periodicActionBools })
+		optionalParamsTranslator = {'toBool': bools, 'toInt': ints}
+		self.params = translateParamDict(self.params, optionalParamsTranslator)
 
 	def updatePopulation(self):
 		self.generation += 1

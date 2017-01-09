@@ -1,20 +1,29 @@
 import numpy as np
+
+import sys
+sys.path.append('..')
+from commons import translateParamDict
+
 currentID = 0
 
 class BaseIndividual(object):
-	'''Base class for evolutionary individuals. Provides the following 
-     functionality:
-       - constructor which automatically assigns unique IDs (note: if 
-         multiple Individual classes derived from this class are used 
-         in some program, the IDs will all be drawn from the same pool);
-       - representations of the individuals, given that __str__() is 
-         defined for the derived class;
-       - strict comparison of the individuals, given that 
-         __lt__() is defined for the derived class;
-       - ID check and renewal;
-       - check for score existence.
+	'''Base class for evolutionary individuals. Provides the following
+	   functionality:
+       - Constructor which automatically assigns unique IDs. Note: if multiple
+	       Individual classes derived from this class are used in some program,
+	       the IDs will all be drawn from the same pool!
+	     - Default string conversion: "ID str(self.values[0]) ..."
+       - Representations of the individuals, provided that __str__() is defined
+	       for the derived class
+       - Strict comparison of the individuals, given that __lt__() is defined
+	       for the derived class. By default, strict comparison between scores
+	       will be used.
+       - ID check and renewal.
+       - Check for score existence.
+	     - Ancestry tracking.
    '''
 	def __init__(self, params):
+		self.translateParams()
 		self.renewID()
 		self.params = params
 		if self.ancestryTrackingEnabled():
@@ -22,15 +31,20 @@ class BaseIndividual(object):
 			# [(-1, 3),
 			#  (564, 10),
 			#  (600, 11)]
-			# The first tuple is used to describe a lineage origination (LO) event, the rest describe mutations
-			# The first field holds parent's ID. For LO events, a special value of -1 is used.
-			# The second field hold the generation number at which the event took place.
+			# The first tuple is used to describe a lineage origination (LO) event,
+			# the rest describe mutations.
+			# The first field holds parent's ID. For LO events, a special value of -1
+			# is used.
+			# The second field hold the generation number at which the event occured.
 			# The number of the first generation in which the child appears is used.
-			# Thus, a tuple (564, 10) means that at generation 9 there was an individual named 564. It produced an
-			# offspring which got to carry its genes on to generation 10. This offspring is either an ancestor of
-			# the current individual (if there are subsequent records in the ancestry), or the individual itself.
+			# Thus, a tuple (564, 10) means that at generation 9 there was an
+			# individual named 564. It produced an offspring which got to carry its
+			# genes on to generation 10. This offspring is either an ancestor of the
+			# current individual (if there are subsequent records in the ancestry),
+			# or the individual itself.
 			#
-			# The only way to retrieve the history is to enable backups and retrieve these lists from the pickles. Deal with it.
+			# The only way to retrieve the history is to enable backups and retrieve
+			# these lists from the pickles. Deal with it.
 			self.ancestry = []
 			import __builtin__
 			self.ancestry.append((-1, __builtin__.globalGenerationCounter)) # teleported here from evolvers.baseEvolver
@@ -53,6 +67,10 @@ class BaseIndividual(object):
 
 	def __eq__(self, other):
 		return self.id == other.id
+
+	def translateParams(self):
+		optionalParamsTranslator = { 'toBool': {'trackAncestry'} }
+		self.params = translateParamDict(self.params, optionalParamsTranslator)
 
 	def renewID(self):
 		if self.ancestryTrackingEnabled():
@@ -89,7 +107,7 @@ class BaseIndividual(object):
 		self.score += (np.random.random()*2-1)*amplitude
 
 	def ancestryTrackingEnabled(self):
-		return hasattr(self, 'params') and self.params.has_key('trackAncestry') and self.params['trackAncestry'] == 'yes'
+		return hasattr(self, 'params') and self.params.has_key('trackAncestry') and self.params['trackAncestry']
 
 	def setParamDefault(self, paramName, paramVal):
 		if not self.params.has_key(paramName):
