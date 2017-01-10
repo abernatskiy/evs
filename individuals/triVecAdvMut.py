@@ -17,6 +17,11 @@ class Individual(TriVecIndividual):
 		self.insertFrac = 1.0 - self.changeFrac - self.deleteFrac
 		self.values = np.random.random_integers(-1, 1, size=self.params['length'])
 
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toFloat'].update({'mutExploration', 'mutInsDelRatio'})
+		return t
+
 	def insert(self):
 		space = len(self.values) - np.count_nonzero(self.values)
 		if space < 1:

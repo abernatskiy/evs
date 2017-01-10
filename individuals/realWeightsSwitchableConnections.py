@@ -47,6 +47,16 @@ class Individual(RealVectorTunableBoundsSureMutation):
 			if not connExists:
 				self.values[pos] = 0.0
 
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toFloat'].update({'mutExploration', 'mutInsDelRatio'})
+		return t
+
+	def optionalParametersTranslator(self):
+		t = super(Individual, self).optionalParametersTranslator()
+		t['toFloat'].add('initProbabilityOfConnection')
+		return t
+
 	def _getRandomPosition(self, boolConnType):
 		positions = []
 		for pos,connExists in enumerate(self.mask):
@@ -59,10 +69,6 @@ class Individual(RealVectorTunableBoundsSureMutation):
 
 	def isAZeroWeight(self, pos):
 		return self.values[pos] == 0.0
-
-	def changeWeight(self, pos):
-		self.values[pos] *= (1. + self.params['relativeMutationAmplitude']*np.random.standard_normal())
-		self.values[pos] = np.clip(self.values[pos], self.params['lowerCap'], self.params['upperCap'])
 
 	def _insert(self):
 #		print 'Inserting'

@@ -30,32 +30,23 @@ Communicator = importlib.import_module('communicators.' + conf.get('classes', 'c
 
 # Loading parameters
 
-floats = ['mutExploration',
-					'mutInsDelRatio',
-					'mutProbability',
-					'mutationProbability',
-					'mutationAmplitude',
-					'noiseAmplitude',
-					'secondObjectiveProbability',
-					'initLowerLimit',
-					'initUpperLimit',
-					'initProbabilityOfConnection',
-					'lowerCap',
-					'upperCap',
-					'relativeMutationAmplitude']
+floats = [
+					'secondObjectiveProbability'
+]
 
-ints = ['length',
+ints = [
 				'initDensity',
 				'beginConn',
 				'endConn',
 				'eliteSize',
-				'precision',
-				'bruteForceChunkSize']
+				'bruteForceChunkSize'
+]
 
 bools = ['paretoBreakTiesByIDs',
 				 'logParetoFrontKeepAllGenerations',
 				 'logConcatenatedPopulations',
-				 'useMaskForSparsity']
+				 'useMaskForSparsity'
+]
 
 def loadDict(section):
 	global conf, floats, ints, bools

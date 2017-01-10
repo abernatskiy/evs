@@ -2,22 +2,17 @@ import numpy as np
 from trinaryVector import Individual as TriVecIndividual
 
 class Individual(TriVecIndividual):
-	'''Class for evolutionary individuals described by a vector of 
-     numbers taken from {-1,0,1} of constant length with mutation 
-     operator taken from the Espinosa-Soto Wagner 2010 paper 
-     (DOI: 10.1371/journal.pcbi.1000719). Additionally, a function 
-     initSparse(self) is provided, which makes an empty random 
-     vector and adds self.params['initDensity'] connections to it 
-     at random. Constructor takes a dictionary with the 
-     following parameter fields:
+	'''Class for evolutionary individuals described by a vector of numbers taken
+	   from {-1,0,1} of constant length with mutation operator taken from the
+	   Espinosa-Soto Wagner 2010 paper (DOI: 10.1371/journal.pcbi.1000719).
+	   Additionally, a function initSparse(self) is provided, which makes an empty
+	   random vector and adds self.params['initDensity'] connections to it at
+	   random. Constructor takes a dictionary with the following parameter fields:
        length              - length of the vector
-       mutProbability      - probability of mutation per each E-S W 
-                             gene (number of nodes is a square root 
-                             of length)
-       mutExploration      - fraction of connectivity-preserving 
-                             mutations
-       mutInsDelRatio      - ratio of insertion frequency to 
-                             deletion frequency
+       mutProbability      - probability of mutation per each E-S W gene (number
+	                            of nodes is a square root of length)
+       mutExploration      - fraction of connectivity-preserving mutations
+       mutInsDelRatio      - ratio of insertion frequency to deletion frequency
 	'''
 	def __init__(self, params):
 		super(TriVecIndividual, self).__init__(params)
@@ -28,6 +23,11 @@ class Individual(TriVecIndividual):
 		self.deleteFrac = (1.0 - self.changeFrac)/(self.params['mutInsDelRatio']+1)
 		self.insertFrac = 1.0 - self.changeFrac - self.deleteFrac
 		self.values = np.random.random_integers(-1, 1, size=self.params['length'])
+
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toFloat'].update({'mutExploration', 'mutInsDelRatio', 'mutProbability'})
+		return t
 
 	def insert(self):
 		space = len(self.values) - np.count_nonzero(self.values)
@@ -113,4 +113,3 @@ class Individual(TriVecIndividual):
 #		if mutated:
 		self.renewID()
 		return mutated
-		

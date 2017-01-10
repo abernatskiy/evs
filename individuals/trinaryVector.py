@@ -66,3 +66,9 @@ class Individual(BaseIndividual):
 	def setValuesToZero(self): # for sparse-first search
 		self.values = np.zeros(self.params['length'], dtype=np.int)
 		self.renewID()
+
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toInt'].add('length')
+		t['toFloat'].add('mutationProbability')
+		return t

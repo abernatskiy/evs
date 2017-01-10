@@ -24,10 +24,13 @@ class Individual(TriVecIndividual):
 		if not np.sqrt(self.params['length']).is_integer():
 			raise ValueError('Length of such vectors should be a square of an integer')
 		self.numNodes = int(np.sqrt(self.params['length']))
-#		self.changeFrac = self.params['mutExploration']
-#		self.deleteFrac = (1.0 - self.changeFrac)/(self.params['mutInsDelRatio']+1)
-#		self.insertFrac = 1.0 - self.changeFrac - self.deleteFrac
 		self.values = np.random.random_integers(-1, 1, size=self.params['length'])
+
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toFloat'].add('mutProbability')
+		t['toInt'].add('initDensity')
+		return t
 
 	def insert(self):
 		space = len(self.values) - np.count_nonzero(self.values)
@@ -89,4 +92,3 @@ class Individual(TriVecIndividual):
 		if mutated:
 			self.renewID()
 		return mutated
-		

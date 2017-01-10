@@ -38,13 +38,13 @@ class Individual(RealWeightsSwitchableConnections):
      Constructor takes a dictionary with the following parameter fields:
        length
        initLowerLimit, initUpperLimit
+       lowerCap, upperCap
        mutExploration
        mutInsDelRatio
 
      Optional fields:
        mutationAmplitude (default 1)
        initProbabilityOfConnection (default 1)
-       lowerCap, upperCap (default -Inf, Inf)
 	'''
 	def __init__(self, params):
 		super(Individual, self).__init__(params)
@@ -67,6 +67,18 @@ class Individual(RealWeightsSwitchableConnections):
 	def _ensureParamIntegerness(self, paramName):
 		if not self.params[paramName].is_integer():
 			raise ValueError(paramName + ' should be an integer (is ' + str(self.params[paramName]) + ')')
+
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toFloat'].remove('relativeMutationAmplitude')
+		t['toFloat'].update({'upperCap', 'lowerCap'})
+		return t
+
+	def optionalParametersTranslator(self):
+		t = super(Individual, self).optionalParametersTranslator()
+		t['toFloat'].difference_update({'upperCap', 'lowerCap'})
+		t['toFloat'].add('mutationAmplitude')
+		return t
 
 	def isAZeroWeight(self, pos):
 		# Redefining to safeguard against possible forgetful alterations of the parent class

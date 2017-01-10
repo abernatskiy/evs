@@ -32,13 +32,26 @@ class Individual(RealVector):
 		for i in xrange(self.params['length']):
 			self.values.append(self.getAnInitialValue())
 
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toFloat'].update({'initLowerLimit', 'initUpperLimit', 'relativeMutationAmplitude'})
+		return t
+
+	def optionalParametersTranslator(self):
+		t = super(Individual, self).optionalParametersTranslator()
+		t['toFloat'].update({'lowerCap', 'upperCap'})
+		return t
+
 	def getAnInitialValue(self):
 		return self.params['initLowerLimit'] + (self.params['initUpperLimit'] - self.params['initLowerLimit'])*np.random.random()
 
+	def changeWeight(self, pos):
+		self.values[pos] *= (1. + self.params['relativeMutationAmplitude']*np.random.standard_normal())
+		self.values[pos] = np.clip(self.values[pos], self.params['lowerCap'], self.params['upperCap'])
+
 	def mutate(self):
 		mutPos = np.random.random_integers(0, self.values.size-1)
-		self.values[mutPos] *= (1. + self.params['relativeMutationAmplitude']*np.random.standard_normal())
-		self.values[mutPos] = np.clip(self.values[mutPos], self.params['lowerCap'], self.params['upperCap'])
+		self.changeWeight(mutPos)
 		self.renewID()
 		return True
 

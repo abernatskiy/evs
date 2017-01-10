@@ -36,3 +36,9 @@ class Individual(RealVector):
 			return True
 		else:
 			return False
+
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toFloat'].update({'mutationProbability', 'mutationAmplitude'})
+		t['toInt'].add('precision')
+		return t
