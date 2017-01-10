@@ -2,7 +2,7 @@ import numpy as np
 
 import sys
 sys.path.append('..')
-from commons import translateParamDict
+from commons import translateParametersDictionary, emptyParametersTranslator
 
 currentID = 0
 
@@ -23,9 +23,8 @@ class BaseIndividual(object):
 	     - Ancestry tracking.
    '''
 	def __init__(self, params):
-		self.translateParams()
-		self.renewID()
-		self.params = params
+		self.renewID() # must be done before params assignment, otherwise ancestry tracking won't work
+		self.params = translateParametersDictionary(params, self.optionalParametersTranslator(), requiredParametersTranslator=self.requiredParametersTranslator())
 		if self.ancestryTrackingEnabled():
 			# ancestry is stored in form of a chain of records, e.g.
 			# [(-1, 3),
@@ -68,9 +67,13 @@ class BaseIndividual(object):
 	def __eq__(self, other):
 		return self.id == other.id
 
-	def translateParams(self):
-		optionalParamsTranslator = { 'toBool': {'trackAncestry'} }
-		self.params = translateParamDict(self.params, optionalParamsTranslator)
+	def optionalParametersTranslator(self):
+		t = emptyParametersTranslator()
+		t['toBool'].add('trackAncestry')
+		return t
+
+	def requiredParametersTranslator(self):
+		return emptyParametersTranslator()
 
 	def renewID(self):
 		if self.ancestryTrackingEnabled():

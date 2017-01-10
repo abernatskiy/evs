@@ -4,7 +4,7 @@ import os
 
 import sys
 sys.path.append('..')
-from commons import afpr, translateParamDict
+from commons import afpr, translateParametersDictionary, emptyParametersTranslator
 
 def firstDominatedBySecond(indiv0, indiv1, func0, func1, breakTiesByIDs=True):
 	'''Assumes that both functions are minimized, as in the classical Pareto front picture'''
@@ -36,9 +36,8 @@ class BaseEvolver(object):
 	'''Base class for evolutionary algorithms. Provides
      methods for creating server output.'''
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
-		self.translateParams()
+		self.params = translateParametersDictionary(evolParams, self.optionalParametersTranslator(), requiredParametersTranslator=self.requiredParametersTranslator())
 		self.communicator = communicator
-		self.params = evolParams
 		self.indivParams = indivParams
 		self.logHeaderWritten = False
 		self.generation = 0
@@ -56,11 +55,12 @@ class BaseEvolver(object):
 		if not initialPopulationFileName is None:
 			self._appendPopulationFromFile(initialPopulationFileName)
 
-	def translateParams(self):
-		bools = {'logParetoFrontKeepAllGenerations'}
-		ints = {'genStopAfter',
-		        'populationSize',
-		        'randomSeed'}
+	def optionalParametersTranslator(self):
+		t = emptyParametersTranslator()
+		t['toBool'].add('logParetoFrontKeepAllGenerations')
+		t['toInt'].update({'genStopAfter',
+		                    'populationSize',
+		                    'randomSeed'})
 		periodicActionBools = {'logPopulation',
 		                       'logBestIndividual',
 		                       'printBestIndividual',
@@ -69,10 +69,12 @@ class BaseEvolver(object):
 		                       'backup',
 		                       'printGeneration',
 		                       'logParetoFront'}
-		bools.update(periodicActionBools)
-		ints.update({ x + 'Period' for x in periodicActionBools })
-		optionalParamsTranslator = {'toBool': bools, 'toInt': ints}
-		self.params = translateParamDict(self.params, optionalParamsTranslator)
+		t['toBool'].update(periodicActionBools)
+		t['toInt'].update({ x + 'Period' for x in periodicActionBools })
+		return t
+
+	def requiredParametersTranslator(self):
+		return emptyParametersTranslator()
 
 	def updatePopulation(self):
 		self.generation += 1
