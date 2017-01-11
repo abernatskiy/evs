@@ -35,7 +35,7 @@ class Evolver(BaseEvolver):
 		self.population.sort(key = lambda x: x.score)
 
 	def optionalParametersTranslator(self):
-		t = super(Individual, self).optionalParametersTranslator()
+		t = super(Evolver, self).optionalParametersTranslator()
 		t['toInt'].add('eliteSize')
 		return t
 

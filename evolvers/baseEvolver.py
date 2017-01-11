@@ -43,7 +43,7 @@ class BaseEvolver(object):
 		self.generation = 0
 		# little dirty hack which exploit the fact that there's always just one Evolver to communicate generation number to Individuals
 		if self.paramIsEnabled('trackAncestry'):
-			indivParams['trackAncestry'] = 'yes'
+			indivParams['trackAncestry'] = True
 			import __builtin__
 			if not hasattr(__builtin__, 'globalGenerationCounter'):
 				__builtin__.globalGenerationCounter = 0
@@ -328,7 +328,7 @@ class BaseEvolver(object):
 		return hasattr(self, 'params') and self.params.has_key(paramName)
 
 	def paramIsEnabled(self, paramName):
-		return self.paramExists(paramName) and self.params[paramName] == 'yes'
+		return self.paramExists(paramName) and self.params[paramName]
 
 	def paramIsNonzero(self, paramName):
 		return self.paramExists(paramName) and self.params[paramName] != 0.

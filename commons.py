@@ -8,7 +8,7 @@ def afpr(number, precision=10):
 def translateParametersDictionary(dict, optionalParametersTranslator, requiredParametersTranslator=None):
 	translatorFuncs = {'toFloat'  : float,
 	                   'toInt'    : int,
-	                   'toBool'   : lambda x: x if type(x) is bool else x is 'yes',
+	                   'toBool'   : lambda x: x if type(x) is bool else x == 'yes',
 	                   'toString' : str} # all translator functions must be projections: f(f(x)) = f(x) for any x
 	def translateParamDictInModes(dictionary, translator, allParamsRequired):
 		for convStr, paramNames in translator.iteritems():
