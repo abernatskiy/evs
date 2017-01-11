@@ -58,6 +58,12 @@ class Evolver(BaseEvolver):
 
 		self._outputPareto()
 
+	def optionalParametersTranslator(self):
+		t = super(Individual, self).optionalParametersTranslator()
+		t['toInt'].add('bruteForceChunkSize')
+		t['toBool'].add('paretoBreakTiesByIDs')
+		return t
+
 	def _getObjPairs(self, subpop, firstOccurenceAction=None):
 		objpairs = set()
 		for indiv in subpop:

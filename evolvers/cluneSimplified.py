@@ -60,6 +60,17 @@ class Evolver(BaseEvolver):
 		self.communicator.evaluate(self.population)
 		self.population.sort(key = lambda x: x.score)
 
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toFloat'].add('secondObjectiveProbability')
+		return t
+
+	def optionalParametersTranslator(self):
+		t = super(Individual, self).optionalParametersTranslator()
+		t['toFloat'].remove('secondObjectiveProbability')
+		t['toBool'].add('useMaskForSparsity')
+		return t
+
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
 

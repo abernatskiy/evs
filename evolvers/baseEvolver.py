@@ -71,7 +71,7 @@ class BaseEvolver(object):
 		                       'logParetoFront'}
 		t['toBool'].update(periodicActionBools)
 		t['toInt'].update({ x + 'Period' for x in periodicActionBools })
-		t['toFloat'].update({'noiseAmplitude'})
+		t['toFloat'].update({'noiseAmplitude', 'secondObjectiveProbability'})
 		return t
 
 	def requiredParametersTranslator(self):

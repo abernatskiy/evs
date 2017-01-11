@@ -30,40 +30,11 @@ Communicator = importlib.import_module('communicators.' + conf.get('classes', 'c
 
 # Loading parameters
 
-floats = [
-					'secondObjectiveProbability'
-]
+def loadDict(conf, section):
+	return { parName: parVal for parName, parVal in conf.items(section) }
 
-ints = [
-				'initDensity',
-				'beginConn',
-				'endConn',
-				'eliteSize',
-				'bruteForceChunkSize'
-]
-
-bools = ['paretoBreakTiesByIDs',
-				 'logParetoFrontKeepAllGenerations',
-				 'logConcatenatedPopulations',
-				 'useMaskForSparsity'
-]
-
-def loadDict(section):
-	global conf, floats, ints, bools
-	dict = {}
-	for item in conf.items(section):
-		if item[0] in ints:
-			dict[item[0]] = int(item[1])
-		elif item[0] in floats:
-			dict[item[0]] = float(item[1])
-		elif item[0] in bools:
-			dict[item[0]] = (item[1] == 'yes')
-		else:
-			dict[item[0]] = item[1]
-	return dict
-
-indivParams = loadDict('indivParams')
-evolParams = loadDict('evolParams')
+indivParams = loadDict(conf, 'indivParams')
+evolParams = loadDict(conf, 'evolParams')
 evolParams['indivClass'] = Individual
 if evolParams.has_key('randomSeed'):
 	print('WARNING: CLI supplied random seed overriden by the one supplied in the config file. New value: ' + str(evolParams['randomSeed']))

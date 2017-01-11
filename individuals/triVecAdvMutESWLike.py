@@ -13,6 +13,9 @@ class Individual(TriVecIndividual):
 	                            of nodes is a square root of length)
        mutExploration      - fraction of connectivity-preserving mutations
        mutInsDelRatio      - ratio of insertion frequency to deletion frequency
+	     initDensity         - number of connections the individual will have
+	                           after a call to initSparse() method. If you don't
+	                           use this functionality, parameters is not needed
 	'''
 	def __init__(self, params):
 		super(TriVecIndividual, self).__init__(params)
@@ -27,6 +30,11 @@ class Individual(TriVecIndividual):
 	def requiredParametersTranslator(self):
 		t = super(Individual, self).requiredParametersTranslator()
 		t['toFloat'].update({'mutExploration', 'mutInsDelRatio', 'mutProbability'})
+		return t
+
+	def optionalParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toInt'].add('initDensity')
 		return t
 
 	def insert(self):

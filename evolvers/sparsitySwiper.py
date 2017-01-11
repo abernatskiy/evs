@@ -38,6 +38,11 @@ class Evolver(BaseEvolver):
 		self.communicator.evaluate(self.population)
 		self.population.sort(key = lambda x: x.score)
 
+	def optionalParametersTranslator(self):
+		t = super(Individual, self).optionalParametersTranslator()
+		t['toInt'].update({'beginConn', 'endConn'})
+		return t
+
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
 		self.population = []
