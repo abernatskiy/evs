@@ -1,3 +1,5 @@
+import re
+
 def afpr(number, precision=10):
 	'''Alignable floating point representation'''
 	if number < 0:
@@ -13,14 +15,15 @@ def translateParametersDictionary(dict, optionalParametersTranslator, requiredPa
 	def translateParamDictInModes(dictionary, translator, allParamsRequired):
 		for convStr, paramNames in translator.iteritems():
 			for paramName in paramNames:
-				if allParamsRequired or dictionary.has_key(paramName):
-					dictionary[paramName] = translatorFuncs[convStr](dictionary[paramName])
+				matchCount = 0
+				for k in dictionary.keys():
+					if re.match(paramName, k):
+						dictionary[k] = translatorFuncs[convStr](dictionary[k])
+						matchCount += 1
+				if allParamsRequired and matchCount == 0:
+					raise ValueError('Required parameter ' + paramName + ' is missing from the parameter dictionary ' + str(dict) + '. Requirements:\n' + str(requiredParametersTranslator))
 		return dictionary
-	if requiredParametersTranslator:
-		try:
-			dict = translateParamDictInModes(dict, requiredParametersTranslator, True)
-		except KeyError:
-			raise ValueError('Required parameter is missing from the parameter dictionary ' + str(dict) + '. Requirements: ' + str(requiredParametersTranslator))
+	dict = translateParamDictInModes(dict, requiredParametersTranslator, True)
 	return translateParamDictInModes(dict, optionalParametersTranslator, False)
 
 def emptyParametersTranslator():
