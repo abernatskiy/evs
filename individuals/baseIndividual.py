@@ -48,14 +48,6 @@ class BaseIndividual(object):
 			import __builtin__
 			self.ancestry.append((-1, __builtin__.globalGenerationCounter)) # teleported here from evolvers.baseEvolver
 
-	@classmethod
-	def initEmpty(self):
-		'''Use this if you can not call the usual constructor for some reason
-		   (e.g., you need an instance just to find out which parameters the class
-		   uses.
-		'''
-		pass
-
 	def __str__(self):
 		representation = str(self.id)
 		for value in self.values:
