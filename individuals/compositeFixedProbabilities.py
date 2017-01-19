@@ -1,9 +1,9 @@
 import re
 import importlib
+import numpy as np
 
 from baseIndividual import BaseIndividual
 
-                                                                                
 class Individual(BaseIndividual):
 	'''Class for evolutionary individuals glued together from individuals of other
 	   classes. Mutation of such composite individual mutates only one of its
@@ -31,8 +31,9 @@ class Individual(BaseIndividual):
 	def __init__(self, params):
 		super(Individual, self).__init__(params)
 		self._extractPartClasses()
-		self._extractMutationProbabilities()
 		self._extractClassParameters()
+		self._extractMutationProbabilities()
+		self.parts = [ self.partClasses[i](self.classParams[i]) for i in range(self.numClasses) ]
 
 	def _extractPartClasses(self):
 		# Extracting names and numbers
@@ -51,7 +52,7 @@ class Individual(BaseIndividual):
 		# Loading the sources for all classes
 		self.partClasses = []
 		for i in range(len(partClassesNames)):
-			self.partClasses.append(importlib.import_module('individuals.' + partClassesNames[i]).Individual) # CAREFUL, might not be in path
+			self.partClasses.append(importlib.import_module('individuals.' + partClassesNames[i]).Individual)
 
 	def _extractMutationProbabilities(self):
 		mutProbDict = {}
@@ -80,12 +81,6 @@ class Individual(BaseIndividual):
 				classNum = int(numPattern.search(pn).group())
 				paramName = paramsPattern.split(pn)[0]
 				self.classParams[classNum][paramName] = pv
-				print "For class " + str(classNum) + " got param " + paramName
-
-	def _makeSampleParts(self):
-		self._sampleParts = []
-		for pcl in self.partClasses:
-			self._sampleParts.append(pcl.initEmpty())
 
 	def requiredParametersTranslator(self):
 		t = super(Individual, self).requiredParametersTranslator()
@@ -98,8 +93,15 @@ class Individual(BaseIndividual):
 		return t
 
 	def __str__(self):
-		# Debugging version
-		return 'Individuals within the compound:\n'
+		return str(self.id) + ' ' + ' '.join([ s.split(' ', 1)[1] for s in map(str, self.parts)])
 
 	def mutate(self):
-		pass
+		roll = np.random.random()
+		psum = 0.
+		i = 0
+		while psum < roll:
+			psum += self.mutationProbabilities[i]
+			i += 1
+		i -= 1
+		print "mutation at individual " + str(i)
+		return self.parts[i].mutate()
