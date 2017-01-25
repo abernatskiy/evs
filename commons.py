@@ -13,11 +13,16 @@ def translateParametersDictionary(dict, optionalParametersTranslator, requiredPa
 	                   'toBool'   : lambda x: x if type(x) is bool else x == 'yes',
 	                   'toString' : str} # all translator functions must be projections: f(f(x)) = f(x) for any x
 	def translateParamDictInModes(dictionary, translator, allParamsRequired):
+		regexpForNonRegexps = re.compile('^[0-9a-zA-Z]*$')
 		for convStr, paramNames in translator.iteritems():
 			for paramName in paramNames:
 				matchCount = 0
 				for k in dictionary.keys():
-					if re.match(paramName, k):
+					if regexpForNonRegexps.match(paramName):
+						if paramName == k:
+							dictionary[k] = translatorFuncs[convStr](dictionary[k])
+							matchCount += 1
+					elif re.match(paramName, k):
 						dictionary[k] = translatorFuncs[convStr](dictionary[k])
 						matchCount += 1
 				if allParamsRequired and matchCount == 0:
