@@ -80,6 +80,9 @@ class Evolver(BaseEvolver):
 		else:
 			connectionCostFunc = lambda x: len(filter(lambda y: y!=0, x.values))
 
+		if self.paramIsEnabled('morphologyControlIndivs'):
+			connectionCostFunc = lambda x: len(filter(lambda y: y!=0, x.parts[1].values)) # TODO: possibly remove this special case in favor of supressed masks or arbitrary code execution
+
 		if self.paramIsNonzero('secondObjectiveProbability'):
 			paretoFront = self.findStochasticalParetoFront(lambda x: -1*x.score, connectionCostFunc)
 		else:
