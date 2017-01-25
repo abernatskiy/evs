@@ -14,7 +14,7 @@ def firstDominatedBySecond(indiv0, indiv1, func0, func1, breakTiesByIDs=True):
 	# f1(i0)=f1(i1)    F                ID0<ID1          T
 	# f1(i0)>f1(i1)    F                T                T
 	if indiv0.id == indiv1.id:
-		raise RuntimeError('Pareto optimization error: Two individuals with the same ID compared')
+		raise RuntimeError('Pareto optimization error: Two individuals with the same ID compared:\n' + str(indiv0) + '\n' + str(indiv1))
 	if func0(indiv0) == func0(indiv1):
 		if func1(indiv0) == func1(indiv1):
 			if breakTiesByIDs:

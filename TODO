@@ -1,8 +1,5 @@
-- Espinosa-Soto hack for modularity
 - caching
-- Espinosa-Soto-Wagner evolver
-- documentation for making new classes
 - check hillClimber for implementation correctness
 - DEAP/inspyred support
-- support for lineage tracking
 - make textFile communicator stable against stray newlines
+- add setting summary output

@@ -34,8 +34,8 @@ class BaseIndividual(object):
 			# the rest describe mutations.
 			# The first field holds parent's ID. For LO events, a special value of -1
 			# is used.
-			# The second field hold the generation number at which the event occured.
-			# The number of the first generation in which the child appears is used.
+			# The second field holds the generation number into which the offspring
+			# was produced.
 			# Thus, a tuple (564, 10) means that at generation 9 there was an
 			# individual named 564. It produced an offspring which got to carry its
 			# genes on to generation 10. This offspring is either an ancestor of the
