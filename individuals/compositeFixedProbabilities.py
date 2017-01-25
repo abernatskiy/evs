@@ -103,5 +103,7 @@ class Individual(BaseIndividual):
 			psum += self.mutationProbabilities[i]
 			i += 1
 		i -= 1
-		print "mutation at individual " + str(i)
-		return self.parts[i].mutate()
+		mutated = self.parts[i].mutate()
+		if mutated:
+			self.renewID()
+		return mutated
