@@ -83,12 +83,16 @@ class Evolver(BaseEvolver):
 		self.secondObjectiveLabel = 'connection cost'
 		return connectionCostFunc
 
+	def getFitnessFunc(self):
+		return lambda x: -1.*x.score
+
 	def getCluneParetoFront(self):
+		fitnessFunc = self.getFitnessFunc()
 		connectionCostFunc = self.getConnectionCostFunc()
 		if self.paramIsNonzero('secondObjectiveProbability'):
-			return self.findStochasticalParetoFront(lambda x: -1*x.score, connectionCostFunc)
+			return self.findStochasticalParetoFront(fitnessFunc, connectionCostFunc)
 		else:
-			return self.findParetoFront(lambda x: -1*x.score, connectionCostFunc)
+			return self.findParetoFront(fitnessFunc, connectionCostFunc)
 
 	def doParetoOutput(self, paretoFront):
 		self.printParetoFront(paretoFront, self.secondObjectiveLabel, self.getConnectionCostFunc())
