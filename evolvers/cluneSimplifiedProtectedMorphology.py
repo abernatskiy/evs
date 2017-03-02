@@ -1,9 +1,19 @@
 import numpy as np
 from copy import deepcopy
-from baseEvolver import BaseEvolver
+from cluneSimplified import Evolver as CluneSimplifiedEvolver
 
-class Evolver(BaseEvolver):
-	'''Multiobjective algorithm which minimizes the connection cost alongside
+class Evolver(CluneSimplifiedEvolver):
+	'''A variant of connection cost-based multiobjective selection algorithm that
+     also protects morphologies while their controllers are optimized.
+
+     The only difference in using this one is that unlike the cluneSimplified
+     it always (and not for certain settings of parameters) expects all
+     Individuals to be composites of two: morphology (Class0) and controller
+     (Class1 in configs of the composite).
+
+     Below is a copy of the cluneSimplified docstring.
+
+     Multiobjective algorithm which minimizes the connection cost alongside
      with maximizing the fitness function. It is similar to the technique used
      in the 2013 Clune Mouret Lipson "The evolutionary origins of modularity"
      paper; the difference is that instead of using NSGA-II, we simply keep the
@@ -37,58 +47,19 @@ class Evolver(BaseEvolver):
 
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
-		if self.params['initialPopulationType'] == 'random':
-			while len(self.population) < self.params['populationSize']:
-				indiv = self.params['indivClass'](indivParams)
-				self.population.append(indiv)
-		elif self.params['initialPopulationType'] == 'sparse':
-			while len(self.population) < self.params['populationSize']:
-				indiv = self.params['indivClass'](indivParams)
-				indiv.setValuesToZero()
-				indiv.mutate()
-				self.population.append(indiv)
-		elif self.params['initialPopulationType'] == 'expandFromFile':
-			if not initialPopulationFileName:
-				raise ValueError('Initial population file name must be specified if initialPopulationType=expandFromFile is used')
-			curPopLen = len(self.population)
-			while len(self.population) < self.params['populationSize']:
-				indiv = deepcopy(np.random.choice(self.population[:curPopLen]))
-				indiv.mutate()
-				self.population.append(indiv)
-		else:
-			raise ValueError('Wrong type of initial population')
-		self.communicator.evaluate(self.population)
-		self.population.sort(key = lambda x: x.score)
-
-	def requiredParametersTranslator(self):
-		t = super(Evolver, self).requiredParametersTranslator()
-		t['toFloat'].add('secondObjectiveProbability') # TODO: do I really need to require it? It's quite expensive.
-		t['toString'].add('initialPopulationType')
-		return t
-
-	def optionalParametersTranslator(self):
-		t = super(Evolver, self).optionalParametersTranslator()
-		t['toFloat'].remove('secondObjectiveProbability')
-		t['toBool'].add('useMaskForSparsity')
-		return t
+		for indiv in self.population():
+			indiv.tsmm = 0 # time since the last morphological mutation
 
 	def updatePopulation(self):
-		super(Evolver, self).updatePopulation()
-
-		if self.paramIsEnabled('useMaskForSparsity'):
-			connectionCostFunc = lambda x: len(filter(lambda y: y, x.mask))
-		else:
-			connectionCostFunc = lambda x: len(filter(lambda y: y!=0, x.values))
-
-		if self.paramIsEnabled('morphologyControlIndivs'):
-			connectionCostFunc = lambda x: len(filter(lambda y: y!=0, x.parts[1].values)) # TODO: possibly remove this special case in favor of supressed masks or arbitrary code execution
+		# TODO: probably some of the boilreplate code can be removed
+		connectionCostFunc = lambda x: float(x.tsmm) / (1 + len(filter(lambda y: y, x.mask)))
 
 		if self.paramIsNonzero('secondObjectiveProbability'):
 			paretoFront = self.findStochasticalParetoFront(lambda x: -1*x.score, connectionCostFunc)
 		else:
 			paretoFront = self.findParetoFront(lambda x: -1*x.score, connectionCostFunc)
 
-		self.printParetoFront(paretoFront, 'connection cost', connectionCostFunc)
+		self.printParetoFront(paretoFront, 'relative age', connectionCostFunc)
 		self.logParetoFront(paretoFront)
 		self.paretoWarning(paretoFront)
 
@@ -97,9 +68,14 @@ class Evolver(BaseEvolver):
 			parent = np.random.choice(paretoFront)
 			child = deepcopy(parent)
 			child.mutate()
+			if child.parts[0].id != parent.parts[0].id:
+				child.tsmm = -1
 			newPopulation.append(child)
 		self.communicator.evaluate(newPopulation)
 		self.population = paretoFront + newPopulation
 		if self.paramExists('noiseAmplitude'):
 			self.noisifyAllScores()
 		self.population.sort(key = lambda x: x.score)
+
+		for indiv in self.population():
+			indiv.tsmm += 1
