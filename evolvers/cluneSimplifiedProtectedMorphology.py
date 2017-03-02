@@ -47,35 +47,18 @@ class Evolver(CluneSimplifiedEvolver):
 
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
-		for indiv in self.population():
+		for indiv in self.population:
 			indiv.tsmm = 0 # time since the last morphological mutation
 
+	def getConnectionCostFunc(self):
+		self.secondObjectiveLabel = 'relative age'
+		return (lambda x: float(x.tsmm) / (1 + len(filter(lambda y: y!=0, x.parts[1].values))))
+
+	def processMutatedChild(self, child, parent):
+		if child.parts[0].id != parent.parts[0].id:
+			child.tsmm = -1
+
 	def updatePopulation(self):
-		# TODO: probably some of the boilreplate code can be removed
-		connectionCostFunc = lambda x: float(x.tsmm) / (1 + len(filter(lambda y: y, x.mask)))
-
-		if self.paramIsNonzero('secondObjectiveProbability'):
-			paretoFront = self.findStochasticalParetoFront(lambda x: -1*x.score, connectionCostFunc)
-		else:
-			paretoFront = self.findParetoFront(lambda x: -1*x.score, connectionCostFunc)
-
-		self.printParetoFront(paretoFront, 'relative age', connectionCostFunc)
-		self.logParetoFront(paretoFront)
-		self.paretoWarning(paretoFront)
-
-		newPopulation = []
-		while len(newPopulation)+len(paretoFront) < self.params['populationSize']:
-			parent = np.random.choice(paretoFront)
-			child = deepcopy(parent)
-			child.mutate()
-			if child.parts[0].id != parent.parts[0].id:
-				child.tsmm = -1
-			newPopulation.append(child)
-		self.communicator.evaluate(newPopulation)
-		self.population = paretoFront + newPopulation
-		if self.paramExists('noiseAmplitude'):
-			self.noisifyAllScores()
-		self.population.sort(key = lambda x: x.score)
-
-		for indiv in self.population():
+		super(Evolver, self).updatePopulation()
+		for indiv in self.population:
 			indiv.tsmm += 1

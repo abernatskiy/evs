@@ -72,9 +72,7 @@ class Evolver(BaseEvolver):
 		t['toBool'].add('useMaskForSparsity')
 		return t
 
-	def updatePopulation(self):
-		super(Evolver, self).updatePopulation()
-
+	def getConnectionCostFunc(self):
 		if self.paramIsEnabled('useMaskForSparsity'):
 			connectionCostFunc = lambda x: len(filter(lambda y: y, x.mask))
 		else:
@@ -82,21 +80,36 @@ class Evolver(BaseEvolver):
 
 		if self.paramIsEnabled('morphologyControlIndivs'):
 			connectionCostFunc = lambda x: len(filter(lambda y: y!=0, x.parts[1].values)) # TODO: possibly remove this special case in favor of supressed masks or arbitrary code execution
+		self.secondObjectiveLabel = 'connection cost'
+		return connectionCostFunc
 
+	def getCluneParetoFront(self):
+		connectionCostFunc = self.getConnectionCostFunc()
 		if self.paramIsNonzero('secondObjectiveProbability'):
-			paretoFront = self.findStochasticalParetoFront(lambda x: -1*x.score, connectionCostFunc)
+			return self.findStochasticalParetoFront(lambda x: -1*x.score, connectionCostFunc)
 		else:
-			paretoFront = self.findParetoFront(lambda x: -1*x.score, connectionCostFunc)
+			return self.findParetoFront(lambda x: -1*x.score, connectionCostFunc)
 
-		self.printParetoFront(paretoFront, 'connection cost', connectionCostFunc)
+	def doParetoOutput(self, paretoFront):
+		self.printParetoFront(paretoFront, self.secondObjectiveLabel, self.getConnectionCostFunc())
 		self.logParetoFront(paretoFront)
 		self.paretoWarning(paretoFront)
+
+	def processMutatedChild(self, child, parent):
+		pass
+
+	def updatePopulation(self):
+		super(Evolver, self).updatePopulation()
+
+		paretoFront = self.getCluneParetoFront()
+		self.doParetoOutput(paretoFront)
 
 		newPopulation = []
 		while len(newPopulation)+len(paretoFront) < self.params['populationSize']:
 			parent = np.random.choice(paretoFront)
 			child = deepcopy(parent)
 			child.mutate()
+			self.processMutatedChild(child, parent)
 			newPopulation.append(child)
 		self.communicator.evaluate(newPopulation)
 		self.population = paretoFront + newPopulation
