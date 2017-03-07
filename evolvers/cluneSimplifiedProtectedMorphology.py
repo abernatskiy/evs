@@ -52,7 +52,7 @@ class Evolver(CluneSimplifiedEvolver):
 
 	def getConnectionCostFunc(self):
 		self.secondObjectiveLabel = 'relative age'
-		return (lambda x: float(x.tsmm) / (1 + len(filter(lambda y: y!=0, x.parts[1].values))))
+		return lambda x: float(x.tsmm) / (1 + len(filter(lambda y: y!=0, x.parts[1].values)))
 
 	def processMutatedChild(self, child, parent):
 		if child.parts[0].id != parent.parts[0].id:
