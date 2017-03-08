@@ -41,16 +41,14 @@ class BaseEvolver(object):
 		self.indivParams = indivParams
 		self.logHeaderWritten = False
 		self.generation = 0
-		# little dirty hack which exploit the fact that there's always just one Evolver to communicate generation number to Individuals
-		if self.paramIsEnabled('trackAncestry'):
-			indivParams['trackAncestry'] = True
-			import __builtin__
-			if not hasattr(__builtin__, 'globalGenerationCounter'):
-				__builtin__.globalGenerationCounter = 0
-			else:
-				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
 		if self.params.has_key('randomSeed'):
 			np.random.seed(self.params['randomSeed'])
+		if self.paramIsEnabled('trackAncestry'):
+			indivParams['trackAncestry'] = True
+
+		self._createGlobalGenerationCounter()
+		self._setGlobalGenerationCounter()
+
 		self.population = []
 		if not initialPopulationFileName is None:
 			self._appendPopulationFromFile(initialPopulationFileName)
@@ -79,9 +77,7 @@ class BaseEvolver(object):
 
 	def updatePopulation(self):
 		self.generation += 1
-		if self.paramIsEnabled('trackAncestry'):
-			import __builtin__
-			__builtin__.globalGenerationCounter += 1
+		self._setGlobalGenerationCounter()
 		if self.params.has_key('genStopAfter') and self.generation > self.params['genStopAfter']:
 			self.done()
 
@@ -124,14 +120,8 @@ class BaseEvolver(object):
 	def recover(self):
 		map(lambda x: x.recoverID(), self.population)   # make sure that we start from the next free ID
 		np.random.set_state(self.randomGeneratorState)
-		if self.paramIsEnabled('trackAncestry'): # if we're dealing with ancestry tracking (disabled by default)...
-			import __builtin__
-			if not hasattr(__builtin__, 'globalGenerationCounter'):
-				# ...we should restore the content of our 'global' generation counter
-				__builtin__.globalGenerationCounter = self.generation
-			else:
-				# it may happen that we're trying to continue evolution using a new version of python in which our little hack no longer works
-				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, cannot initialize ancestry tracking')
+		self._createGlobalGenerationCounter()
+		self._setGlobalGenerationCounter()
 		if self.paramIsEnabled('logBestIndividual'):
 			self._truncateLogFile(self._bestIndividualLogFileName)
 		if self.paramIsEnabled('logConcatenatedPopulation'):
@@ -344,3 +334,22 @@ class BaseEvolver(object):
 	def setParamDefault(self, paramName, paramVal):
 		if not self.params.has_key(paramName):
 			self.params[paramName] = paramVal
+
+	def globalGenerationCounterRequired(self):
+		return self.paramIsEnabled('trackAncestry') or self.paramIsEnabled('globalGenerationCounter')
+
+	# little dirty hack which exploits the fact that there's always just one Evolver to communicate generation number to Individuals
+	def _createGlobalGenerationCounter(self):
+		import __builtin__
+		if self.globalGenerationCounterRequired():
+			if not hasattr(__builtin__, 'globalGenerationCounter'):
+				__builtin__.globalGenerationCounter = 0
+			else:
+				raise AttributeError('__builtin__ already has a globalGenerationCounter attribute, refusing to proceed')
+
+	# second part of the hack
+	def _setGlobalGenerationCounter(self):
+		import __builtin__
+		if self.globalGenerationCounterRequired():
+			__builtin__.globalGenerationCounter = self.generation
+
