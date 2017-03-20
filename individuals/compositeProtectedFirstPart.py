@@ -34,7 +34,7 @@ class Individual(CompositeFixedProbabilitiesIndividual):
 
 	def probabilityOfMorphologicalMutation(self):
 		tsmm = __builtin__.globalGenerationCounter - self.timeOfLastMorphologicalMutation
-		return 1./ (1. + math.exp((self.controllerTimeLimit() - tsmm)/self.params['timeEstimateWidth']))
+		return 1./ (1. + np.exp((self.controllerTimeLimit() - tsmm)/self.params['timeEstimateWidth']))
 
 	def mutate(self):
 		roll = np.random.random()

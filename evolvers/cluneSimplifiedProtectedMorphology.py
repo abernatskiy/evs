@@ -1,9 +1,34 @@
 import numpy as np
+import __builtin__
+
+from collections import deque
 from copy import deepcopy
 from cluneSimplified import Evolver as CluneSimplifiedEvolver
 
+class Memory(object):
+	'''A FIFO data structure that holds a fixed number of entries.
+     If more entries are added, the oldest ones are removed.
+     It can also check if all the entries in it are the same.
+	'''
+	def __init__(self, numElements):
+		self.n = numElements
+		self.q = deque()
+
+	def push(self, newElem):
+		self.q.append(newElem)
+		while len(self.q) > self.n:
+			self.q.popleft()
+
+	def uniform(self):
+		return self.n == len(self.q) and self.q.count(self.q[0]) == len(self.q)
+
+	def clear(self):
+		self.q.clear()
+
 class Evolver(CluneSimplifiedEvolver):
-	'''A variant of connection cost-based multiobjective selection algorithm that
+	'''Experimental class, all info below is probably obsolete by now, use source.
+
+     A variant of connection cost-based multiobjective selection algorithm that
      also protects morphologies while their controllers are optimized.
 
      The only difference in using this one is that unlike the cluneSimplified
@@ -47,18 +72,37 @@ class Evolver(CluneSimplifiedEvolver):
 
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
-		for indiv in self.population:
-			indiv.tsmm = 0 # time since the last morphological mutation
+		self.setParamDefault('initialTimeEstimateCoefficient', 3.)
+		self.setParamDefault('initialTimeEstimatePower', 1)
+		__builtin__.timeEstimateCoefficient = self.params['initialTimeEstimateCoefficient']
+		__builtin__.timeEstimatePower = self.params['initialTimeEstimatePower']
 
-	def getConnectionCostFunc(self):
-		self.secondObjectiveLabel = 'relative age'
-		return lambda x: float(x.tsmm) / (1 + len(filter(lambda y: y!=0, x.parts[1].values)))
+		self.setParamDefault('memorySize', 100)
+		self.fitnessTS = Memory(self.params['memorySize'])
 
-	def processMutatedChild(self, child, parent):
-		if child.parts[0].id != parent.parts[0].id:
-			child.tsmm = -1
+		self.increases = 0
+
+	def requiredParametersTranslator(self):
+		t = super(Evolver, self).requiredParametersTranslator()
+		t['toFloat'].update(['initialTimeEstimateCoefficient', 'initialTimeEstimatePower'])
+		t['toInt'].update(['memorySize'])
+		return t
+
+#	def getConnectionCostFunc(self):
+#		self.secondObjectiveLabel = 'connection cost'
+#		return len(filter(lambda y: y!=0, x.parts[1].values))
 
 	def updatePopulation(self):
+		self.fitnessTS.push(self.population[-1].score)
+		if self.fitnessTS.uniform():
+			self.increases += 1
+
+			if (self.increases % 5) == 0:
+				__builtin__.timeEstimatePower *= 2.
+			else:
+				__builtin__.timeEstimateCoefficient *= 2.
+			print('Time estimate increased for the ' + str(self.increases) + 'th time! New formula is ' + str(__builtin__.timeEstimateCoefficient) + '*CC^' + str(__builtin__.timeEstimatePower))
+
+			self.params['memorySize'] *= 2
+			self.fitnessTS = Memory(self.params['memorySize'])
 		super(Evolver, self).updatePopulation()
-		for indiv in self.population:
-			indiv.tsmm += 1
