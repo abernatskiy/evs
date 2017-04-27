@@ -6,6 +6,17 @@ import sys
 sys.path.append('..')
 from commons import afpr, translateParametersDictionary, emptyParametersTranslator
 
+def firstDominatedBySecondManyObjectives(first, second, functions, breakTiesByIDs=True):
+	'''Assumes all functions are minimized'''
+	if indiv0.id == indiv1.id:
+		raise RuntimeError('Pareto optimization error: Two individuals with the same ID compared:\n' + str(first) + '\n' + str(second))
+	if all([ func(first) > func(second) for func in functions ]):
+		return True
+	elif breakTiesByIDs and all([ func(first) == func(second) for func in functions ]):
+		return indiv0.id < indiv1.id
+	else:
+		return False
+
 def firstDominatedBySecond(indiv0, indiv1, func0, func1, breakTiesByIDs=True):
 	'''Assumes that both functions are minimized, as in the classical Pareto front picture'''
 	# truth table:
