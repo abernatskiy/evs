@@ -8,11 +8,12 @@ from commons import afpr, translateParametersDictionary, emptyParametersTranslat
 
 def firstDominatedBySecondManyObjectives(first, second, functions, breakTiesByIDs=True):
 	'''Assumes all functions are minimized'''
-	if indiv0.id == indiv1.id:
+	if first.id == second.id:
 		raise RuntimeError('Pareto optimization error: Two individuals with the same ID compared:\n' + str(first) + '\n' + str(second))
-	if all([ func(first) > func(second) for func in functions ]):
+	vals = [ (func(first), func(second)) for func in functions ]
+	if all([ f >= s for f,s in vals ]) and any([ f > s for f,s in vals ]):
 		return True
-	elif breakTiesByIDs and all([ func(first) == func(second) for func in functions ]):
+	elif breakTiesByIDs and all([ f == s for f,s in vals ]):
 		return indiv0.id < indiv1.id
 	else:
 		return False
@@ -210,6 +211,17 @@ class BaseEvolver(object):
 				if not ii is ij and firstDominatedBySecond(ii, ij, func0, func1, breakTiesByIDs=breakTiesByIDs):
 					ii.__dominated__ = True
 		paretoFront = filter(lambda x: not x.__dominated__, population)
+		return paretoFront
+
+	def findParetoFrontManyObjectives(self, funcs, breakTiesByIDs=True, population=None):
+		for indiv in self.population:
+			indiv.__dominated__ = False
+		for ii in self.population:
+			for ij in self.population:
+				if not ii is ij and firstDominatedBySecondManyObjectives(ii, ij, funcs):
+#				if not ii is ij and firstStochasticallyDominatedBySecondManyObjectives(ii, ij, funcs, self.params['secondObjectiveProbability']):
+					ii.__dominated__ = True
+		paretoFront = filter(lambda x: not x.__dominated__, self.population)
 		return paretoFront
 
 	def findStochasticalParetoFront(self, func0, func1):
