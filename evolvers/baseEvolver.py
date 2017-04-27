@@ -14,7 +14,7 @@ def firstDominatedBySecondManyObjectives(first, second, functions, breakTiesByID
 	if all([ f >= s for f,s in vals ]) and any([ f > s for f,s in vals ]):
 		return True
 	elif breakTiesByIDs and all([ f == s for f,s in vals ]):
-		return indiv0.id < indiv1.id
+		return first.id < second.id
 	else:
 		return False
 
@@ -190,6 +190,16 @@ class BaseEvolver(object):
 		print 'Pareto front:'
 		for indiv in paretoFront:
 			print str(indiv) + ' score: ' + afpr(indiv.score) + ' ' + objname + ': ' + str(objfunc(indiv))
+		print ''
+
+	def printParetoFrontMultipleObjectives(self, paretoFront, functions, labels):
+		if not self._shouldIRunAPeriodicFunctionNow('printParetoFront'):
+			return
+		print 'Pareto front:'
+		for indiv in paretoFront:
+			outstr = str(indiv)
+			for f, l in zip(functions, labels):
+				outstr += ' ' + l + ': ' + afpr(f(indiv))
 		print ''
 
 	def paretoWarning(self, paretoFront):

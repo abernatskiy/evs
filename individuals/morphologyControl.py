@@ -16,7 +16,7 @@ class Individual(CompositeFixedProbabilitiesIndividual):
 		self.timeOfLastMorphologicalMutation = __builtin__.globalGenerationCounter
 
 	def probabilityOfMorphologicalMutation(self):
-		return 1. - self.params['probabilityOfMutatingClass1']
+		return self.params['probabilityOfMutatingClass0']
 
 	def mutate(self):
 		roll = np.random.random()
