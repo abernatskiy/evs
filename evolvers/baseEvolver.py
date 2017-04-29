@@ -200,6 +200,7 @@ class BaseEvolver(object):
 			outstr = str(indiv)
 			for f, l in zip(functions, labels):
 				outstr += ' ' + l + ': ' + afpr(f(indiv))
+			print outstr
 		print ''
 
 	def paretoWarning(self, paretoFront):
