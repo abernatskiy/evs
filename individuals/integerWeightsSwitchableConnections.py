@@ -44,7 +44,8 @@ class Individual(RealWeightsSwitchableConnections):
 
      Optional fields:
        mutationAmplitude (default 1)
-       initProbabilityOfConnection (default 1)
+       initProbabilityOfConnection (default 1) -
+         provides a mechanism for generating sparse networks.
 	'''
 	def __init__(self, params):
 		super(Individual, self).__init__(params)

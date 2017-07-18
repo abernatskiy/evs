@@ -28,7 +28,8 @@ class Individual(RealVectorTunableBoundsSureMutation):
        relativeMutationAmplitude
        mutInsDelRatio
      Optional fields:
-       initProbabilityOfConnection (default 1)
+       initProbabilityOfConnection (default 1) -
+         provides a mechanism for generating sparse networks.
        lowerCap, upperCap (default -Inf, Inf)
 	'''
 	def __init__(self, params):
