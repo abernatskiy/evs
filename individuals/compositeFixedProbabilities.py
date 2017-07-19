@@ -36,7 +36,7 @@ class Individual(BaseIndividual):
 		self.parts = [ self.partClasses[i](self.classParams[i]) for i in range(self.numClasses) ]
 
 	def _extractPartClasses(self):
-		# Extracting names and numbers
+		# Extracting partClasses and numClasses
 		partClassesNames = {}
 		classPattern = re.compile('^compositeClass[0-9]+$')
 		numPattern = re.compile('[0-9]+$')
@@ -79,6 +79,8 @@ class Individual(BaseIndividual):
 		for pn, pv in self.params.iteritems():
 			if paramsPatternFull.match(pn) and not classPattern.match(pn) and not probPattern.match(pn):
 				classNum = int(numPattern.search(pn).group())
+				if classNum<0 or classNum>=self.numClasses:
+					raise ValueError('I was given parameters for too many classes for this composite Individual. Exiting.')
 				paramName = paramsPattern.split(pn)[0]
 				self.classParams[classNum][paramName] = pv
 
