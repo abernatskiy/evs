@@ -39,13 +39,11 @@ class Evolver(BaseEvolver):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
 		if self.params['initialPopulationType'] == 'random':
 			while len(self.population) < self.params['populationSize']:
-				indiv = self.params['indivClass'](indivParams)
+				indiv = self.getRandomIndividual()
 				self.population.append(indiv)
 		elif self.params['initialPopulationType'] == 'sparse':
 			while len(self.population) < self.params['populationSize']:
-				indiv = self.params['indivClass'](indivParams)
-				indiv.setValuesToZero()
-				indiv.mutate()
+				indiv = self.getSparseIndividual()
 				self.population.append(indiv)
 		elif self.params['initialPopulationType'] == 'expandFromFile':
 			if not initialPopulationFileName:
@@ -60,9 +58,18 @@ class Evolver(BaseEvolver):
 		self.communicator.evaluate(self.population)
 		self.population.sort(key = lambda x: x.score)
 
+	def getRandomIndividual(self):
+		return self.params['indivClass'](self.indivParams)
+
+	def getSparseIndividual(self):
+		indiv = self.params['indivClass'](self.indivParams)
+		indiv.setValuesToZero()
+		indiv.mutate()
+		return indiv
+
 	def requiredParametersTranslator(self):
 		t = super(Evolver, self).requiredParametersTranslator()
-		t['toFloat'].add('secondObjectiveProbability') # TODO: do I really need to require it? It's quite expensive.
+		t['toFloat'].add('secondObjectiveProbability')
 		t['toString'].add('initialPopulationType')
 		return t
 
@@ -77,9 +84,6 @@ class Evolver(BaseEvolver):
 			connectionCostFunc = lambda x: len(filter(lambda y: y, x.mask))
 		else:
 			connectionCostFunc = lambda x: len(filter(lambda y: y!=0, x.values))
-
-		if self.paramIsEnabled('morphologyControlIndivs'):
-			connectionCostFunc = lambda x: len(filter(lambda y: y!=0, x.parts[1].values)) # TODO: possibly remove this special case in favor of supressed masks or arbitrary code execution
 		self.secondObjectiveLabel = 'connection cost'
 		return connectionCostFunc
 
