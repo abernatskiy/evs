@@ -57,6 +57,7 @@ class Evolver(BaseEvolver):
 			raise ValueError('Wrong type of initial population')
 		self.communicator.evaluate(self.population)
 		self.population.sort(key = lambda x: x.score)
+		self.paretoFront = self.getCluneParetoFront()
 
 	def getRandomIndividual(self):
 		return self.params['indivClass'](self.indivParams)
@@ -98,29 +99,31 @@ class Evolver(BaseEvolver):
 		else:
 			return self.findParetoFront(errorFunc, connectionCostFunc)
 
-	def doParetoOutput(self, paretoFront):
-		self.printParetoFront(paretoFront, self.secondObjectiveLabel, self.getConnectionCostFunc())
-		self.logParetoFront(paretoFront)
-		self.paretoWarning(paretoFront)
+	def doParetoOutput(self):
+		self.printParetoFront(self.paretoFront, self.secondObjectiveLabel, self.getConnectionCostFunc())
+		self.logParetoFront(self.paretoFront)
+		self.paretoWarning(self.paretoFront)
 
 	def processMutatedChild(self, child, parent):
 		pass
 
+	def generateLogsAndStdout(self):
+		super(Evolver, self).generateLogsAndStdout()
+		self.doParetoOutput()
+
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
 
-		paretoFront = self.getCluneParetoFront()
-		self.doParetoOutput(paretoFront)
-
 		newPopulation = []
-		while len(newPopulation)+len(paretoFront) < self.params['populationSize']:
-			parent = np.random.choice(paretoFront)
+		while len(newPopulation)+len(self.paretoFront) < self.params['populationSize']:
+			parent = np.random.choice(self.paretoFront)
 			child = deepcopy(parent)
 			child.mutate()
 			self.processMutatedChild(child, parent)
 			newPopulation.append(child)
 		self.communicator.evaluate(newPopulation)
-		self.population = paretoFront + newPopulation
+		self.population = newPopulation + self.paretoFront
 		if self.paramExists('noiseAmplitude'):
 			self.noisifyAllScores()
 		self.population.sort(key = lambda x: x.score)
+		self.paretoFront = self.getCluneParetoFront()
