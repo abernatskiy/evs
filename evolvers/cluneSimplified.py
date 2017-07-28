@@ -59,6 +59,8 @@ class Evolver(BaseEvolver):
 		self.population.sort(key = lambda x: x.score)
 		self.paretoFront = self.getCluneParetoFront()
 
+		self.paretoSizeHeaderWritten = False
+
 	def getRandomIndividual(self):
 		return self.params['indivClass'](self.indivParams)
 
@@ -99,10 +101,25 @@ class Evolver(BaseEvolver):
 		else:
 			return self.findParetoFront(errorFunc, connectionCostFunc)
 
+	def logParetoSize(self, paretoFront):
+		if not self._shouldIRunAPeriodicFunctionNow('logParetoSize'):
+			return
+		filename = 'paretoSize{}.log'.format(self.params['randomSeed'])
+		if self.paretoSizeHeaderWritten:
+			with open(filename, 'a') as logFile:
+				logFile.write('{} {}\n'.format(self.generation, len(paretoFront)))
+		else:
+			with open(filename, 'a') as logFile:
+				self._writeParamsToLog(logFile)
+				logFile.write('# Columns: generation paretoFrontSize\n')
+			self.paretoSizeHeaderWritten = True
+			self.logParetoSize(paretoFront)
+
 	def doParetoOutput(self):
 		self.printParetoFront(self.paretoFront, self.secondObjectiveLabel, self.getConnectionCostFunc())
 		self.logParetoFront(self.paretoFront)
 		self.paretoWarning(self.paretoFront)
+		self.logParetoSize(self.paretoFront)
 
 	def processMutatedChild(self, child, parent):
 		pass
