@@ -109,7 +109,7 @@ class Evolver(BaseEvolver):
 			with open(filename, 'a') as logFile:
 				logFile.write('{} {}\n'.format(self.generation, len(paretoFront)))
 		else:
-			with open(filename, 'a') as logFile:
+			with open(filename, 'w') as logFile:
 				self._writeParamsToLog(logFile)
 				logFile.write('# Columns: generation paretoFrontSize\n')
 			self.paretoSizeHeaderWritten = True
