@@ -40,7 +40,12 @@ def firstDominatedBySecond(indiv0, indiv1, func0, func1, breakTiesByIDs=True):
 
 def firstStochasticallyDominatedBySecond(indiv0, indiv1, func0, func1, secondObjProb):
 	if np.random.random() > secondObjProb:
-		return func0(indiv0) > func0(indiv1)
+		if func0(indiv0) > func0(indiv1):
+			return True
+		elif func0(indiv0) == func0(indiv1):
+			return indiv0.id < indiv1.id # lower ID indicates that indiv0 was generated before indiv1 and is older
+		else:
+			return False
 	else:
 		return firstDominatedBySecond(indiv0, indiv1, func0, func1)
 

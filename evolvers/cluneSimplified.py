@@ -96,7 +96,7 @@ class Evolver(BaseEvolver):
 	def getCluneParetoFront(self):
 		errorFunc = self.getErrorFunc()
 		connectionCostFunc = self.getConnectionCostFunc()
-		if self.paramIsNonzero('secondObjectiveProbability'):
+		if self.paramExists('secondObjectiveProbability') and self.params['secondObjectiveProbability'] != 1.:
 			return self.findStochasticalParetoFront(errorFunc, connectionCostFunc)
 		else:
 			return self.findParetoFront(errorFunc, connectionCostFunc)
