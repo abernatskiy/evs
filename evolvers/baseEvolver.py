@@ -41,13 +41,18 @@ def firstDominatedBySecond(indiv0, indiv1, func0, func1, breakTiesByIDs=True):
 def firstStochasticallyDominatedBySecond(indiv0, indiv1, func0, func1, secondObjProb):
 	if np.random.random() > secondObjProb:
 		if func0(indiv0) > func0(indiv1):
+			#print('{} was beaten by {} with pure fitness'.format(indiv0, indiv1))
 			return True
 		elif func0(indiv0) == func0(indiv1):
 			return indiv0.id < indiv1.id # lower ID indicates that indiv0 was generated before indiv1 and is older
 		else:
 			return False
 	else:
-		return firstDominatedBySecond(indiv0, indiv1, func0, func1)
+		if firstDominatedBySecond(indiv0, indiv1, func0, func1):
+			#print('{} was beaten by {} with with two objectives'.format(indiv0, indiv1))
+			return True
+		else:
+			return False
 
 class BaseEvolver(object):
 	'''Base class for evolutionary algorithms. Provides
@@ -247,8 +252,14 @@ class BaseEvolver(object):
 			for ij in self.population:
 				if not ii is ij and firstStochasticallyDominatedBySecond(ii, ij, func0, func1, self.params['secondObjectiveProbability']):
 					ii.__dominated__ = True
+#		for string in [ '{}, {} : {}'.format(str(indiv), str(indiv.score), str(indiv.__dominated__)) for indiv in self.population ]:
+#			print(string)
+#		print('')
 		paretoFront = filter(lambda x: not x.__dominated__, self.population)
-		return paretoFront
+		if len(paretoFront) > 0:
+			return paretoFront
+		else:
+			return self.findStochasticalParetoFront(func0, func1)
 
 	def _logBestIndividual(self, filename=None):
 		if not self._shouldIRunAPeriodicFunctionNow('logBestIndividual'):
