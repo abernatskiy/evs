@@ -259,7 +259,7 @@ class BaseEvolver(object):
 		if len(paretoFront) > 0:
 			return paretoFront
 		else:
-			return self.findStochasticalParetoFront(func0, func1)
+			return self.findStochasticalParetoFront(func0, lambda x: 0.) # if the Pareto front came out empty, we sort with just the first objective & tie breaking
 
 	def _logBestIndividual(self, filename=None):
 		if not self._shouldIRunAPeriodicFunctionNow('logBestIndividual'):
