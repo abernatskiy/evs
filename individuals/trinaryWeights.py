@@ -1,7 +1,7 @@
 import numpy as np
 from trinaryVector import Individual as TrinaryVectorIndividual
 
-class Individual(TrianaryVectorIndividual):
+class Individual(TrinaryVectorIndividual):
 	'''Trinary weights for a neural network with an elaborate three-way mutation operator.
      Required options:
        length
@@ -17,8 +17,8 @@ class Individual(TrianaryVectorIndividual):
 			self.params['mutationProbability'] = 1.
 
 		self.modifyFrac = self.params['mutExploration']
-		self.deleteFrac = (1.0 - self.changeFrac)/(self.params['mutInsDelRatio']+1)
-		self.insertFrac = 1.0 - self.changeFrac - self.deleteFrac
+		self.deleteFrac = (1.0 - self.modifyFrac)/(self.params['mutInsDelRatio']+1)
+		self.insertFrac = 1.0 - self.modifyFrac - self.deleteFrac
 
 	def requiredParametersTranslator(self):
 		t = super(Individual, self).requiredParametersTranslator()
