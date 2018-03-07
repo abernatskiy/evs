@@ -75,6 +75,10 @@ class BaseIndividual(object):
 	def requiredParametersTranslator(self):
 		return emptyParametersTranslator()
 
+	def setParamDefault(self, paramName, paramVal):
+		if not self.params.has_key(paramName):
+			self.params[paramName] = paramVal
+
 	def renewID(self):
 		if self.ancestryTrackingEnabled():
 			import __builtin__
