@@ -8,14 +8,17 @@ class Individual(BaseIndividual):
 
      Constructor takes a dictionary with the following parameter
      fields:
-	     numInputNeurons
+	     numSensorNeurons
 	     numOutputNeurons
-	     numHiddenNeurons
+	     numMotorNeurons
        mutModifyConnection
 	     mutModifyNeuron
        mutAddRemRatio
 	   Optional:
 	     weightScale (default 1.)
+	   Note: a hidden bias neuron is always automatically added, so
+	   for the purpose of computing the number of connections the
+	   number is increased by 1.
 	'''
 	avgInDegree = 2
 	stdDevCoef = 1.
@@ -27,14 +30,14 @@ class Individual(BaseIndividual):
 		self.modifyConnFrac = self.params['mutModifyConnection']
 		addRemFrac = 1.0 - self.modifyNeuronFrac - self.modifyConnFrac
 		self.removeConnFrac = addRemFrac / (self.params['mutAddRemRatio']+1.)
-		self.addConnFrac = addRemFrac - self.deleteFrac
+		self.addConnFrac = addRemFrac - self.removeConnFrac
 
 		self.nsen = self.params['numSensorNeurons']
 		self.nhid = self.params['numHiddenNeurons']
 		self.nmot = self.params['numMotorNeurons']
-		self.layerParamDict = {'sensorToHidden': (self.nsen, self.nhid),
-		                       'hiddenToHidden': (self.nhid, self.nhid),
-		                       'hiddenToMotor':  (self.nhid, self.nmot)}
+		self.layerParamDict = {'sensorToHidden': (self.nsen, self.nhid+1),
+		                       'hiddenToHidden': (self.nhid+1, self.nhid+1),
+		                       'hiddenToMotor':  (self.nhid+1, self.nmot)} # Remember: there is a hidden bias neuron added automatically!
 
 		self.setParamDefault('weightScale', 1.)
 
@@ -51,24 +54,25 @@ class Individual(BaseIndividual):
 			self._eswPopulateLayer(layer)
 
 	def _eswPopulateLayer(self, layerName):
-		n,m = self.layerParamDict(layerName)
+		n,m = self.layerParamDict[layerName]
 		connProb = float(Individual.avgInDegree)/float(n)
+		# print("Populating layer " + layerName + ": n=" + str(n) + " m=" + str(m) + " p=" + str(connProb))
 		for i in range(n):
 			for j in range(m):
 				r = np.random.random()
 				if(r < connProb):
 					w = self._getInitialConnectionWeight()
-					self.values['sensorsParams'][layerName].append([i,j,w])
+					self.values['synapsesParams'][layerName].append([i,j,w])
 
 	def _getInitialConnectionWeight(self):
 		return (2.*np.random.random()-1.)*self.params['weightScale']
 
 	def _getModifiedConnectionWeight(self, prevWt):
-		return np.random.normal(loc=prevWt, scale=Individual.stdDevCoef*prevWt)
+		return np.random.normal(loc=prevWt, scale=Individual.stdDevCoef*np.abs(prevWt))
 
 	def _getInitialNeuronParam(self, paramType):
 		# Constants for now
-		constants = {'initalState': -1., 'tau': 1., 'alpha': 1.}
+		constants = {'initialState': -1., 'tau': 1., 'alpha': 1.}
 		return constants[paramType]
 
 	def _getModifiedNeuronParam(self, paramType, prevVal):
@@ -76,22 +80,25 @@ class Individual(BaseIndividual):
 		return self._getModifiedConnectionWeight(prevVal)
 
 	def _getNumConnections(self):
-		return sum([len(layerConns) for layerConns in self.values['sensorParams'].values()])
+		return sum([ len(layerConns) for layerConns in self.values['synapsesParams'].values() ])
 
 	def _getNumPossibleConnections(self):
-		return self.nsen*self.nhid + self.nhid*self.nhid + self.nhid*self.nmot
+		return sum([ n*m for n,m in self.layerParamDict.values() ])
 
 	def _getNumNeuronParams(self):
 		# Alphas, taus and the initial state
-		return 3*(self.nhid+self.nmot)
+		return 3*self._getNumNeurons()
+
+	def _getNumNeurons(self):
+		return self.nhid+self.nmot
 
 	def __str__(self):
-		print(json.dumps(self.values))
+		return json.dumps(self.values)
 
 	def requiredParametersTranslator(self):
 		t = super(Individual, self).requiredParametersTranslator()
-		t['toFloat'].update({'mutExploration', 'mutInsDelRatio'})
-		t['toInt'].update({'numInputNeurons', 'numOutputNeurons', 'numHiddenNeurons'})
+		t['toFloat'].update({'mutModifyConnection', 'mutModifyNeuron', 'mutAddRemRatio'})
+		t['toInt'].update({'numSensorNeurons', 'numMotorNeurons', 'numHiddenNeurons'})
 		return t
 
 	def optionalParametersTranslator(self):
@@ -113,13 +120,13 @@ class Individual(BaseIndividual):
 				n,m = self.layerParamDict[layer]
 				for i in range(n):
 					for j in range(m):
-						connectionExists = false
+						connectionExists = False
 						for conn in layerConns:
 							if conn[0] == i and conn[1] == j:
-								connectionExists = true
+								connectionExists = True
 						if not connectionExists:
 							if counter == makeConnectionAt:
-								w = self._getRandomWeight()
+								w = self._getInitialConnectionWeight()
 								self.values['synapsesParams'][layer].append([i,j,w])
 								return True
 							counter += 1
@@ -144,21 +151,25 @@ class Individual(BaseIndividual):
 		if numExistingConnections > 0:
 			counter = 0
 			modifyConnectionAt = np.random.randint(numExistingConnections)
+			# print("Modifying connection param " + str(modifyParamAt) + " out of " + str(numNeuronParams))
 			for layer,layerConns in self.values['synapsesParams'].iteritems():
 				for connPos in range(len(layerConns)):
 					if counter == modifyConnectionAt:
-						oldval = self.values['synapsesParams'][layer][connPos]
+						print('Modifying connection at ' + str(layer) + ', position ' + str(connPos))
+						oldval = self.values['synapsesParams'][layer][connPos][2]
 						newval = self._getModifiedConnectionWeight(oldval)
-						self.values['synapsesParams'][layer][connPos] = newval
+						self.values['synapsesParams'][layer][connPos][2] = newval
 						return newval != oldval
 					counter += 1
 		return False
 
 	def _modifyNeuron(self):
-		numNeuronParams = self._getNumNeurons()
+		numNeuronParams = self._getNumNeuronParams()
 		modifyParamAt = np.random.randint(numNeuronParams)
+		# print("Modifying neuron param " + str(modifyParamAt) + " out of " + str(numNeuronParams))
+		counter = 0
 		for group in ['motorNeuronParams', 'hiddenNeuronParams']:
-			for paramName, paramVals in self.values[group]:
+			for paramName, paramVals in self.values[group].iteritems():
 				for paramPos in range(len(paramVals)):
 					if counter == modifyParamAt:
 						oldval = self.values[group][paramName][paramPos]
