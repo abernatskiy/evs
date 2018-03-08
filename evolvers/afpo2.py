@@ -10,8 +10,8 @@ class Evolver(BaseEvolver):
         If 'sparse' is chosen, the following
         method is required:
        evolParams['indivClass'].setValuesToZero().'''
-	def __init__(self, communicator, indivParams, evolParams):
-		super(Evolver, self).__init__(communicator, indivParams, evolParams)
+	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName=None):
+		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
 		if self.params['initialPopulationType'] == 'random':
 			for i in xrange(self.params['populationSize']):
 				indiv = self.params['indivClass'](indivParams)

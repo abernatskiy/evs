@@ -33,6 +33,6 @@ class BaseCommunicator(object):
 				indivList[i].setEvaluation(evaluations[i])
 		except ValueError as e:
 			print 'Problem reading evaluations: ' + e.args[0]
-			print 'Try again'
+			print 'Retrying...'
 			return self.evaluate(indivList)
 		return indivList

@@ -93,7 +93,7 @@ class BaseIndividual(object):
 
 	def checkID(self, ID):
 		if self.id != ID:
-			raise ValueError('ID check failed')
+			raise ValueError('ID check failed (expected ' + str(self.id) + ', got ' + str(ID) + ')')
 		else:
 			return True
 

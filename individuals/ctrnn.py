@@ -77,7 +77,7 @@ class Individual(BaseIndividual):
 
 	def _getModifiedNeuronParam(self, paramType, prevVal):
 		# Easiest way
-		return self._getModifiedConnectionWeight(prevVal)
+		return np.abs(self._getModifiedConnectionWeight(prevVal)) if paramType=='tau' else self._getModifiedConnectionWeight(prevVal)
 
 	def _getNumConnections(self):
 		return sum([ len(layerConns) for layerConns in self.values['synapsesParams'].values() ])
@@ -93,7 +93,7 @@ class Individual(BaseIndividual):
 		return self.nhid+self.nmot
 
 	def __str__(self):
-		return json.dumps(self.values)
+		return str(self.id) + ' ' + json.dumps(self.values)
 
 	def requiredParametersTranslator(self):
 		t = super(Individual, self).requiredParametersTranslator()
@@ -155,7 +155,7 @@ class Individual(BaseIndividual):
 			for layer,layerConns in self.values['synapsesParams'].iteritems():
 				for connPos in range(len(layerConns)):
 					if counter == modifyConnectionAt:
-						print('Modifying connection at ' + str(layer) + ', position ' + str(connPos))
+						# print('Modifying connection at ' + str(layer) + ', position ' + str(connPos))
 						oldval = self.values['synapsesParams'][layer][connPos][2]
 						newval = self._getModifiedConnectionWeight(oldval)
 						self.values['synapsesParams'][layer][connPos][2] = newval
