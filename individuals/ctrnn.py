@@ -209,8 +209,9 @@ class Individual(BaseIndividual):
 		for i,conn in enumerate(self.values['synapsesParams']['hiddenToMotor']):
 			if conn[1] == idx:
 				connsToRemove.append(i)
-		for i in connsToRemove:
-			self.values['synapsesParams']['hiddenToMotor'].pop(i)
+		# The following line simply removes the connections by indices
+		# FIXME: probably can be replaces with one line of list comprehension
+		self.values['synapsesParams']['hiddenToMotor'] = [ i for j, i in enumerate(self.values['synapsesParams']['hiddenToMotor']) if j not in connsToRemove ]
 
 		self.nmot -= 1
 
