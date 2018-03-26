@@ -43,11 +43,11 @@ class Individual(BaseIndividual):
 
 		self.values = {}
 		self.values['numHiddenNeurons'] = self.nhid
-		self.values['motorNeuronParams'] = {}
-		self.values['hiddenNeuronParams'] = {}
+		self.values['motorNeuronsParams'] = {}
+		self.values['hiddenNeuronsParams'] = {}
 		for neuronParamName in ['initialState', 'tau', 'alpha']:
-			self.values['motorNeuronParams'][neuronParamName] = [ self._getInitialNeuronParam(neuronParamName) for _ in range(self.nmot) ]
-			self.values['hiddenNeuronParams'][neuronParamName] = [ self._getInitialNeuronParam(neuronParamName) for _ in range(self.nhid) ]
+			self.values['motorNeuronsParams'][neuronParamName] = [ self._getInitialNeuronParam(neuronParamName) for _ in range(self.nmot) ]
+			self.values['hiddenNeuronsParams'][neuronParamName] = [ self._getInitialNeuronParam(neuronParamName) for _ in range(self.nhid) ]
 
 		self.setValuesToZero()
 		for layer in self.layerParamDict.keys():
@@ -56,13 +56,15 @@ class Individual(BaseIndividual):
 	def _eswPopulateLayer(self, layerName):
 		n,m = self.layerParamDict[layerName]
 		connProb = float(Individual.avgInDegree)/float(n)
-		# print("Populating layer " + layerName + ": n=" + str(n) + " m=" + str(m) + " p=" + str(connProb))
+#		print("Populating layer " + layerName + ": n=" + str(n) + " m=" + str(m) + " p=" + str(connProb))
 		for i in range(n):
 			for j in range(m):
 				r = np.random.random()
+#				print('i={} j={} r={}'.format(i,j,r))
 				if(r < connProb):
 					w = self._getInitialConnectionWeight()
 					self.values['synapsesParams'][layerName].append([i,j,w])
+#					print('Added connection: ' + str(self.values['synapsesParams'][layerName][-1]))
 
 	def _getInitialConnectionWeight(self):
 		return (2.*np.random.random()-1.)*self.params['weightScale']
@@ -85,7 +87,7 @@ class Individual(BaseIndividual):
 	def _getNumPossibleConnections(self):
 		return sum([ n*m for n,m in self.layerParamDict.values() ])
 
-	def _getNumNeuronParams(self):
+	def _getNumNeuronsParams(self):
 		# Alphas, taus and the initial state
 		return 3*self._getNumNeurons()
 
@@ -151,7 +153,7 @@ class Individual(BaseIndividual):
 		if numExistingConnections > 0:
 			counter = 0
 			modifyConnectionAt = np.random.randint(numExistingConnections)
-			# print("Modifying connection param " + str(modifyParamAt) + " out of " + str(numNeuronParams))
+			# print("Modifying connection param " + str(modifyParamAt) + " out of " + str(numNeuronsParams))
 			for layer,layerConns in self.values['synapsesParams'].iteritems():
 				for connPos in range(len(layerConns)):
 					if counter == modifyConnectionAt:
@@ -164,11 +166,11 @@ class Individual(BaseIndividual):
 		return False
 
 	def _modifyNeuron(self):
-		numNeuronParams = self._getNumNeuronParams()
-		modifyParamAt = np.random.randint(numNeuronParams)
-		# print("Modifying neuron param " + str(modifyParamAt) + " out of " + str(numNeuronParams))
+		numNeuronsParams = self._getNumNeuronsParams()
+		modifyParamAt = np.random.randint(numNeuronsParams)
+		# print("Modifying neuron param " + str(modifyParamAt) + " out of " + str(numNeuronsParams))
 		counter = 0
-		for group in ['motorNeuronParams', 'hiddenNeuronParams']:
+		for group in ['motorNeuronsParams', 'hiddenNeuronsParams']:
 			for paramName, paramVals in self.values[group].iteritems():
 				for paramPos in range(len(paramVals)):
 					if counter == modifyParamAt:
@@ -193,3 +195,28 @@ class Individual(BaseIndividual):
 				mutated = self._removeConnection()
 		self.renewID()
 		return True
+
+	def _addMotorNeuron(self):
+		for neuronParamName in ['initialState', 'tau', 'alpha']:
+			self.values['motorNeuronsParams'][neuronParamName].append(self._getInitialNeuronParam(neuronParamName))
+		self.nmot += 1
+
+	def _removeMotorNeuron(self, idx):
+		for neuronParamName in ['initialState', 'tau', 'alpha']:
+			self.values['motorNeuronsParams'][neuronParamName].pop(idx)
+
+		connsToRemove = []
+		for i,conn in enumerate(self.values['synapsesParams']['hiddenToMotor']):
+			if conn[1] == idx:
+				connsToRemove.append(i)
+		for i in connsToRemove:
+			self.values['synapsesParams']['hiddenToMotor'].pop(i)
+
+		self.nmot -= 1
+
+	def connectionCost(self, useWeights=False):
+		if useWeights:
+			return sum([ sum([ np.abs(w) for _,_,w in conns ]) for conns in self.values['synapsesParams'] ])
+		else:
+			return sum([ len(x) for x in self.values['synapsesParams'] ])
+

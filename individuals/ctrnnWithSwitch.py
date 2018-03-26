@@ -1,5 +1,6 @@
 import json
 from copy import deepcopy
+import numpy as np
 
 from baseIndividual import BaseIndividual
 from ctrnn import Individual as ctrnnIndiv
@@ -14,17 +15,20 @@ class Individual(BaseIndividual):
        numMotorNeurons
        initNumBehavioralControllers
 
+       mutGoverning
+
+       governingMutAddBehavioralController
+       governingMutRemoveBehavioralController
+
+       governingNumHiddenNeurons
+       governingMutModifyNeuron
+	     governingMutModifyConnection
+       governingMutAddRemRatio
+
        behavioralNumHiddenNeurons
        behavioralMutModifyNeuron
 	     behavioralMutModifyConnection
        behavioralMutAddRemRatio
-
-       governingNumHiddenNeurons
-       governingMutAddBehavioralController
-       governingMutRemoveBehavioralController
-       governingMutModifyNeuron
-	     governingMutModifyConnection
-       governingMutAddRemRatio
 
        weightScale (default 1.0)
 
@@ -36,6 +40,8 @@ class Individual(BaseIndividual):
 		self.nchan = self.params['numMotorNeurons']
 		self.nopt = self.params['initNumBehavioralControllers']
 
+		self.setParamDefault('weightScale', 1.)
+
 		self.behavioralControllers = []
 		bcparams = self._getBCParams()
 		for _ in range(self.nopt):
@@ -45,6 +51,9 @@ class Individual(BaseIndividual):
 		self.governingController = ctrnnIndiv(gcparams)
 
 	def __str__(self):
+		return str(self.id) + ' ' + json.dumps(self._getGenotypeStruct())
+
+	def _getGenotypeStruct(self):
 		genotype = {}
 
 		genotype['numBehavioralControllers'] = self.nopt
@@ -53,9 +62,9 @@ class Individual(BaseIndividual):
 		for bc in self.behavioralControllers:
 			genotype['behavioralControllers'].append(bc.values)
 
-		genotype['governingController'] = _translateGCValues(self.governingController.values)
+		genotype['governingController'] = self._translateGCValues(self.governingController.values)
 
-		return str(self.id) + ' ' + json.dumps(genotype)
+		return genotype
 
 	def _getBCParams(self):
 		bcparams = {}
@@ -90,5 +99,56 @@ class Individual(BaseIndividual):
 		v['synapsesParams']['hiddenToGoverning'] = gcsynp['hiddenToMotor']
 		v['synapsesParams']['sensorToHidden'] = [ [i,j,w] for i,j,w in gcsynp['sensorToHidden'] if i<self.nsen ]
 		v['synapsesParams']['trueMotorToHidden'] = [ [i-self.nsen,j,w] for i,j,w in gcsynp['sensorToHidden'] if i>=self.nsen ]
-
 		return v
+
+	def mutate(self):
+		mutated = False
+		while not mutated:
+			randVal0 = np.random.random()
+			if randVal0 < self.params['mutGoverning']:
+				randVal1 = np.random.random()
+				if randVal1 < self.params['governingMutAddBehavioralController']:
+					mutated = self._addBehavioralController()
+				elif randVal1 < self.params['governingMutAddBehavioralController'] + self.params['governingMutRemoveBehavioralController']:
+					mutated = self._removeBehavioralController()
+				else:
+					mutated = self.governingController.mutate()
+			else:
+				bcidx = np.random.randint(self.nopt)
+				mutated = self.behavioralControllers[bcidx].mutate()
+		self.renewID()
+		return True
+
+	def _addBehavioralController(self):
+		bcparams = self._getBCParams()
+		self.behavioralControllers.append(ctrnnIndiv(bcparams))
+		self.governingController._addMotorNeuron()
+		self.nopt += 1
+
+	def _removeBehavioralController(self):
+		if self.nopt < 2:
+			return False
+		bcidx = np.random.randint(self.nopt)
+		self.behavioralControllers.pop(bcidx)
+		self.governingController._removeMotorNeuron(bcidx)
+		self.nopt -= 1
+
+	def requiredParametersTranslator(self):
+		t = super(Individual, self).requiredParametersTranslator()
+		t['toFloat'].update({'mutGoverning', 'governingMutAddBehavioralController', 'governingMutRemoveBehavioralController',
+		                     'governingNumHiddenNeurons', 'governingMutModifyNeuron', 'governingMutModifyConnection', 'governingMutAddRemRatio',
+		                     'behavioralNumHiddenNeurons', 'behavioralMutModifyNeuron', 'behavioralMutModifyConnection', 'behavioralMutAddRemRatio'})
+		t['toInt'].update({'numSensorNeurons', 'numMotorNeurons', 'initNumBehavioralControllers'})
+		return t
+
+	def optionalParametersTranslator(self):
+		t = super(Individual, self).optionalParametersTranslator()
+		t['toFloat'].update({'weightScale'})
+		return t
+
+	def connectionCost(self, useWeights=False):
+		return sum([ bc.connectionCost(useWeights=useWeights) for bc in self.behavioralControllers ])
+
+	def setValuesToZero(self):
+		for bc in self.behavioralControllers:
+			bc.setValuesToZero()
