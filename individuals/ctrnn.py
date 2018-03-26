@@ -9,7 +9,7 @@ class Individual(BaseIndividual):
      Constructor takes a dictionary with the following parameter
      fields:
 	     numSensorNeurons
-	     numOutputNeurons
+	     numHiddenNeurons
 	     numMotorNeurons
        mutModifyConnection
 	     mutModifyNeuron
