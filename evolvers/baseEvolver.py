@@ -199,7 +199,7 @@ class BaseEvolver(object):
 			return
 		print 'Pareto front:'
 		for indiv in paretoFront:
-			print str(indiv) + ' score: ' + afpr(indiv.score) + ' ' + objname + ': ' + str(objfunc(indiv))
+			print str(indiv.id) + ' score: ' + afpr(indiv.score) + ' ' + objname + ': ' + str(objfunc(indiv))
 		print ''
 
 	def printParetoFrontMultipleObjectives(self, paretoFront, functions, labels):
@@ -231,6 +231,10 @@ class BaseEvolver(object):
 			for ij in population:
 				if not ii is ij and firstDominatedBySecond(ii, ij, func0, func1, breakTiesByIDs=breakTiesByIDs):
 					ii.__dominated__ = True
+
+		for i in population:
+			print str(i.id) + ' obj0: ' + str(func0(i)) + ' obj1: ' + str(func1(i)) + ' dominated: ' + str(i.__dominated__)
+
 		paretoFront = filter(lambda x: not x.__dominated__, population)
 		return paretoFront
 
