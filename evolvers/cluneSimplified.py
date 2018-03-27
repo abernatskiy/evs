@@ -83,12 +83,12 @@ class Evolver(BaseEvolver):
 		return t
 
 	def getConnectionCostFunc(self):
-		if self.paramIsEnabled('useMaskForSparsity'):
-			connectionCostFunc = lambda x: len(filter(lambda y: y, x.mask))
-		else:
-			connectionCostFunc = lambda x: len(filter(lambda y: y!=0, x.values))
+		#if self.paramIsEnabled('useMaskForSparsity'):
+		#	connectionCostFunc = lambda x: len(filter(lambda y: y, x.mask))
+		#else:
+		#	connectionCostFunc = lambda x: len(filter(lambda y: y!=0, x.values))
 		self.secondObjectiveLabel = 'connection cost'
-		return connectionCostFunc
+		return lambda x: x.connectionCost()
 
 	def getErrorFunc(self):
 		return lambda x: -1.*x.score
