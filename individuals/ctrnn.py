@@ -219,5 +219,5 @@ class Individual(BaseIndividual):
 		if useWeights:
 			return sum([ sum([ np.abs(w) for _,_,w in conns ]) for conns in self.values['synapsesParams'] ])
 		else:
-			return sum([ len(x) for x in self.values['synapsesParams'] ])
+			return sum([ len(x) for x in self.values['synapsesParams'].values() ])
 

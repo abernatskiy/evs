@@ -147,7 +147,10 @@ class Individual(BaseIndividual):
 		return t
 
 	def connectionCost(self, useWeights=False):
-		return sum([ bc.connectionCost(useWeights=useWeights) for bc in self.behavioralControllers ])
+		bcweights = [ bc.connectionCost(useWeights=useWeights) for bc in self.behavioralControllers ]
+		#print('bcweights = {}'.format(bcweights))
+		return sum(bcweights)
+#		return sum([ bc.connectionCost(useWeights=useWeights) for bc in self.behavioralControllers ])
 
 	def setValuesToZero(self):
 		for bc in self.behavioralControllers:
