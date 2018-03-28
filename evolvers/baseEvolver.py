@@ -232,8 +232,8 @@ class BaseEvolver(object):
 				if not ii is ij and firstDominatedBySecond(ii, ij, func0, func1, breakTiesByIDs=breakTiesByIDs):
 					ii.__dominated__ = True
 
-		for i in population:
-			print str(i.id) + ' obj0: ' + str(func0(i)) + ' obj1: ' + str(func1(i)) + ' dominated: ' + str(i.__dominated__)
+#		for i in population:
+#			print str(i.id) + ' obj0: ' + str(func0(i)) + ' obj1: ' + str(func1(i)) + ' dominated: ' + str(i.__dominated__)
 
 		paretoFront = filter(lambda x: not x.__dominated__, population)
 		return paretoFront
