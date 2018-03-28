@@ -39,14 +39,22 @@ class Evolver(BaseEvolver):
 		newPopulation = []
 		for indiv in paretoFront:
 			newPopulation.append(indiv)
-		while len(newPopulation) < self.params['populationSize']:
+
+		children = []
+		while len(children) < self.params['populationSize']-len(paretoFront):
 			parent = np.random.choice(paretoFront)
 			child = deepcopy(parent)
 			child.mutate()
-			child.age = 0
-			newPopulation.append(child)
-		self.population = newPopulation
-		self.communicator.evaluate(self.population)
+			child.oldScore = child.score
+#			child.age = 0
+			children.append(child)
+		self.communicator.evaluate(children)
+		eps = 0.1
+		for child in children:
+			if np.abs(child.score-child.oldScore) > eps:
+				child.age = 0
+		self.population = paretoFront + children
+#		self.communicator.evaluate(self.population)
 		self.population.sort(key = lambda x: x.score)
 		for indiv in self.population:
 			indiv.age += 1
