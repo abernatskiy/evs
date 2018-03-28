@@ -1,5 +1,6 @@
 import os
 import math
+import glob
 from baseCommunicator import BaseCommunicator
 
 def chunks(l, n):
@@ -13,8 +14,11 @@ class Communicator(BaseCommunicator):
   '''
 	def __init__(self, fninput='/tmp/evaluations.pipe', fnoutput='/tmp/individuals.pipe'):
 		super(BaseCommunicator, self).__init__()
-		self.fninput = [ fninput + str(i) for i in range(4) ]
-		self.fnoutput = [ fnoutput + str(i) for i in range(4) ]
+		self.fninput = sorted(glob.glob(fninput + '*'))
+		self.fnoutput = sorted(glob.glob(fnoutput + '*'))
+		if len(self.fninput) != len(self.fnoutput):
+			raise ValueError('Mismatch in the number of input and output pipes')
+		self.numStreams = len(self.fninput)
 		try:
 			map(os.mkfifo, self.fninput)
 			map(os.mkfifo, self.fnoutput)
@@ -22,14 +26,13 @@ class Communicator(BaseCommunicator):
 			pass
 
 	def write(self, indivList):
-		chunkSize = int(math.ceil(float(len(indivList))/4))
+		chunkSize = int(math.ceil(float(len(indivList))/self.numStreams))
 		indivChunks = chunks(indivList, chunkSize)
 		foutput = []
 		for fn, ch in zip(self.fnoutput, indivChunks):
 			foutput.append(open(fn, 'w'))
 			for indiv in ch:
 				foutput[-1].write(str(indiv) + '\n')
-		print 'wrote to all pipes'
 		for fo in foutput:
 			fo.close()
 
