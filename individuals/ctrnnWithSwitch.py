@@ -120,8 +120,9 @@ class Individual(BaseIndividual):
 		return True
 
 	def _addBehavioralController(self):
-		bcparams = self._getBCParams()
-		self.behavioralControllers.append(ctrnnIndiv(bcparams))
+		#bcparams = self._getBCParams()
+		#self.behavioralControllers.append(ctrnnIndiv(bcparams))
+		self.behavioralControllers.append(deepcopy(np.random.choice(self.behavioralControllers)))
 		self.governingController._addMotorNeuron()
 		self.nopt += 1
 
@@ -155,3 +156,4 @@ class Individual(BaseIndividual):
 	def setValuesToZero(self):
 		for bc in self.behavioralControllers:
 			bc.setValuesToZero()
+		self.governingController.setValuesToZero()
