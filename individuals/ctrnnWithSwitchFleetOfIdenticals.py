@@ -1,5 +1,4 @@
 import json
-import numpy as np
 
 from ctrnnWithSwitch import Individual as ctrnnswIndiv
 

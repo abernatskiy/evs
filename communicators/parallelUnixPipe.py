@@ -30,6 +30,7 @@ class Communicator(BaseCommunicator):
 		indivChunks = chunks(indivList, chunkSize)
 		foutput = []
 		for fn, ch in zip(self.fnoutput, indivChunks):
+#			print 'Writing chunk ' + str([ i.id for i in ch ]) + ' to ' + fn
 			foutput.append(open(fn, 'w'))
 			for indiv in ch:
 				foutput[-1].write(str(indiv) + '\n')
@@ -40,9 +41,12 @@ class Communicator(BaseCommunicator):
 		finput = []
 		evaluations = []
 		for fn in self.fninput:
+			evalshere = []
 			finput.append(open(fn, 'r'))
 			for line in finput[-1]:
-				evaluations.append(line)
+				evalshere.append(line)
+			evaluations += evalshere
+#			print 'Read ' + str(evalshere) + ' from ' + fn
 		for fi in finput:
 			fi.close()
 		return evaluations
