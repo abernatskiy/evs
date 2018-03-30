@@ -116,18 +116,43 @@ class Evolver(BaseEvolver):
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
 
-		#evt = self.getEvaluationTimeFunc()
+		evt = self.getEvaluationTimeFunc()
+		erf = self.getErrorFunc()
 
-		#maxEvalTime = max([ evt(i) for i in self.population ])
-		#minEvalTime = min([ evt(i) for i in self.population ])
+		maxEvalTime = max([ evt(i) for i in self.population ])
+		minEvalTime = min([ evt(i) for i in self.population ])
 
 		newPopulation = []
 		while len(newPopulation)+len(self.paretoFront) < self.params['populationSize'] - self.newGenomesPerGeneration:
-			parent = np.random.choice(self.paretoFront)
+#		while len(newPopulation) < self.params['populationSize'] - self.newGenomesPerGeneration:
+
+			evtlevel = evt(np.random.choice(self.paretoFront))
+			evttau = (evtlevel - minEvalTime)/(maxEvalTime - minEvalTime) if maxEvalTime!=minEvalTime else 1.0
+
+			levelindivs = [ i for i in self.population if np.abs(evt(i)-evtlevel) <= self.epsilon ]
+			levelerrs = [ erf(i) for i in levelindivs ]
+			minerr = min(levelerrs)
+			sumdifferr = sum([ e-minerr for e in levelerrs ])
+			levelsize = len(levelindivs)
+
+			deltaprobs = [ 1. if x==minerr else 0. for x in levelerrs ]
+
+			maxperfid = max([ x.id for x,p in zip(levelindivs, deltaprobs) if p==1.])
+			deltaprobs = [ x if i.id==maxperfid else 0. for x,i in zip(deltaprobs, levelindivs) ]
+
+			levelprobs = [ (1.-evttau)/levelsize + evttau*d for d in deltaprobs ]
+# 			levelprobs = [ (e-minerr)/sumdifferr for e in levelerrs ]
+#			levelprobs = deltaprobs
+
+			parent = np.random.choice(levelindivs, p=levelprobs)
+#			print 'Among parents of performance level ' + str(evtlevel) + ' (' + str([ i.id for i in levelindivs ]) + ') id ' + str(parent.id) + ' was chosen'
+#			print 'Performance levels: ' + str(levelerrs) + ' probabilities: ' + str(levelprobs)
+
 			child = deepcopy(parent)
 			child.mutate()
 			self.processMutatedChild(child, parent)
 			newPopulation.append(child)
+#		print ''
 
 		for _ in range(self.newGenomesPerGeneration):
 			if self.params['initialPopulationType'] == 'random':
