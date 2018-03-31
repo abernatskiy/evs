@@ -32,18 +32,19 @@ class Evolver(BaseEvolver):
          fields to zero to count nonzero values.
        evolParams['noiseAmplitude'] - if provided, noisy evaluations with a
 			  uniformly distributed noise of given amplitude will be simulated.
+       evolParams['newIndividualsPerGeneration'] - number of new individuals
+        injected per generation. Default 0.
 
      NOTE: Individual classes with surefire mutation operator are OK.'''
 
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
-		if self.params['initialPopulationType'] == 'random':
+
+		self.setParamDefault('newIndividualsPerGeneration', 0)
+
+		if self.params['initialPopulationType'] == 'random' or self.params['initialPopulationType'] == 'sparse':
 			while len(self.population) < self.params['populationSize']:
-				indiv = self.getRandomIndividual()
-				self.population.append(indiv)
-		elif self.params['initialPopulationType'] == 'sparse':
-			while len(self.population) < self.params['populationSize']:
-				indiv = self.getSparseIndividual()
+				indiv = self.getNewIndividual()
 				self.population.append(indiv)
 		elif self.params['initialPopulationType'] == 'expandFromFile':
 			if not initialPopulationFileName:
@@ -55,6 +56,7 @@ class Evolver(BaseEvolver):
 				self.population.append(indiv)
 		else:
 			raise ValueError('Wrong type of initial population')
+
 		self.communicator.evaluate(self.population)
 		self.population.sort(key = lambda x: x.score)
 		self.paretoFront = self.getCluneParetoFront()
@@ -70,6 +72,14 @@ class Evolver(BaseEvolver):
 		indiv.mutate()
 		return indiv
 
+	def getNewIndividual(self):
+		if self.params['initialPopulationType'] == 'random':
+			return self.getRandomIndividual()
+		elif self.params['initialPopulationType'] == 'sparse':
+			return self.getSparseIndividual()
+		else:
+			raise ValueError('Wrong population type {} for a getNewIndividual() call - must be random or sparse'.format(self.params['initialPopulationType']))
+
 	def requiredParametersTranslator(self):
 		t = super(Evolver, self).requiredParametersTranslator()
 		t['toFloat'].add('secondObjectiveProbability')
@@ -78,7 +88,7 @@ class Evolver(BaseEvolver):
 
 	def optionalParametersTranslator(self):
 		t = super(Evolver, self).optionalParametersTranslator()
-		t['toFloat'].remove('secondObjectiveProbability')
+		t['toInt'].add('newIndividualsPerGeneration')
 		t['toBool'].add('useMaskForSparsity')
 		return t
 
@@ -132,12 +142,14 @@ class Evolver(BaseEvolver):
 		super(Evolver, self).updatePopulation()
 
 		newPopulation = []
-		while len(newPopulation)+len(self.paretoFront) < self.params['populationSize']:
+		while len(newPopulation)+len(self.paretoFront) < self.params['populationSize'] - self.params['newIndividualsPerGeneration']:
 			parent = np.random.choice(self.paretoFront)
 			child = deepcopy(parent)
 			child.mutate()
 			self.processMutatedChild(child, parent)
 			newPopulation.append(child)
+		while len(newPopulation)+len(self.paretoFront) < self.params['populationSize']:
+			newPopulation.append(self.getNewIndividual())
 		self.communicator.evaluate(newPopulation)
 		self.population = newPopulation + self.paretoFront
 		if self.paramExists('noiseAmplitude'):
