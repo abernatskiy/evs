@@ -29,11 +29,18 @@ class Evolver(BaseEvolver):
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName = None):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName = initialPopulationFileName)
 		while len(self.population) < self.params['populationSize']:
-			indiv = self.params['indivClass'](self.indivParams)
+			indiv = self._getNewIndividual()
 			self.population.append(indiv)
 		for indiv in self.population:
 			indiv.age = 0
 		self.communicator.evaluate(self.population)
+
+	def _getNewIndividual(self):
+		indiv = self.params['indivClass'](self.indivParams)
+		if self.params.has_key('initialPopulationType') and self.params['initialPopulationType'] == 'sparse':
+			indiv.setValuesToZero()
+			indiv.mutate()
+		return indiv
 
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
@@ -82,7 +89,7 @@ class Evolver(BaseEvolver):
 
 		# injecting a random individual
 		if len(paretoFront) < self.params['populationSize']:
-			mutated.append(self.params['indivClass'](self.indivParams))
+			mutated.append(self._getNewIndividual())
 			mutated[-1].age = 0
 
 		self.communicator.evaluate(mutated)
