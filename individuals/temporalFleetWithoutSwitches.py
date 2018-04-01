@@ -6,13 +6,15 @@ from ctrnnFleetOfIdenticals import Individual as Fleet
 class Individual(Fleet):
 	def __init__(self, params):
 		super(Individual, self).__init__(params)
-		self.minTime = 2.
+		self.minTime = 2.028959000152416
 		self.timeMultiplier = 1.5
 
 		self.timeDegree = 0
 
 		self.mutTimeIncrease = 0.05
 		self.mutTimeDecrease = 0.05
+
+		self.maxTimeDegree = 8
 
 		self.evaluationTime = self.minTime
 
@@ -26,9 +28,12 @@ class Individual(Fleet):
 		self.renewID()
 		r = np.random.random()
 		if r < self.mutTimeIncrease:
-			self.timeDegree += 1
-			self.evaluationTime = self._getTime()
-			return True
+			if self.timeDegree < self.maxTimeDegree:
+				self.timeDegree += 1
+				self.evaluationTime = self._getTime()
+				return True
+			else:
+				return self.mutate()
 		elif r < self.mutTimeIncrease + self.mutTimeDecrease:
 			if self.timeDegree > 0:
 				self.timeDegree -= 1
