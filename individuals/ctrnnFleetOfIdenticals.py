@@ -16,6 +16,9 @@ class Individual(ctrnnIndiv):
 	def _getGenotypeStruct(self):
 		return [self.values]*self.fleetSize
 
+	def __str__(self):
+		return str(self.id) + ' ' + json.dumps(self._getGenotypeStruct())
+
 	def requiredParametersTranslator(self):
 		t = super(Individual, self).requiredParametersTranslator()
 		t['toInt'].update({'fleetSize'})
