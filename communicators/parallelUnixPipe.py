@@ -28,19 +28,23 @@ class Communicator(BaseCommunicator):
 	def write(self, indivList):
 		chunkSize = int(math.ceil(float(len(indivList))/self.numStreams))
 		indivChunks = chunks(indivList, chunkSize)
+		self.numChunks = 0
 		foutput = []
 		for fn, ch in zip(self.fnoutput, indivChunks):
 #			print 'Writing chunk ' + str([ i.id for i in ch ]) + ' to ' + fn
 			foutput.append(open(fn, 'w'))
 			for indiv in ch:
 				foutput[-1].write(str(indiv) + '\n')
+			self.numChunks += 1 # this is very important
 		for fo in foutput:
 			fo.close()
 
 	def read(self):
 		finput = []
 		evaluations = []
-		for fn in self.fninput:
+		for i in range(self.numChunks):
+			fn = self.fninput[i]
+#			print 'Opening ' + fn
 			evalshere = []
 			finput.append(open(fn, 'r'))
 			for line in finput[-1]:
