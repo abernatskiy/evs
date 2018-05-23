@@ -94,8 +94,11 @@ class Individual(BaseIndividual):
 	def _getNumNeurons(self):
 		return self.nhid+self.nmot
 
+	def _getGenotypeStruct(self):
+		return self.values
+
 	def __str__(self):
-		return str(self.id) + ' ' + json.dumps(self.values)
+		return str(self.id) + ' ' + json.dumps(self._getGenotypeStruct())
 
 	def requiredParametersTranslator(self):
 		t = super(Individual, self).requiredParametersTranslator()
