@@ -1,5 +1,3 @@
-import json
-
 from ctrnnDiscreteWeights import Individual as ctrnnIndiv
 
 class Individual(ctrnnIndiv):
