@@ -13,10 +13,22 @@ class Individual(fleetIndiv):
 
 	def setFitnessParams(self, newParams):
 		self.fitnessParams = deepcopy(np.array(newParams))
+		self.renewID()
+
+	def getFitnessParams(self):
+		return tuple(self.fitnessParams)
+
+	def hideFitnessParams(self):
+		self._hiddenFitnessParams = self.fitnessParams
+		self.fitnessParams = np.ones(self.numFitnessParams)
+
+	def showFitnessParams(self):
+		self.fitnessParams = self._hiddenFitnessParams
 
 	def mutateFitnessParams(self):
 		i = np.random.randint(self.numFitnessParams)
 		self.fitnessParams[i] = self.fitnessParams[i]*(2**np.random.choice([-1,1]))
+		self.renewID()
 
 	def _getGenotypeStruct(self):
 		return {'fitnessCoefficients': self.fitnessParams, 'controller': super(Individual, self)._getGenotypeStruct()}
