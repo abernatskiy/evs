@@ -27,6 +27,7 @@ class Communicator(BaseCommunicator):
 
 	def write(self, indivList):
 		chunkSize = int(math.ceil(float(len(indivList))/self.numStreams))
+		indivList.sort(key=lambda x: x.id)
 		indivChunks = chunks(indivList, chunkSize)
 		self.numChunks = 0
 		foutput = []
