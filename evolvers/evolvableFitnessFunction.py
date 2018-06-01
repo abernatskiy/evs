@@ -5,6 +5,20 @@ from baseEvolver import BaseEvolver
 ULTIMATE_FITNESS_EPSILON = 1.
 RELATIVE_FITNESS_EPSILON = 1.
 
+def chooseTupleRandomly(iterableTuple, size=None, weights=None):
+	tupleList = list(iterableTuple)
+	numTuples = len(tupleList)
+	if weights is None:
+		normalized_p = None
+	else:
+		norm = sum(weights)
+		normalized_p = [ x/norm for x in weights ]
+	idxs = np.random.choice(range(numTuples), size=size, p=normalized_p)
+	if size is None:
+		return tupleList[idxs]
+	else:
+		return [ tupleList[i] for i in idxs ]
+
 class Evolver(BaseEvolver):
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName=None):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
@@ -15,19 +29,28 @@ class Evolver(BaseEvolver):
 			self.population.append(indiv)
 
 		fitnessVariants = { indiv.getFitnessParams() for indiv in self.population }
-		currentFitnessVariants = list(np.random.choice(fitnessVariants, size=self.params['fitnessGroupsNumber']))
+		currentFitnessVariants = chooseTupleRandomly(fitnessVariants, size=self.params['fitnessGroupsNumber'])
 
-		for indiv in self.population:
-			indiv.setFitnessParams(np.random.choice(currentFitnessVariants))
+		counter = 0
+		for fvi in range(self.params['fitnessGroupsNumber']):
+			for _ in range(self.params['populationSize']/self.params['fitnessGroupsNumber']):
+				self.population[counter].setFitnessParams(currentFitnessVariants[fvi])
+				counter += 1
+		while counter < self.params['populationSize']:
+			self.population[counter].setFitnessParams(currentFitnessVariants[-1])
+			counter += 1
+
+		self.communicator.evaluate(self.population) # will be repeated at the first update
 
 	def requiredParametersTranslator(self):
 		t = super(Evolver, self).requiredParametersTranslator()
 		t['toInt'].add('fitnessParamsUpdatePeriod')
 		t['toInt'].add('fitnessGroupsNumber')
+		t['toInt'].add('populationSize')
 		return t
 
 	def optionalParametersTranslator(self):
-		t = super(Evolver, self).requiredParametersTranslator()
+		t = super(Evolver, self).optionalParametersTranslator()
 		t['toString'].add('initialPopulationType')
 		return t
 
@@ -64,9 +87,13 @@ class Evolver(BaseEvolver):
 	def updatePopulation(self):
 		super(Evolver, self).updatePopulation()
 
+		print('updatePopulation called, pre-update done...')
+
 		if self.generation % self.params['fitnessParamsUpdatePeriod'] == 0:
+			print('Ultimate update attempted')
 			self._updatePopulationOfFitnessVariants()
 		else:
+			print('Simple update attempted')
 			self._updatePopulationsWithinFitnessVariants()
 
 	def _findBestErrorsForVariants(self):
@@ -88,12 +115,14 @@ class Evolver(BaseEvolver):
 				newPopulation.append(indiv)
 
 		while len(newPopulation) < self.params['populationSize']:
-			tournament = np.random.choice(self.population, size=2)
+			tournament = chooseTupleRandomly(self.population, size=2)
 			if tournament[0].getFitnessParams() != tournament[1].getFitnessParams():
 				continue
-			winner = deepcopy(np.random.choice(tournament, weights=[ RELATIVE_FITNESS_EPSILON-1.*self.getErrorFunc()(par) for par in tournament ]))
+			winner = deepcopy(chooseTupleRandomly(tournament, weights=[ RELATIVE_FITNESS_EPSILON-1.*self.getErrorFunc()(par) for par in tournament ]))
 			winner.mutate()
 			newPopulation.append(winner)
+
+		self.population = newPopulation
 
 	def _updatePopulationOfFitnessVariants(self):
 		for indiv in self.population:
@@ -103,8 +132,11 @@ class Evolver(BaseEvolver):
 			indiv.showFitnessParams()
 
 		fitnessVariantsErrors = self._findBestErrorsForVariants()
-		minUltimateError = min(fitnessVariantsFitnesses.values())
-		bestFitnessVariants = { fp for fp, mev in fitnessVariantsFitnesses if mev == minUltimateError }
+		print('fitness variants errors: {}'.format(repr(fitnessVariantsErrors)))
+		minUltimateError = min(fitnessVariantsErrors.values())
+		print('min ultimate error: {}'.format(minUltimateError))
+		bestFitnessVariants = list({ fp for fp, mev in fitnessVariantsErrors.items() if mev == minUltimateError })
+		print('best fitness variants: {}'.format(bestFitnessVariants))
 
 		newPopulation = []
 		newFitnessVariants = []
@@ -115,6 +147,8 @@ class Evolver(BaseEvolver):
 				dummyIndiv = self.getNewIndividual()
 				newVariant = dummyIndiv.getFitnessParams()
 				newFitnessVariants.append(newVariant)
+
+				print('i=0: adding new fitness variant {}'.format(newVariant))
 
 				for i in range(self.params['populationSize']/ngroups):
 					newIndiv = deepcopy(np.random.choice(self.population)) # not dependent on fitness, maybe fix
@@ -128,6 +162,8 @@ class Evolver(BaseEvolver):
 				eliteVariant = bestFitnessVariants[i-1]
 				newFitnessVariants.append(eliteVariant)
 
+				print('i={}: adding elite fitness variant {}'.format(i, eliteVariant))
+
 				for indiv in self.population:
 					if indiv.getFitnessParams() == eliteVariant:
 						newPopulation.append(indiv)
@@ -136,7 +172,9 @@ class Evolver(BaseEvolver):
 							break
 
 			else:
-				parent = np.random.choice(fitnessVariantsErrors.keys(), weights=[ ULTIMATE_FITNESS_EPSILON-1.*x for x in fitnessVariantsErrors.values() ])
+				weights = [ ULTIMATE_FITNESS_EPSILON-1.*x for x in fitnessVariantsErrors.values() ]
+				normalizingCoefs = 1./sum(weights)
+				parent = chooseTupleRandomly(fitnessVariantsErrors.keys(), weights=[ ULTIMATE_FITNESS_EPSILON-1.*x for x in fitnessVariantsErrors.values() ])
 				dummyIndiv = self.getNewIndividual()
 				dummyIndiv.setFitnessParams(parent)
 				dummyIndiv.mutateFitnessParams()
@@ -154,3 +192,5 @@ class Evolver(BaseEvolver):
 
 			if exitFlag:
 				break
+
+		self.population = newPopulation
