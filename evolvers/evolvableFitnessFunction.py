@@ -110,17 +110,18 @@ class Evolver(BaseEvolver):
 		newPopulation = []
 
 		fitnessVariantsErrors = self._findBestErrorsForVariants()
-		for indiv in self.population:
-			if fitnessVariantsErrors[indiv.getFitnessParams()] == self.getErrorFunc()(indiv):
-				newPopulation.append(indiv)
+		for vf, be in fitnessVariantsErrors.items():
+			curIndivs = [ indiv for indiv in self.population if indiv.getFitnessParams()==vf ]
+			numIndivs = len(curIndivs)
+			newIndivs = [ indiv for indiv in curIndivs if self.getErrorFunc()(indiv)==be ]
+			newIndivs = [ newIndivs[0] ] # comment out to keep all the bests... actually, don't
+			weights = [ self.getErrorFunc()(indiv) for indiv in curIndivs ]
+			while len(newIndivs) < numIndivs:
+				child = deepcopy(chooseTupleRandomly(curIndivs, weights=weights))
+				child.mutate()
+				newIndivs.append(child)
 
-		while len(newPopulation) < self.params['populationSize']:
-			tournament = chooseTupleRandomly(self.population, size=2)
-			if tournament[0].getFitnessParams() != tournament[1].getFitnessParams():
-				continue
-			winner = deepcopy(chooseTupleRandomly(tournament, weights=[ RELATIVE_FITNESS_EPSILON-1.*self.getErrorFunc()(par) for par in tournament ]))
-			winner.mutate()
-			newPopulation.append(winner)
+			newPopulation.extend(newIndivs)
 
 		self.population = newPopulation
 
