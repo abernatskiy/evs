@@ -175,18 +175,20 @@ class Evolver(BaseEvolver):
 			else:
 				weights = [ ULTIMATE_FITNESS_EPSILON-1.*x for x in fitnessVariantsErrors.values() ]
 				normalizingCoefs = 1./sum(weights)
-				parent = chooseTupleRandomly(fitnessVariantsErrors.keys(), weights=[ ULTIMATE_FITNESS_EPSILON-1.*x for x in fitnessVariantsErrors.values() ])
+				parent = chooseTupleRandomly(fitnessVariantsErrors.keys(), weights=weights)
 				dummyIndiv = self.getNewIndividual()
 				dummyIndiv.setFitnessParams(parent)
 				dummyIndiv.mutateFitnessParams()
 				child = dummyIndiv.getFitnessParams()
 				newFitnessVariants.append(child)
 
+				print('i={}: adding mutated fitness variant {} with parent {}'.format(i, child, parent))
+
 				for indiv in self.population:
 					if indiv.getFitnessParams() == parent:
 						newIndividual = deepcopy(indiv)
 						newIndividual.setFitnessParams(child)
-						newPopulation.append(newIndiv)
+						newPopulation.append(newIndividual)
 						if len(newPopulation) >= self.params['populationSize']:
 							exitFlag = True
 							break
