@@ -113,8 +113,14 @@ class Evolver(BaseEvolver):
 		for vf, be in fitnessVariantsErrors.items():
 			curIndivs = [ indiv for indiv in self.population if indiv.getFitnessParams()==vf ]
 			numIndivs = len(curIndivs)
-			newIndivs = [ indiv for indiv in curIndivs if self.getErrorFunc()(indiv)==be ]
-			newIndivs = [ newIndivs[0] ] # comment out to keep all the bests... actually, don't
+			fitnessVariantElite = [ indiv for indiv in curIndivs if self.getErrorFunc()(indiv)==be ]
+			ultimateFitnessElite = [ indiv for indiv in curIndivs if indiv.isAChampion() ]
+			# We want to keep the best individual according to the current fitness and the veteran that got the fitness variant through the ultimate update.
+			# Problem is, they might be the same individual! Or the veteran might not exist yet
+			newIndivs = [ fitnessVariantElite[0] ]
+			if len(ultimateFitnessElite)>0 and ultimateFitnessElite[0].id!=fitnessVariantElite[0].id:
+				newIndivs.append(ultimateFitnessElite[0])
+			# The rest of the population are offspring copied with errors
 			weights = [ self.getErrorFunc()(indiv) for indiv in curIndivs ]
 			while len(newIndivs) < numIndivs:
 				child = deepcopy(chooseTupleRandomly(curIndivs, weights=weights))
@@ -139,6 +145,14 @@ class Evolver(BaseEvolver):
 		bestFitnessVariants = list({ fp for fp, mev in fitnessVariantsErrors.items() if mev == minUltimateError })
 		print('best fitness variants: {}'.format(bestFitnessVariants))
 
+		# marking the future elite of ultimate fitness
+		for fp, mev in fitnessVariantsErrors.items():
+			for indiv in self.population:
+				if indiv.getFitnessParams() == fp and self.getErrorFunc()(indiv) == mev:
+					indiv.markAsChampion()
+					break
+
+		# doing the selection on the fitness variants
 		newPopulation = []
 		newFitnessVariants = []
 		ngroups = self.params['fitnessGroupsNumber']

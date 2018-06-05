@@ -9,6 +9,7 @@ class Individual(fleetIndiv):
 		super(Individual, self).__init__(params)
 		self.numFitnessParams = params['numFitnessParams']
 		self.fitnessParams = self._getInitialFitnessParams()
+		self.isAChampionOfUltimateFitness = False
 
 	def _getInitialFitnessParams(self):
 		return 2.**np.random.randint(-4, 5, size=self.numFitnessParams)
@@ -19,6 +20,7 @@ class Individual(fleetIndiv):
 	def setFitnessParams(self, newParams):
 		self.fitnessParams = deepcopy(np.array(newParams))
 		self.renewID()
+		self.isAChampionOfUltimateFitness =	False
 
 	def getFitnessParams(self):
 		return tuple(self.fitnessParams)
@@ -34,6 +36,7 @@ class Individual(fleetIndiv):
 		i = np.random.randint(self.numFitnessParams)
 		self.fitnessParams[i] = self.fitnessParams[i]*(2.**np.random.choice([-1,1]))
 		self.renewID()
+		self.isAChampionOfUltimateFitness =	False
 
 	def _getGenotypeStruct(self):
 		return {'fitnessCoefficients': list(self.fitnessParams), 'controller': super(Individual, self)._getGenotypeStruct()}
@@ -42,3 +45,13 @@ class Individual(fleetIndiv):
 		t = super(Individual, self).requiredParametersTranslator()
 		t['toInt'].update(['numFitnessParams'])
 		return t
+
+	def mutate(self):
+		self.isAChampionOfUltimateFitness =	False
+		return super(Individual, self).mutate()
+
+	def markAsChampion(self):
+		self.isAChampionOfUltimateFitness = True
+
+	def isAChampion(self):
+		return self.isAChampionOfUltimateFitness
