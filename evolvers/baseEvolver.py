@@ -239,14 +239,16 @@ class BaseEvolver(object):
 		return paretoFront
 
 	def findParetoFrontManyObjectives(self, funcs, breakTiesByIDs=True, population=None):
-		for indiv in self.population:
+		if population is None:
+			population = self.population
+		for indiv in population:
 			indiv.__dominated__ = False
-		for ii in self.population:
-			for ij in self.population:
+		for ii in population:
+			for ij in population:
 				if not ii is ij and firstDominatedBySecondManyObjectives(ii, ij, funcs):
 #				if not ii is ij and firstStochasticallyDominatedBySecondManyObjectives(ii, ij, funcs, self.params['secondObjectiveProbability']):
 					ii.__dominated__ = True
-		paretoFront = filter(lambda x: not x.__dominated__, self.population)
+		paretoFront = filter(lambda x: not x.__dominated__, population)
 		return paretoFront
 
 	def findStochasticalParetoFront(self, func0, func1):
