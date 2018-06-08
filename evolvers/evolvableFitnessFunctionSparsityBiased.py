@@ -114,7 +114,7 @@ class Evolver(BaseEvolver):
 			curIndivs = [ indiv for indiv in self.population if indiv.getFitnessParams()==vf ]
 			numIndivs = len(curIndivs)
  			fitnessVariantElite = self.findParetoFrontManyObjectives([self.getErrorFunc(), self.getConnectionCostFunc()], population=curIndivs)
-			print('{}: elite size is {}, subpopulation size {}, densities: {}'.format(vf, len(fitnessVariantElite), numIndivs, [ self.getConnectionCostFunc()(indiv) for indiv in fitnessVariantElite ]))
+			print('{}: elite size is {}, subpopulation size {}, densities: {}'.format(vf, len(fitnessVariantElite), numIndivs, sorted([ (self.getConnectionCostFunc()(indiv), self.getErrorFunc()(indiv)) for indiv in fitnessVariantElite ])))
 			ultimateFitnessElite = [ indiv for indiv in curIndivs if indiv.isAChampion() ]
 			# We want to keep the best individual according to the current fitness and the veteran that got the fitness variant through the ultimate update.
 			# Problem is, they might be the same individual! Or the veteran might not exist yet
