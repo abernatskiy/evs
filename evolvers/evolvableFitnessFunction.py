@@ -104,6 +104,17 @@ class Evolver(BaseEvolver):
 		fitnessVariantsFitnesses = { fp: min(ev) for fp, ev in fitnessVariantsDB.items() } # proportionality gets awkward if fitness is often zero...
 		return fitnessVariantsFitnesses
 
+	def _findFitnessVariantsElite(self, curIndivs):
+		numIndivs = len(curIndivs)
+		fitnessVariantElite = [ indiv for indiv in curIndivs if self.getErrorFunc()(indiv)==be ]
+		ultimateFitnessElite = [ indiv for indiv in curIndivs if indiv.isAChampion() ]
+		# We want to keep the best individual according to the current fitness and the veteran that got the fitness variant through the ultimate update.
+		# Problem is, they might be the same individual! Or the veteran might not exist yet
+		newIndivs = [ fitnessVariantElite[0] ]
+		if len(ultimateFitnessElite)>0 and ultimateFitnessElite[0].id!=fitnessVariantElite[0].id:
+			newIndivs.append(ultimateFitnessElite[0])
+		return newIndivs
+
 	def _updatePopulationsWithinFitnessVariants(self):
 		self.communicator.evaluate(self.population)
 
@@ -112,14 +123,8 @@ class Evolver(BaseEvolver):
 		fitnessVariantsErrors = self._findBestErrorsForVariants()
 		for vf, be in fitnessVariantsErrors.items():
 			curIndivs = [ indiv for indiv in self.population if indiv.getFitnessParams()==vf ]
-			numIndivs = len(curIndivs)
-			fitnessVariantElite = [ indiv for indiv in curIndivs if self.getErrorFunc()(indiv)==be ]
-			ultimateFitnessElite = [ indiv for indiv in curIndivs if indiv.isAChampion() ]
-			# We want to keep the best individual according to the current fitness and the veteran that got the fitness variant through the ultimate update.
-			# Problem is, they might be the same individual! Or the veteran might not exist yet
-			newIndivs = [ fitnessVariantElite[0] ]
-			if len(ultimateFitnessElite)>0 and ultimateFitnessElite[0].id!=fitnessVariantElite[0].id:
-				newIndivs.append(ultimateFitnessElite[0])
+			# Elite is made through a special reloadable method
+			newIndivs = self._findFitnessVariantsElite(curIndivs)
 			# The rest of the population are offspring copied with errors
 			weights = [ self.getErrorFunc()(indiv) for indiv in curIndivs ]
 			while len(newIndivs) < numIndivs:
