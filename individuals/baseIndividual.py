@@ -105,10 +105,13 @@ class BaseIndividual(object):
 
 	def setEvaluation(self, scoreStr):
 		valueStrings = scoreStr.split()
-		if len(valueStrings) != 2:
-			raise ValueError('Incorrectly formatted evaluation line')
+		if len(valueStrings) < 2:
+			raise ValueError('Incorrectly formatted evaluation line {}'.format(scoreStr))
 		if self.checkID(int(valueStrings[0])):
-			self.score = float(valueStrings[1])
+			self.scores = []
+			for scoreString in valueStrings[1:]:
+				self.scores.append(float(scoreString))
+			self.score = self.scores[0]
 
 	def noisifyScore(self, amplitude):
 		self.score += (np.random.random()*2-1)*amplitude
