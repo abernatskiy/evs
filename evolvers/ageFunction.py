@@ -34,7 +34,7 @@ class Evolver(BaseEvolver):
 			indiv.age = 0
 			indiv.setFitnessParams(initialFitnessVariant)
 
-		self.communicator.evaluate(self.population) # needed for records, will be repeated at the first update
+		self.communicator.evaluate(self.population)
 
 	def requiredParametersTranslator(self):
 		t = super(Evolver, self).requiredParametersTranslator()
@@ -86,7 +86,7 @@ class Evolver(BaseEvolver):
 
 		# Pareto front of the ultimate fitness vs the age is the elite
 		self._newPopulation = self.findParetoFrontManyObjectives([self.getUltimateErrorFunc(), self.getAgeFunc()])
-		print('Elite from ultimate fitness: ' + ' '.join(map(str, [ (self.getUltimateErrorFunc()(i), self.getAgeFunc()(i)) for i in self._newPopulation ])))
+		print('Elite from ultimate fitness: ' + ' '.join(map(str, [ (i.id, self.getUltimateErrorFunc()(i), self.getAgeFunc()(i)) for i in self._newPopulation ])))
 
 		# However, the selection within each lineage is guided by the current fitness
 		ages = [ self.getAgeFunc()(indiv) for indiv in self._newPopulation ]
@@ -97,16 +97,25 @@ class Evolver(BaseEvolver):
 		for la in lineages:
 			self._addLineageEliteToNewPopulation(la)
 
-		print('Added lineage elites. Total elite size is {} ({} of population size)'.format(len(self._newPopulation), len(self._newPopulation)/self.params['populationSize']))
+		print('Added lineage elites. Total elite size is {} ({} of population size)'.format(len(self._newPopulation), float(len(self._newPopulation))/self.params['populationSize']))
 		if(len(self._newPopulation)>=self.params['populationSize']):
 			raise ValueError('Elite size is no less than population size, exiting')
 
 		# ...and non-elitistic behavior
-		while len(newPopulation)<self.params['populationSize']:
+		while len(self._newPopulation)<self.params['populationSize']-1:
 			la = chooseTupleRandomly(lineages)
 			self._addLineageOffspringToNewPopulation(la)
 
+		# Finally, we need to increase age of existing lineages and add some new blood
+		for indiv in self._newPopulation:
+			indiv.age += 1
+		self._newPopulation.append(self.getNewIndividual())
+		self._newPopulation[-1].age = 0
+		print('Added a new lineage starting with individual {}'.format(self._newPopulation[-1].id))
+
 		self.population = self._newPopulation
+
+		self.communicator.evaluate(self.population)
 
 	def _addLineageEliteToNewPopulation(self, lineage):
 		bestCurrentError = min([ self.getCurrentErrorFunc()(indiv) for indiv in lineage ])
@@ -123,7 +132,7 @@ class Evolver(BaseEvolver):
 
 	def _addLineageOffspringToNewPopulation(self, lineage):
 		weights = [ RELATIVE_FITNESS_EPSILON+self.getCurrentErrorFunc()(indiv) for indiv in lineage ]
-		newIndiv = deepcopy(chooseTupleRandomly(lineage), weights=weights)
+		newIndiv = deepcopy(chooseTupleRandomly(lineage, weights=weights))
 		if newIndiv.mutate():
 			self._newPopulation.append(newIndiv)
-			print('Added new offspring {} of lineage {}'.format(newIndiv.id, self.getAgeFunc()(lineage)) )
+			print('Added new offspring {} of lineage {}'.format(newIndiv.id, self.getAgeFunc()(lineage[0])) )
