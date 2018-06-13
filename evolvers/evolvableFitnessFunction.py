@@ -104,9 +104,9 @@ class Evolver(BaseEvolver):
 		fitnessVariantsFitnesses = { fp: min(ev) for fp, ev in fitnessVariantsDB.items() } # proportionality gets awkward if fitness is often zero...
 		return fitnessVariantsFitnesses
 
-	def _findFitnessVariantsElite(self, curIndivs):
+	def _findFitnessVariantsElite(self, curIndivs, bestError):
 		numIndivs = len(curIndivs)
-		fitnessVariantElite = [ indiv for indiv in curIndivs if self.getErrorFunc()(indiv)==be ]
+		fitnessVariantElite = [ indiv for indiv in curIndivs if self.getErrorFunc()(indiv)==bestError ]
 		ultimateFitnessElite = [ indiv for indiv in curIndivs if indiv.isAChampion() ]
 		# We want to keep the best individual according to the current fitness and the veteran that got the fitness variant through the ultimate update.
 		# Problem is, they might be the same individual! Or the veteran might not exist yet
@@ -124,7 +124,7 @@ class Evolver(BaseEvolver):
 		for vf, be in fitnessVariantsErrors.items():
 			curIndivs = [ indiv for indiv in self.population if indiv.getFitnessParams()==vf ]
 			# Elite is made through a special reloadable method
-			newIndivs = self._findFitnessVariantsElite(curIndivs)
+			newIndivs = self._findFitnessVariantsElite(curIndivs, be)
 			# The rest of the population are offspring copied with errors
 			weights = [ self.getErrorFunc()(indiv) for indiv in curIndivs ]
 			while len(newIndivs) < numIndivs:

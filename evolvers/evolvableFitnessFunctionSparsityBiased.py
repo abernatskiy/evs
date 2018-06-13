@@ -1,7 +1,7 @@
 from evolvableFitnessFunction import Evolver as EFFEvolver
 
 class Evolver(EFFEvolver):
-	def _findFitnessVariantsElite(self, curIndivs):
+	def _findFitnessVariantsElite(self, curIndivs, bestError):
 		numIndivs = len(curIndivs)
 		fitnessVariantElite = self.findParetoFrontManyObjectives([self.getErrorFunc(), self.getConnectionCostFunc()], population=curIndivs)
 		print('{}: elite size is {}, subpopulation size {}, densities: {}'.format(vf, len(fitnessVariantElite), numIndivs, sorted([ (self.getConnectionCostFunc()(indiv), self.getErrorFunc()(indiv)) for indiv in fitnessVariantElite ])))
