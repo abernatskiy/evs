@@ -22,6 +22,7 @@ class Evolver(BaseEvolver):
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName=None):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
 		self.setParamDefault('initialPopulationType', 'random')
+		self.setParamDefault('lineageInjectionPeriod', 50)
 
 		while len(self.population) < self.params['populationSize']:
 			indiv = self.getNewIndividual()
@@ -44,6 +45,7 @@ class Evolver(BaseEvolver):
 	def optionalParametersTranslator(self):
 		t = super(Evolver, self).optionalParametersTranslator()
 		t['toString'].add('initialPopulationType')
+		t['toInt'].add('lineageInjectionPeriod')
 		return t
 
 	def getRandomIndividual(self):
@@ -106,12 +108,18 @@ class Evolver(BaseEvolver):
 			la = chooseTupleRandomly(lineages)
 			self._addLineageOffspringToNewPopulation(la)
 
-		# Finally, we need to increase age of existing lineages and add some new blood
+		newLineageNeeded = ( self.generation%self.params['lineageInjectionPeriod'] == 0 )
+		if not newLineageNeeded:
+			la = chooseTupleRandomly(lineages)
+			self._addLineageOffspringToNewPopulation(la)
+
+		# Finally, we need to increase age of existing lineages and, if needed, add some new blood
 		for indiv in self._newPopulation:
 			indiv.age += 1
-		self._newPopulation.append(self.getNewIndividual())
-		self._newPopulation[-1].age = 0
-		print('Added a new lineage starting with individual {}'.format(self._newPopulation[-1].id))
+		if newLineageNeeded:
+			self._newPopulation.append(self.getNewIndividual())
+			self._newPopulation[-1].age = 0
+			print('Added a new lineage starting with individual {}'.format(self._newPopulation[-1].id))
 
 		self.population = self._newPopulation
 
