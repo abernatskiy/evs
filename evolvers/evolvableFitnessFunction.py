@@ -123,6 +123,7 @@ class Evolver(BaseEvolver):
 		fitnessVariantsErrors = self._findBestErrorsForVariants()
 		for vf, be in fitnessVariantsErrors.items():
 			curIndivs = [ indiv for indiv in self.population if indiv.getFitnessParams()==vf ]
+			numIndivs = len(curIndivs)
 			# Elite is made through a special reloadable method
 			newIndivs = self._findFitnessVariantsElite(curIndivs, be)
 			# The rest of the population are offspring copied with errors
