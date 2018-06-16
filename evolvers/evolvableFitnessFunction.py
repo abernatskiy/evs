@@ -127,7 +127,7 @@ class Evolver(BaseEvolver):
 			# Elite is made through a special reloadable method
 			newIndivs = self._findFitnessVariantsElite(curIndivs, be)
 			# The rest of the population are offspring copied with errors
-			weights = [ self.getErrorFunc()(indiv) for indiv in curIndivs ]
+			weights = [ RELATIVE_FITNESS_EPSILON - self.getErrorFunc()(indiv) for indiv in curIndivs ]
 			while len(newIndivs) < numIndivs:
 				child = deepcopy(chooseTupleRandomly(curIndivs, weights=weights))
 				child.mutate()
@@ -193,7 +193,7 @@ class Evolver(BaseEvolver):
 							break
 
 			else:
-				weights = [ ULTIMATE_FITNESS_EPSILON-1.*x for x in fitnessVariantsErrors.values() ]
+				weights = [ ULTIMATE_FITNESS_EPSILON - x for x in fitnessVariantsErrors.values() ]
 				normalizingCoefs = 1./sum(weights)
 				parent = chooseTupleRandomly(fitnessVariantsErrors.keys(), weights=weights)
 				dummyIndiv = self.getNewIndividual()
