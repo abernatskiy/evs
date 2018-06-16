@@ -12,6 +12,11 @@ def chooseTupleRandomly(iterableTuple, size=None, weights=None):
 	else:
 		norm = sum(weights)
 		normalized_p = [ x/norm for x in weights ]
+
+	# Debug exception
+	if not normalized_p is None and any([ p<0 for p in normalized_p ]):
+		raise RuntimeError('Found a negative tuple weight in {} (non-normalized {})'.format(normalized_p, weights))
+
 	idxs = np.random.choice(range(numTuples), size=size, p=normalized_p)
 	if size is None:
 		return tupleList[idxs]
@@ -139,7 +144,7 @@ class Evolver(BaseEvolver):
 			print('Added lineage best indiv {} to the elite'.format(bestIndiv.id))
 
 	def _addLineageOffspringToNewPopulation(self, lineage):
-		weights = [ RELATIVE_FITNESS_EPSILON+self.getCurrentErrorFunc()(indiv) for indiv in lineage ]
+		weights = [ -RELATIVE_FITNESS_EPSILON+self.getCurrentErrorFunc()(indiv) for indiv in lineage ]
 		newIndiv = deepcopy(chooseTupleRandomly(lineage, weights=weights))
 		if newIndiv.mutate():
 			self._newPopulation.append(newIndiv)
