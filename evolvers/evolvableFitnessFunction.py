@@ -109,7 +109,7 @@ class Evolver(BaseEvolver):
 		fitnessVariantsFitnesses = { fp: min(ev) for fp, ev in fitnessVariantsDB.items() } # proportionality gets awkward if fitness is often zero...
 		return fitnessVariantsFitnesses
 
-	def _findFitnessVariantsElite(self, curIndivs, bestError):
+	def _findFitnessVariantsElite(self, curIndivs, fitnessVariant, bestError):
 		numIndivs = len(curIndivs)
 		fitnessVariantElite = [ indiv for indiv in curIndivs if self.getErrorFunc()(indiv)==bestError ]
 		ultimateFitnessElite = [ indiv for indiv in curIndivs if indiv.isAChampion() ]
@@ -130,7 +130,7 @@ class Evolver(BaseEvolver):
 			curIndivs = [ indiv for indiv in self.population if indiv.getFitnessParams()==vf ]
 			numIndivs = len(curIndivs)
 			# Elite is made through a special reloadable method
-			newIndivs = self._findFitnessVariantsElite(curIndivs, be)
+			newIndivs = self._findFitnessVariantsElite(curIndivs, vf, be)
 			# The rest of the population are offspring copied with errors
 			weights = [ RELATIVE_FITNESS_EPSILON - self.getErrorFunc()(indiv) for indiv in curIndivs ]
 			while len(newIndivs) < numIndivs:
