@@ -80,8 +80,11 @@ class Evolver(BaseEvolver):
 		self.secondObjectiveLabel = 'connection cost'
 		return lambda x: x.connectionCost()
 
-	def getErrorFunc(self):
-		return lambda x: -1.*x.score
+	def getUltimateErrorFunc(self):
+		return lambda x: -1.*x.scores[0]
+
+	def getCurrentErrorFunc(self):
+		return lambda x: -1.*x.scores[1]
 
 	def getCluneParetoFront(self, subpop):
 		raise NotImplementedError
@@ -101,17 +104,17 @@ class Evolver(BaseEvolver):
 			print('Simple update attempted')
 			self._updatePopulationsWithinFitnessVariants()
 
-	def _findBestErrorsForVariants(self):
+	def _findBestErrorsForVariants(self, errorFunc):
 		fitnessVariantsDB = { indiv.getFitnessParams(): [] for indiv in self.population } # automatic uniquification here
 		for indiv in self.population:
-			fitnessVariantsDB[indiv.getFitnessParams()].append(self.getErrorFunc()(indiv))
+			fitnessVariantsDB[indiv.getFitnessParams()].append(errorFunc(indiv))
 
 		fitnessVariantsFitnesses = { fp: min(ev) for fp, ev in fitnessVariantsDB.items() } # proportionality gets awkward if fitness is often zero...
 		return fitnessVariantsFitnesses
 
 	def _findFitnessVariantsElite(self, curIndivs, fitnessVariant, bestError):
 		numIndivs = len(curIndivs)
-		fitnessVariantElite = [ indiv for indiv in curIndivs if self.getErrorFunc()(indiv)==bestError ]
+		fitnessVariantElite = [ indiv for indiv in curIndivs if self.getCurrentErrorFunc()(indiv)==bestError ]
 		ultimateFitnessElite = [ indiv for indiv in curIndivs if indiv.isAChampion() ]
 		# We want to keep the best individual according to the current fitness and the veteran that got the fitness variant through the ultimate update.
 		# Problem is, they might be the same individual! Or the veteran might not exist yet
@@ -125,14 +128,14 @@ class Evolver(BaseEvolver):
 
 		newPopulation = []
 
-		fitnessVariantsErrors = self._findBestErrorsForVariants()
+		fitnessVariantsErrors = self._findBestErrorsForVariants(self.getCurrentErrorFunc())
 		for vf, be in fitnessVariantsErrors.items():
 			curIndivs = [ indiv for indiv in self.population if indiv.getFitnessParams()==vf ]
 			numIndivs = len(curIndivs)
 			# Elite is made through a special reloadable method
 			newIndivs = self._findFitnessVariantsElite(curIndivs, vf, be)
 			# The rest of the population are offspring copied with errors
-			weights = [ RELATIVE_FITNESS_EPSILON - self.getErrorFunc()(indiv) for indiv in curIndivs ]
+			weights = [ RELATIVE_FITNESS_EPSILON - self.getCurrentErrorFunc()(indiv) for indiv in curIndivs ]
 			while len(newIndivs) < numIndivs:
 				child = deepcopy(chooseTupleRandomly(curIndivs, weights=weights))
 				child.mutate()
@@ -143,13 +146,9 @@ class Evolver(BaseEvolver):
 		self.population = newPopulation
 
 	def _updatePopulationOfFitnessVariants(self):
-		for indiv in self.population:
-			indiv.hideFitnessParams()
 		self.communicator.evaluate(self.population)
-		for indiv in self.population:
-			indiv.showFitnessParams()
 
-		fitnessVariantsErrors = self._findBestErrorsForVariants()
+		fitnessVariantsErrors = self._findBestErrorsForVariants(self.getUltimateErrorFunc())
 		print('fitness variants errors: {}'.format(repr(fitnessVariantsErrors)))
 		minUltimateError = min(fitnessVariantsErrors.values())
 		print('min ultimate error: {}'.format(minUltimateError))
@@ -159,7 +158,7 @@ class Evolver(BaseEvolver):
 		# marking the future elite of ultimate fitness
 		for fp, mev in fitnessVariantsErrors.items():
 			for indiv in self.population:
-				if indiv.getFitnessParams() == fp and self.getErrorFunc()(indiv) == mev:
+				if indiv.getFitnessParams() == fp and self.getUltimateErrorFunc()(indiv) == mev:
 					indiv.markAsChampion()
 					break
 
