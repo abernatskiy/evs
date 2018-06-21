@@ -28,6 +28,9 @@ class Evolver(BaseEvolver):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
 		self.setParamDefault('initialPopulationType', 'random')
 		self.setParamDefault('lineageInjectionPeriod', 50)
+		self.setParamDefault('mutatedLineagesFraction', 0.)
+
+		self._mutatedLineageNeeded = 0.
 
 		while len(self.population) < self.params['populationSize']:
 			indiv = self.getNewIndividual()
@@ -51,6 +54,7 @@ class Evolver(BaseEvolver):
 		t = super(Evolver, self).optionalParametersTranslator()
 		t['toString'].add('initialPopulationType')
 		t['toInt'].add('lineageInjectionPeriod')
+		t['toFloat'].add('mutatedLineagesFraction')
 		return t
 
 	def getRandomIndividual(self):
@@ -122,26 +126,44 @@ class Evolver(BaseEvolver):
 		for indiv in self._newPopulation:
 			indiv.age += 1
 		if newLineageNeeded:
-			self._newPopulation.append(self.getNewIndividual())
-			self._newPopulation[-1].age = 0
-			print('Added a new lineage starting with individual {}'.format(self._newPopulation[-1].id))
+			if self._mutatedLineageNeeded < 1.:
+				self._addNewLineageToNewPopulation(lineages)
+				self._mutatedLineageNeeded += self.params['mutatedLineagesFraction']
+			else:
+				self._addMutatedLineageToNewPopulation(lineages)
+				self._mutatedLineageNeeded -= 1.
 
 		self.population = self._newPopulation
 
 		self.communicator.evaluate(self.population)
 
-	def _addLineageEliteToNewPopulation(self, lineage):
-		bestCurrentError = min([ self.getCurrentErrorFunc()(indiv) for indiv in lineage ])
-		bestIndivs = sorted([ indiv for indiv in lineage if self.getCurrentErrorFunc()(indiv)==bestCurrentError ], key=lambda x: x.id, reverse=True)
-		bestIndiv = bestIndivs[0]
-		print('Considering the elite indiv of lineage {}. Best error based on current func is {}. There are {} indivs with this error'.format(self.getAgeFunc()(lineage[0]), bestCurrentError, len(bestIndivs)))
+	def _addNewLineageToNewPopulation(self, lineages):
+		# the argument is ignored for now - will be used later in realoads by daughter classes
+		self._newPopulation.append(self.getNewIndividual())
+		self._newPopulation[-1].age = 0
+		print('Added a new lineage starting with individual {}'.format(self._newPopulation[-1].id))
 
+	def _addMutatedLineageToNewPopulation(self, lineages):
+		la = chooseTupleRandomly(lineages)
+		weights = [ -RELATIVE_FITNESS_EPSILON+self.getCurrentErrorFunc()(indiv) for indiv in la ]
+		sample = deepcopy(chooseTupleRandomly(la, weights=weights))
+		sample.mutateFitnessParams()
+		self._newPopulation
+
+	def _addEliteIndiv(self, bestIndiv):
 		currentEliteIDs = [ indiv.id for indiv in self._newPopulation ]
 		if bestIndiv.id in currentEliteIDs:
 			print('Not adding the best indiv {}, it is already in the elite'.format(bestIndiv.id))
 		else:
 			self._newPopulation.append(bestIndiv)
 			print('Added lineage best indiv {} to the elite'.format(bestIndiv.id))
+
+	def _addLineageEliteToNewPopulation(self, lineage):
+		bestCurrentError = min([ self.getCurrentErrorFunc()(indiv) for indiv in lineage ])
+		bestIndivs = sorted([ indiv for indiv in lineage if self.getCurrentErrorFunc()(indiv)==bestCurrentError ], key=lambda x: x.id, reverse=True)
+		bestIndiv = bestIndivs[0]
+		print('Considering the elite indiv of lineage {}. Best error based on current func is {}. There are {} indivs with this error'.format(self.getAgeFunc()(lineage[0]), bestCurrentError, len(bestIndivs)))
+		self._addEliteIndiv(bestIndiv)
 
 	def _addLineageOffspringToNewPopulation(self, lineage):
 		weights = [ -RELATIVE_FITNESS_EPSILON+self.getCurrentErrorFunc()(indiv) for indiv in lineage ]
