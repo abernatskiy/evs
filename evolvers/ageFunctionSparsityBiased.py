@@ -11,15 +11,15 @@ class Evolver(AFEvolver):
 		objectives = [self.getCurrentErrorFunc(), self.getConnectionCostFunc()]
 		pccFront = self.findParetoFrontManyObjectives(objectives, breakTiesByIDs=True, population=lineage)
 		print('Current performance-connection cost Pareto front found and added to the elite')
-		print('Front size {}, structure {}'.format(len(pccFront), [ (objective[0](x), objective[1](x)) for x in pccFront ]))
+		print('Front size {}, structure {}'.format(len(pccFront), [ (objectives[0](x), objectives[1](x)) for x in pccFront ]))
 		for indiv in pccFront:
 			self._addEliteIndiv(indiv)
 
 	def _addLineageOffspringToNewPopulation(self, lineage):
 		objectives = [self.getCurrentErrorFunc(), self.getConnectionCostFunc()]
 		pccFront = self.findParetoFrontManyObjectives(objectives, breakTiesByIDs=True, population=lineage)
-		print('Current performance-connection cost Pareto front of size {} is found. Selecting a parent for reproduction...')
-		parent = chooseTupleRandomly(pccFront))
+		print('Current performance-connection cost Pareto front of size {} is found. Selecting a parent for reproduction...'.format(len(pccFront)))
+		parent = chooseTupleRandomly(pccFront)
 		newIndiv = deepcopy(parent)
 		if newIndiv.mutate():
 			self._newPopulation.append(newIndiv)
