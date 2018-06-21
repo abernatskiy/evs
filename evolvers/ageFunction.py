@@ -147,9 +147,11 @@ class Evolver(BaseEvolver):
 		la = chooseTupleRandomly(lineages)
 		weights = [ -RELATIVE_FITNESS_EPSILON+self.getCurrentErrorFunc()(indiv) for indiv in la ]
 		sample = deepcopy(chooseTupleRandomly(la, weights=weights))
+		oldLineage = sample.age
 		sample.mutateFitnessParams()
 		sample.age = 0
 		self._newPopulation.append(sample)
+		print('Added a lineage with mutated fitness funciton starting with individual {} (offspring of lineage {})'.format(self._newPopulation[-1].id, oldLineage))
 
 	def _addEliteIndiv(self, bestIndiv):
 		currentEliteIDs = [ indiv.id for indiv in self._newPopulation ]
