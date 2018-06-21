@@ -148,7 +148,8 @@ class Evolver(BaseEvolver):
 		weights = [ -RELATIVE_FITNESS_EPSILON+self.getCurrentErrorFunc()(indiv) for indiv in la ]
 		sample = deepcopy(chooseTupleRandomly(la, weights=weights))
 		sample.mutateFitnessParams()
-		self._newPopulation
+		sample.age = 0
+		self._newPopulation.append(sample)
 
 	def _addEliteIndiv(self, bestIndiv):
 		currentEliteIDs = [ indiv.id for indiv in self._newPopulation ]
