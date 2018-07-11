@@ -11,7 +11,10 @@ def chooseTupleRandomly(iterableTuple, size=None, weights=None):
 		normalized_p = None
 	else:
 		norm = sum(weights)
-		normalized_p = [ x/norm for x in weights ]
+		if norm != 0.:
+			normalized_p = [ x/norm for x in weights ]
+		else:
+			normalized_p = [ 1./len(weights) for _ in weights ]
 
 	# Debug exception
 	if not normalized_p is None and any([ p<0 for p in normalized_p ]):

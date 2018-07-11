@@ -1,28 +1,10 @@
 import numpy as np
 from copy import deepcopy
 from baseEvolver import BaseEvolver
+from ageFunction import chooseTupleRandomly
 
 ULTIMATE_FITNESS_EPSILON = 1.
 RELATIVE_FITNESS_EPSILON = 1.
-
-def chooseTupleRandomly(iterableTuple, size=None, weights=None):
-	tupleList = list(iterableTuple)
-	numTuples = len(tupleList)
-	if weights is None:
-		normalized_p = None
-	else:
-		norm = sum(weights)
-		normalized_p = [ x/norm for x in weights ]
-
-	# Debug exception
-	if not normalized_p is None and any([ p<0 for p in normalized_p ]):
-		raise RuntimeError('Found a negative tuple weight in {} (non-normalized {})'.format(normalized_p, weights))
-
-	idxs = np.random.choice(range(numTuples), size=size, p=normalized_p)
-	if size is None:
-		return tupleList[idxs]
-	else:
-		return [ tupleList[i] for i in idxs ]
 
 class Evolver(BaseEvolver):
 	def __init__(self, communicator, indivParams, evolParams, initialPopulationFileName=None):
