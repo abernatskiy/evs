@@ -183,7 +183,7 @@ class BaseEvolver(object):
 	def _printBestIndividual(self):
 		if not self._shouldIRunAPeriodicFunctionNow('printBestIndividual'):
 			return
-		bestIndiv = self.population[-1]
+		bestIndiv = self._getBestIndividual()
 		print 'Best individual: ' + str(bestIndiv) + ' score: ' + str(bestIndiv.score)
 
 	def _printPopulation(self):
@@ -273,7 +273,7 @@ class BaseEvolver(object):
 		if filename is None:
 			filename = 'bestIndividual' + str(self.params['randomSeed']) + '.log'
 		self._bestIndividualLogFileName = filename
-		bestIndiv = self.population[-1]
+		bestIndiv = self._getBestIndividual()
 		if self.logHeaderWritten:
 			with open(filename, 'a') as logFile:
 				logFile.write(str(self.generation) + ' ' + afpr(bestIndiv.score) + ' ' + str(bestIndiv) + '\n')
@@ -409,3 +409,5 @@ class BaseEvolver(object):
 		if self.globalGenerationCounterRequired():
 			__builtin__.globalGenerationCounter = self.generation
 
+	def _getBestIndividual(self):
+		return self.population[-1]

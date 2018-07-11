@@ -177,3 +177,12 @@ class Evolver(BaseEvolver):
 		if newIndiv.mutate():
 			self._newPopulation.append(newIndiv)
 			print('Added new offspring {} of lineage {}'.format(newIndiv.id, self.getAgeFunc()(lineage[0])) )
+
+	def _getBestIndividual(self):
+		bestError = self.getUltimateErrorFunc()(self.population[0])
+		bestIndiv = self.population[0]
+		for indiv in self.population:
+			if self.getUltimateErrorFunc()(indiv) < bestError:
+				bestError = self.getUltimateErrorFunc()(indiv)
+				bestIndiv = indiv
+		return bestIndiv

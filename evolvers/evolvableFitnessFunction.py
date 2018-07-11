@@ -203,3 +203,12 @@ class Evolver(BaseEvolver):
 				break
 
 		self.population = newPopulation
+
+	def _getBestIndividual(self):
+		bestError = self.getUltimateErrorFunc()(self.population[0])
+		bestIndiv = self.population[0]
+		for indiv in self.population:
+			if self.getUltimateErrorFunc()(indiv) < bestError:
+				bestError = self.getUltimateErrorFunc()(indiv)
+				bestIndiv = indiv
+		return bestIndiv
