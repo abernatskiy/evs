@@ -31,7 +31,8 @@ class Evolver(BaseEvolver):
 		super(Evolver, self).__init__(communicator, indivParams, evolParams, initialPopulationFileName=initialPopulationFileName)
 		self.setParamDefault('initialPopulationType', 'random')
 		self.setParamDefault('lineageInjectionPeriod', 50)
-		self.setParamDefault('mutatedLineagesFraction', 0.)
+		self.setParamDefault('mutatedLineagesRatio', 0.)
+		self.setParamDefault('lineageMutationType', 'individualClassDefault')
 
 		self._mutatedLineageNeeded = 0.
 
@@ -57,7 +58,8 @@ class Evolver(BaseEvolver):
 		t = super(Evolver, self).optionalParametersTranslator()
 		t['toString'].add('initialPopulationType')
 		t['toInt'].add('lineageInjectionPeriod')
-		t['toFloat'].add('mutatedLineagesFraction')
+		t['toFloat'].add('mutatedLineagesRatio')
+		t['toString'].add('lineageMutationType')
 		return t
 
 	def getRandomIndividual(self):
@@ -131,7 +133,7 @@ class Evolver(BaseEvolver):
 		if newLineageNeeded:
 			if self._mutatedLineageNeeded < 1.:
 				self._addNewLineageToNewPopulation(lineages)
-				self._mutatedLineageNeeded += self.params['mutatedLineagesFraction']
+				self._mutatedLineageNeeded += self.params['mutatedLineagesRatio']
 			else:
 				self._addMutatedLineageToNewPopulation(lineages)
 				self._mutatedLineageNeeded -= 1.
@@ -151,7 +153,14 @@ class Evolver(BaseEvolver):
 		weights = [ -RELATIVE_FITNESS_EPSILON+self.getCurrentErrorFunc()(indiv) for indiv in la ]
 		sample = deepcopy(chooseTupleRandomly(la, weights=weights))
 		oldLineage = sample.age
-		sample.mutateFitnessParams()
+		if self.params['lineageMutationType'] == 'individualClassDefault':
+			print('Evolvable fitness is mutated!')
+			sample.mutateFitnessParams()
+		elif self.params['lineageMutationType'] == 'randomJump':
+			print('Evolvable fitness undergoes a random jump!')
+			dummy = self.getNewIndividual()
+			dfitnessparams = dummy.getFitnessParams()
+			sample.setFitnessParams(dfitnessparams)
 		sample.age = 0
 		self._newPopulation.append(sample)
 		print('Added a lineage with mutated fitness funciton starting with individual {} (offspring of lineage {})'.format(self._newPopulation[-1].id, oldLineage))
